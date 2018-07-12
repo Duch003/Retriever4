@@ -55,6 +55,7 @@
     <Compile Include="Classes\Container.cs" />
     <Compile Include="DrawingAtConsole.cs" />
     <Compile Include="Enums\DeviceManager.cs" />
+    <Compile Include="Enums\OS.cs" />
     <Compile Include="Enums\ProgramSection.cs" />
     <Compile Include="Enums\SecureBoot.cs" />
     <Compile Include="Classes\Location.cs" />

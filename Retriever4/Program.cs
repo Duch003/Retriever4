@@ -1413,11 +1413,5 @@ namespace Retriever4
         #endregion
     }
 
-    public enum OS : byte
-    {
-        None,
-        Windows10,
-        Windows8_1,
-        Windows8
-    }
+    
 }

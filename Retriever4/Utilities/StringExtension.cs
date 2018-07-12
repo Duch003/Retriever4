@@ -59,5 +59,13 @@ namespace Retriever4.Utilities
                 }
             return s;
         }
+
+        public static string JoinArray(this string[] arr)
+        {
+            string merged = "";
+            for (int i = 0; i < arr.Length; i++)
+                merged += arr[i] + " ";
+            return merged;
+        }
     }
 }
