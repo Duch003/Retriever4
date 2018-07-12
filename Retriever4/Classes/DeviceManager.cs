@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Retriever4.Enums;
 
-namespace Retriever4
+namespace Retriever4.Classes
 {
     public static class ConfigManagerErrorDescription
     {
@@ -79,41 +76,5 @@ namespace Retriever4
                     return "The cake is a lie.";
             }
         }
-
-    }
-    public enum DeviceManagerErrorCode : byte
-    {
-        Err0,
-        Err1,
-        Err2,
-        Err3,
-        Err4,
-        Err5,
-        Err6,
-        Err7,
-        Err8,
-        Err9,
-        Err10,
-        Err11,
-        Err12,
-        Err13,
-        Err14,
-        Err15,
-        Err16,
-        Err17,
-        Err18,
-        Err19,
-        Err20,
-        Err21,
-        Err22,
-        Err23,
-        Err24,
-        Err25,
-        Err26,
-        Err27,
-        Err28,
-        Err29,
-        Err30,
-        Err31,
     }
 }

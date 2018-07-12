@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Retriever4.Classes;
+using Retriever4.Enums;
+using Retriever4.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -19,7 +22,7 @@ namespace Retriever4
 
         static void Main(string[] args)
         {
-            Console.SetWindowSize(84, Console.LargestWindowHeight);
+            Console.SetWindowSize(84, Console.LargestWindowHeight - 10);
             Console.SetBufferSize(84, 200);
 
             string tempLine = "";
@@ -423,13 +426,13 @@ namespace Retriever4
                 string[] message = new string[0];
                 if (task.HiddenConstant == null)
                 {
-                    message = ExpandArr.Expand(message);
+                    message.Expand();
                     message[message.Length - 1] = "\n         Nie znaleziono plików swconf.dat na urządzeniu; ";
                     switch0 = false;
                 }
                 if (task.DatabaseResult == null || task.DatabaseResult?.ToString().Length == 0)
                 {
-                    message = ExpandArr.Expand(message);
+                    message.Expand();
                     message[message.Length - 1] = "\n         Brak SWM w bazie danych";
                     switch0 = false;
                 }
@@ -520,7 +523,7 @@ namespace Retriever4
                         var tempCC = tempCC_IEnumerable.ToArray();
                         for (int i = 0; i < tempCC.Count(); i++)
                         {
-                            fullChargeCapacity = ExpandArr.Expand(fullChargeCapacity);
+                            fullChargeCapacity.Expand();
                             if (tempCC[i] == null)
                             {
                                 fullChargeCapacity[i] = 0;
@@ -775,7 +778,7 @@ namespace Retriever4
                     dbSize = Retriever.ReadDetailsFromDatabase(Config.Filepath, Config.Filename, task.Table, _model.DBRow, (int)task.Column);
                     for (int i = 0; i < tempRealSize.Length; i++)
                     {
-                        realSize = ExpandArr.Expand(realSize);
+                        realSize.Expand();
                         if (!ulong.TryParse(tempRealSize[i].ToString(), out realSize[i]))
                         {
                             string message = $"Błąd po wykonaniu zapytania WMI: \"{task.Query}\". Właściwość {task.Property} zwróciła wartość inną niż {typeof(ulong)}: {tempRealSize.ToString()}";
@@ -820,7 +823,7 @@ namespace Retriever4
                     var tempRealSize = Retriever.ReadArrayFromComputer(task.Query, task.Property, task.Scope).ToArray();
                     for (int i = 0; i < tempRealSize.Length; i++)
                     {
-                        realSize = ExpandArr.Expand(realSize);
+                        realSize.Expand();
                         if (!ulong.TryParse(tempRealSize[i].ToString(), out realSize[i]))
                         {
                             string message = $"Błąd po wykonaniu zapytania WMI: \"{task.Query}\". Właściwość {task.Property} zwróciła wartość {tempRealSize[i].ToString()}";
@@ -838,7 +841,7 @@ namespace Retriever4
                         var tempDbSizeValue = splitedDbSize[i].RemoveLetters().Replace(',', '.').RemoveWhiteSpaces();
                         if (string.IsNullOrEmpty(tempDbSizeValue))
                             continue;
-                        dbSize = ExpandArr.Expand(dbSize);
+                        dbSize.Expand();
                         if (!double.TryParse(tempDbSizeValue, out dbSize[i]))
                         {
                             string message = $"Błąd po wykonaniu zapytania WMI: \"{task.Query}\". Właściwość {task.Property} zwróciła wartość {tempDbSizeValue.ToString()}, {splitedDbSize[i]}.";
@@ -878,8 +881,8 @@ namespace Retriever4
                         {
                             PrintSection("Dyski twarde", convertedValue + " GB", dbSize[j - 1] + " GB", ConsoleColor.Green, switch0);
                             switch0 = true;
-                            dbSize = ExpandArr.RemoveIndexAndShrink(dbSize, j - 1);
-                            realSize = ExpandArr.RemoveIndexAndShrink(realSize, i - 1);
+                            dbSize.RemoveIndexAndShrink(j - 1);
+                            realSize.RemoveIndexAndShrink(i - 1);
                             break;
                         }
                     }

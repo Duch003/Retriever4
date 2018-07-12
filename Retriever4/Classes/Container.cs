@@ -1,25 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Retriever4.Enums;
 
 namespace Retriever4
 {
-    public enum ProgramSection : byte
-    {
-        New,
-        OS,
-        SWM,
-        WearLevel,
-        CPU,
-        Mainboard,
-        Bios,
-        RAM,
-        Storage,
-        Shipping,
-        MainboardModel
-    }
-
     public class Container
     {
         public ProgramSection? Section = null;
@@ -73,46 +55,6 @@ namespace Retriever4
             }
 
             return result;
-        }
-
-        public bool StringsContains(string a, string b)
-        {
-            return b.Contains(a) || a.Contains(b);
-        }
-
-        public bool StringsEquals(string a, string b)
-        {
-            return a.Equals(b);
-        }
-
-        public bool NotNullOrEmpty(string a)
-        {
-            return !string.IsNullOrEmpty(a);
-        }
-
-        public bool NumbersEquals(double a, double b)
-        {
-            return a.Equals(b);
-        }
-
-        public bool NumbersGreatherThan(double a, double b)
-        {
-            return a > b;
-        }
-
-        public bool NumbersSmallerThan(double a, double b)
-        {
-            return a < b;
-        }
-
-        public bool NumbersGreatherThanOrEqual(double a, double b)
-        {
-            return a >= b;
-        }
-
-        public bool NumbersSmallerThanOrEqual(double a, double b)
-        {
-            return a <= b;
         }
     }
 }

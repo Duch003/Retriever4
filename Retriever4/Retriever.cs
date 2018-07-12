@@ -11,6 +11,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
 using ExcelDataReader;
+using Retriever4.Enums;
+using Retriever4.Utilities;
 
 namespace Retriever4
 {
@@ -100,9 +102,6 @@ namespace Retriever4
                     anwser = z[property];
                 }
             }
-
-
-
             return anwser;
         }
 
@@ -316,9 +315,9 @@ namespace Retriever4
                     //W innym wypadku odczytaj 3 linię z pliku i dodaj do smiennej SWM
                     else
                     {
-                        ans = ExpandArr.Expand(ans);
-                        swm = ExpandArr.Expand(swm);
-                        letter = ExpandArr.Expand(letter);
+                        ans.Expand();
+                        swm.Expand();
+                        letter.Expand();
                         //Daną wyjściową jest np: D:\12345678
                         swm[i] = $"{File.ReadLines(d.Name + "swconf.dat").Skip(2).Take(1).First()}";
                         letter[i] = $"{d.Name}";
