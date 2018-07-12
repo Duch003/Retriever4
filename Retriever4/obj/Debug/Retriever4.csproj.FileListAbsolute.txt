@@ -1,0 +1,12 @@
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\Retriever4.exe
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\Retriever4.pdb
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\ExcelDataReader.DataSet.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\ExcelDataReader.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\ICSharpCode.SharpZipLib.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\ExcelDataReader.xml
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\ExcelDataReader.DataSet.xml
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.csprojAssemblyReference.cache
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.csproj.CoreCompileInputs.cache
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.csproj.CopyComplete
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.exe
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.pdb
