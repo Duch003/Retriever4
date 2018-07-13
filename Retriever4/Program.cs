@@ -377,10 +377,8 @@ namespace Retriever4
                 OS osDb = OS.None, osReal = OS.None;
                 if (task.DatabaseResult.ToString().Contains("10"))
                     osDb = OS.Windows10;
-                else if (task.DatabaseResult.ToString().Contains("8.1"))
-                    osDb = OS.Windows8_1;
-                else if (task.DatabaseResult.ToString().Contains("8") && !task.DatabaseResult.ToString().Contains("8.1"))
-                    osDb = OS.Windows8_1;
+                else if (task.DatabaseResult.ToString().Contains("8"))
+                    osDb = OS.Windows8;
                 else
                     osDb = OS.None;
 
@@ -388,8 +386,6 @@ namespace Retriever4
                 {
                     if (task.WMIResult.ToString().Contains("10"))
                         osReal = OS.Windows10;
-                    else if (task.WMIResult.ToString().Contains("Win 8.1"))
-                        osReal = OS.Windows8_1;
                     else
                         osReal = OS.Windows8;
                 }

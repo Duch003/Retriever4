@@ -1,71 +1,154 @@
 ﻿using Retriever4.Utilities;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+
+// Console.Top = Oś Y
+// Console.Left = Oś X
+// A - szerokość kolumny = _consoleOneFifth
+// 
+//   +-------------------------------------------------------------------------------------> Oś X (+)
+//   |   |<=====Opis=====>|<===========Kolumna lewa========>|<========Kolumna prawa=========>|
+//   |   ____________________________________________________________________________________
+//   |   |0 1 2 3 4 5 6 7 8 9              .                .                .               |
+//   |   |1               .                .                .                .               |
+//   |   |2               .                .                .                .               |
+//   |   |3               .                .<-szerok. kol.->.                .               |
+//   |   |4               .                .                .                .               |
+//   |   |5               .                .                .                .               |
+//   |   |6               .                .                .                .               |
+//   |   |7               .                .                .                .               |
+//   |   |8               .                .                .                .               |
+//   |   |9               .                .                .                .               |
+//   |   |--------------->. A              .                .                .               |
+//   v   |-------------------------------->. 2A             .                .               |
+//  Oś Y |------------------------------------------------->. 3A             .               |
+//  (+)  |------------------------------------------------------------------>. 4A            |
+
+
 
 namespace Retriever4
 {
     public class DrawingAtConsole
     {
-        private int _horizontalLineAxis { get; set; }
-        private int _horizontalLineQuarter { get; set; }
-        private string _horizontalLine { get; set; }
+        //Pozycja kursora
+        public int CursorCoordinateX {
+            get {
+                return Console.CursorLeft;
+            }
+        }
 
-        private string successLine { get; set; }
-        private string failedLine { get; set; }
-        private int _paddingLeft { get; set; }
+        public int CursorCoordinateY {
+            get {
+                return Console.CursorTop;
+            }
+        }
 
+        //Piąta część szerokości konsoli
+        private readonly int _consleOneFifth;
+        //Maksymalna szerokość columny
+        private readonly int _maxColumnWidth;
+        //Pozioma linia / separator
+        private readonly string _horizontalLine;
+
+        //Krawędzie kolumny z opisami
+        private readonly int _descriptionColumn_LeftEdge;
+        private readonly int _descriptionColumn_RightEdge;
+
+        //Krawędzie kolumny lewej
+        private readonly int _leftColumn_LeftEdge;
+        private readonly int _leftColumn_RightEdge;
+
+        //Krawędzie kolumny prawej
+        private readonly int _rightColumn_LeftEdge;
+        private readonly int _rightColumn_RightEdge;
+
+        //Stałe nazwy
+        private string successLine { get; set; } = "Zrobione";
+        private string failedLine { get; set; } = "Błąd";
         private string _leftMainHeader { get; set; } = "RZECZYWISTE";
         private string _rightMainHeader { get; set; } = "BAZA DANYCH";
+        private string _descriptionMainHeader { get; set; } = "OPIS";
 
+        //Konstruktor pobierający aktualne dane z konsoli i ustalający odpległości
         public DrawingAtConsole()
         {
-            string tempLine = "";
-            for (int i = 0; i < Console.BufferWidth - 1; i++)
+            //Tworzenie dwóch poziomych linii, każda o długości 1/5 buforu konsoli
+            string line = "";
+            string lineWithCross = "";
+            int oneFifth = (Console.BufferWidth - 1) / 5;
+            for (int i = 0; i < oneFifth; i++)
             {
-                if (i == (Console.BufferWidth - 1) / 2)
-                    tempLine += "+";
+                if(i == oneFifth - 1)
+                {
+                    line += "-";
+                    lineWithCross += "+";
+                }
                 else
-                    tempLine += "-";
+                {
+                    line += "-";
+                    lineWithCross += "-";
+                }
             }
-            _horizontalLine = tempLine;
-            _horizontalLineAxis = tempLine.IndexOf('+');
-            _horizontalLineQuarter = tempLine.Length / 4;
+            //Ustawienie stałych
+            _horizontalLine = lineWithCross + line + lineWithCross + line + line;
+            _maxColumnWidth = oneFifth - 2; //2 -> z każdej krawędzi po jednostce
+            _consleOneFifth = oneFifth;
+            _descriptionColumn_LeftEdge = 1;
+            _descriptionColumn_RightEdge = oneFifth - 1;
+            _leftColumn_LeftEdge = oneFifth + 1;
+            _leftColumn_RightEdge = (3 * oneFifth) - 1;
+            _rightColumn_LeftEdge = (3 * oneFifth) + 1;
+            _rightColumn_RightEdge = (5 * oneFifth) - 1;
+            
         }
 
         public void PrintMainHeaders()
         {
+            //Legenda:
+            //$ - pozycja kursora na konsoli
+            //_ - spacja, dodatkowo oddzielona kropką by było łatwiej widoczne
             //Dlatego że ustawiam tutaj background, ten string trzeba potraktować inaczej, tak aby backgorund wypełnił całą linię
+            //Odbywa się tutaj proces przygotowania stringa o długości szerokości bufora konsoli
             PrintHorizontalLine();
             MainHeaderColor();
+
+            //#1. Bazowy pusty string. Zaczynamy od prawej krawędzi konsoli
             string line = "";
-            int i = _horizontalLineAxis - (_leftMainHeader.Length / 2);
+            RestoreCursorX();
+
+            //#2. Policz ilośc białych znaków jakie można wydrukować zanim napotka się pierwszą literę nagłówka lewego
+            //$                   |<tu się zaczyna nagłówek>
+            int i = _horizontalLineQuarter - (_leftMainHeader.Length / 2);
             for (; i > 0; i--)
                 line += " ";
+            //_._._._._._._._$|<tu się zaczyna nagłówek>
+
+            //#3. Dopisz do powstałego stringa nazwę lewego nagłówka
             line += _leftMainHeader;
-            SetLeftColumnAxisPositionForText(_leftMainHeader.Length);
-            Console.Write("RZECZYWISTE");
-            
-            string text = "";
-            for (int i = 40 - (position + 20); i > 0; i--)
-                text = text + " ";
-            Console.Write(text);
-            ConsoleRestoreColors();
-            ConsoleSeparator();
-            Console.SetCursorPosition(40, Console.CursorTop);
-            Console.Write("|");
-            ConsoleHeaderColors();
-            position = (int)Math.Round((float)("BAZA DANYCH".Length / 2), 0);
-            Console.Write("BAZA DANYCH".PadLeft(position + 20));
-            text = "";
-            for (int i = 40 - (position + 20); i > 0; i--)
-                text = text + " ";
-            Console.Write(text);
-            ConsoleRestoreColors();
-            Console.WriteLine();
-            ConsoleSeparator();
+            //_._._._._._._._|<nagłówekLewy>$
+
+            //#4. Oblicz ilość białych znaków potrzebnych do wydrukowania aby wypełnić odległóść między nagłówkiem lewym a nagłówkiem prawym
+            //_._._._._._._._|<nagłówekLewy>|$                  |<tu się zaczyna nagłówek prawy>
+            i = ((3 * _horizontalLineQuarter) - (_rightMainHeader.Length / 2)) - (_horizontalLineQuarter + _leftMainHeader.Length / 2);
+            for (; i > 0; i--)
+                line += " ";
+            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._$|<tu się zaczyna nagłówek prawy>
+
+            //#5. Dopisz prawy nagłówek do stringa
+            line += _rightMainHeader;
+            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|$
+
+            //#6. Policz ilość białych znakó potrzebnych by osiągnąć prawy kraniec konsoli
+            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|$             |Prawy kraniec konsoli
+            i = Console.BufferWidth - 1 - ((3 * _horizontalLineQuarter) + (_rightMainHeader.Length / 2));
+            for (; i > 0; i--)
+                line += " ";
+            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|_._._._._._._._$|Prawy kraniec konsoli
+
+            //#7. Drukowanie linii
+            Console.WriteLine(line);
             Console.WriteLine(_horizontalLine);
+            RestoreColors();
         }
 
         public void PrintTableSection(string header, string leftString, string rightString, ConsoleColor mode, bool skipHeader)
@@ -131,6 +214,7 @@ namespace Retriever4
             if (fragmentedLeftString != null)
             //TAK
             {
+                //Zapisanie aktualnej pozycji Y kursora
                 var currentY = Console.CursorTop;
                 for (int i = 0; i < fragmentedRightString.Length; i++)
                 {
