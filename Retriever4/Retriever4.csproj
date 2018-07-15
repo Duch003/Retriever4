@@ -52,11 +52,9 @@
   <ItemGroup>
     <Compile Include="Classes\DeviceManager.cs" />
     <Compile Include="Classes\Configuration.cs" />
-    <Compile Include="Classes\Container.cs" />
     <Compile Include="DrawingAtConsole.cs" />
     <Compile Include="Enums\DeviceManager.cs" />
     <Compile Include="Enums\OS.cs" />
-    <Compile Include="Enums\ProgramSection.cs" />
     <Compile Include="Enums\SecureBoot.cs" />
     <Compile Include="Classes\Location.cs" />
     <Compile Include="Logging\Log.cs" />
@@ -64,8 +62,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Retriever.cs" />
     <Compile Include="Enums\WindowsActivation.cs" />
+    <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
+    <Compile Include="Validation\ObjectTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

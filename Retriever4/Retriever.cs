@@ -44,11 +44,6 @@ namespace Retriever4
             }
         }
 
-        public static void TestMethod()
-        {
-
-        }
-
         #region Reader methods
         public static bool DoesDatabaseFileExists(string filepath, string filename)
         {
@@ -422,8 +417,8 @@ namespace Retriever4
         #region Model list management
         public static void SerializeModelList(Configuration config)
         {
-            var temp = GatherModels(config.DatabaseTableName, config.BiosTableName, config.Filepath, config.Filename, (int)config.MD_ModelColumn,
-                (int)config.MD_MsnColumn, (int)config.MD_OldMsnColumn, (int)config.MD_PeaqModelColumn, (int)config.MD_CaseModelColumn, (int)config.BIOS_CaseModelColumn);
+            var temp = GatherModels(config.DatabaseTableName, config.BiosTableName, config.Filepath, 
+                config.Filename, (int)config.DB_Model, (int)config.DB_PeaqModel, (int)config.DB_CaseModel, (int)config.Bios_CaseModel);
 
             var list = new ObservableCollection<Location>(temp.OrderBy(z => z.Model));
 
@@ -449,8 +444,7 @@ namespace Retriever4
         }
 
         private static IEnumerable<Location> GatherModels(string dbTableName, string biosTableName,
-            string filepath, string filename, int modelColumn, int msnColumn, int oldMsnColumn,
-            int peaqModelColumn, int mdCaseModelColumn, int biosCaseModelColumn)
+            string filepath, string filename, int modelColumn, int peaqModelColumn, int mdCaseModelColumn, int biosCaseModelColumn)
         {
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
             var stream = new FileStream(filepath + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
@@ -464,28 +458,7 @@ namespace Retriever4
                 if (string.IsNullOrEmpty(md))
                     continue;
 
-                var msn = modelTable.Rows[i][msnColumn].ToString();
                 string peaqModel = modelTable.Rows[i][peaqModelColumn].ToString();
-                //string[] pattern = new string[]
-                //{
-                //    @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d",
-                //    @"[A-Za-z]\d{4}\W[A-Za-z]\d\d[A-Za-z]\d",
-                //    @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d[A-Za-z]",
-                //    @"[A-Za-z]\d{4}\W[A-Za-z][A-Za-z]\d[A-Za-z]",
-                //    @"\d{5}"
-                //};
-
-                //for (int j = 0; i < pattern.Length; j++){
-                //    match = Regex.Match(temp, pattern[j]);
-                //    if (match.Success)
-                //    {
-                //        peaqModel = match.Value;
-                //        break;
-                //    }
-                //    peaqModel = temp;
-                //}
-
-                var oldMsn = modelTable.Rows[i][oldMsnColumn].ToString();
 
                 var caseModel = modelTable.Rows[i][mdCaseModelColumn].ToString();
 
@@ -499,7 +472,7 @@ namespace Retriever4
                     }
                 }
 
-                yield return new Location(md, msn, peaqModel, i, biosRow);
+                yield return new Location(md, peaqModel, i, biosRow);
             }
         }
 
@@ -539,39 +512,39 @@ namespace Retriever4
         }
         #endregion
 
-        #region Schema management
-        public static void WriteSchema()
-        {
-            var obj = new ObservableCollection<Container>
-            {
-                new Container()
-            };
+        //#region Schema management
+        //public static void WriteSchema()
+        //{
+        //    var obj = new ObservableCollection<Container>
+        //    {
+        //        new Container()
+        //    };
 
-            var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
+        //    var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
 
-            var sw = new StreamWriter(Environment.CurrentDirectory + @"\Schema.xml");
+        //    var sw = new StreamWriter(Environment.CurrentDirectory + @"\Schema.xml");
 
-            xs.Serialize(sw, obj);
+        //    xs.Serialize(sw, obj);
 
-            sw.Close();
-        }
+        //    sw.Close();
+        //}
 
-        public static ObservableCollection<Container> ReadSchema()
-        {
-            if (!DoesConfigFileExists)
-                throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Schema.xml.");
+        //public static ObservableCollection<Container> ReadSchema()
+        //{
+        //    if (!DoesConfigFileExists)
+        //        throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Schema.xml.");
 
-            var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
+        //    var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
 
-            var sr = new StreamReader(Environment.CurrentDirectory + @"\Schema.xml");
+        //    var sr = new StreamReader(Environment.CurrentDirectory + @"\Schema.xml");
 
-            var container = xs.Deserialize(sr) as ObservableCollection<Container>;
+        //    var container = xs.Deserialize(sr) as ObservableCollection<Container>;
 
-            sr.Close();
+        //    sr.Close();
 
-            return container;
-        }
-        #endregion
+        //    return container;
+        //}
+        //#endregion
 
     }
 }

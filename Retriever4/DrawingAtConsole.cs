@@ -6,7 +6,7 @@ using System.Linq;
 // Console.Left = Oś X
 // A - szerokość kolumny = _consoleOneFifth
 // 
-//   +-------------------------------------------------------------------------------------> Oś X (+)
+//   +------------------------------------------------------------------------------> Oś X (+)
 //   |   |<=====Opis=====>|<===========Kolumna lewa========>|<========Kolumna prawa=========>|
 //   |   ____________________________________________________________________________________
 //   |   |0 1 2 3 4 5 6 7 8 9              .                .                .               |
@@ -31,13 +31,13 @@ namespace Retriever4
     public class DrawingAtConsole
     {
         //Pozycja kursora
-        public int CursorCoordinateX {
+        public int X{
             get {
                 return Console.CursorLeft;
             }
         }
 
-        public int CursorCoordinateY {
+        public int Y {
             get {
                 return Console.CursorTop;
             }
@@ -51,27 +51,35 @@ namespace Retriever4
         private readonly string _horizontalLine;
 
         //Krawędzie kolumny z opisami
-        private readonly int _descriptionColumn_LeftEdge;
-        private readonly int _descriptionColumn_RightEdge;
+        private readonly int _descriptionColumn_Begin;
+        private readonly int _descriptionColumn_End;
+        private readonly int _descriptionColumn_SpaceToWriting;
+        private readonly int _descriptionColumn_Middle;
 
         //Krawędzie kolumny lewej
-        private readonly int _leftColumn_LeftEdge;
-        private readonly int _leftColumn_RightEdge;
+        private readonly int _leftColumn_Begin;
+        private readonly int _leftColumn_End;
+        private readonly int _leftColumn_SpaceToWriting;
+        private readonly int _leftColumn_Middle;
 
         //Krawędzie kolumny prawej
-        private readonly int _rightColumn_LeftEdge;
-        private readonly int _rightColumn_RightEdge;
+        private readonly int _rightColumn_Begin;
+        private readonly int _rightColumn_End;
+        private readonly int _rightColumn_SpaceToWriting;
+        private readonly int _rightColumn_Middle;
 
         //Stałe nazwy
-        private string successLine { get; set; } = "Zrobione";
-        private string failedLine { get; set; } = "Błąd";
         private string _leftMainHeader { get; set; } = "RZECZYWISTE";
         private string _rightMainHeader { get; set; } = "BAZA DANYCH";
-        private string _descriptionMainHeader { get; set; } = "OPIS";
+        private string _descriptionMainHeader { get; set; } = "PARAMETR";
+
 
         //Konstruktor pobierający aktualne dane z konsoli i ustalający odpległości
         public DrawingAtConsole()
         {
+            if (Console.BufferWidth < 80)
+                return;
+
             //Tworzenie dwóch poziomych linii, każda o długości 1/5 buforu konsoli
             string line = "";
             string lineWithCross = "";
@@ -93,254 +101,303 @@ namespace Retriever4
             _horizontalLine = lineWithCross + line + lineWithCross + line + line;
             _maxColumnWidth = oneFifth - 2; //2 -> z każdej krawędzi po jednostce
             _consleOneFifth = oneFifth;
-            _descriptionColumn_LeftEdge = 1;
-            _descriptionColumn_RightEdge = oneFifth - 1;
-            _leftColumn_LeftEdge = oneFifth + 1;
-            _leftColumn_RightEdge = (3 * oneFifth) - 1;
-            _rightColumn_LeftEdge = (3 * oneFifth) + 1;
-            _rightColumn_RightEdge = (5 * oneFifth) - 1;
+
+            _descriptionColumn_Begin = 1;
+            _descriptionColumn_End = oneFifth - 1;
+            _descriptionColumn_SpaceToWriting = _descriptionColumn_End - _descriptionColumn_Begin;
+            _descriptionColumn_Middle = _descriptionColumn_Begin + (_descriptionColumn_SpaceToWriting / 2);
+
+            _leftColumn_Begin = oneFifth + 1;
+            _leftColumn_End = (3 * oneFifth) - 1;
+            _leftColumn_SpaceToWriting = _leftColumn_End - _leftColumn_Begin;
+            _leftColumn_Middle = _leftColumn_Begin + (_leftColumn_SpaceToWriting / 2);
+
+            _rightColumn_Begin = (3 * oneFifth) + 1;
+            _rightColumn_End = (5 * oneFifth) - 1;
+            _rightColumn_SpaceToWriting = _rightColumn_End - _rightColumn_Begin;
+            _rightColumn_Middle = _rightColumn_Begin + (_rightColumn_SpaceToWriting / 2);
             
         }
 
-        public void PrintMainHeaders()
+        public int PrintMainHeaders(int startY)
         {
+            if (startY < 0)
+            {
+                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
+                    $"Parametr musi być równy lub większy zero. Metoda: {nameof(PrintMainHeaders)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(startY), message);
+            }
+            CursorY(startY);
+            RestoreCursorX();
             //Legenda:
             //$ - pozycja kursora na konsoli
             //_ - spacja, dodatkowo oddzielona kropką by było łatwiej widoczne
             //Dlatego że ustawiam tutaj background, ten string trzeba potraktować inaczej, tak aby backgorund wypełnił całą linię
             //Odbywa się tutaj proces przygotowania stringa o długości szerokości bufora konsoli
-            PrintHorizontalLine();
             MainHeaderColor();
 
-            //#1. Bazowy pusty string. Zaczynamy od prawej krawędzi konsoli
             string line = "";
-            RestoreCursorX();
-
-            //#2. Policz ilośc białych znaków jakie można wydrukować zanim napotka się pierwszą literę nagłówka lewego
-            //$                   |<tu się zaczyna nagłówek>
-            int i = _horizontalLineQuarter - (_leftMainHeader.Length / 2);
+            //Od krawędzi do pierwszego nagłówka
+            int i = (_consleOneFifth / 2) - (_descriptionMainHeader.Length / 2);
             for (; i > 0; i--)
                 line += " ";
-            //_._._._._._._._$|<tu się zaczyna nagłówek>
 
-            //#3. Dopisz do powstałego stringa nazwę lewego nagłówka
+            //Pierwszy nagłówek
+            line += _descriptionMainHeader;
+            
+            //Od pierwszego nagłówka do końca pierwszej kolumny
+            i = _consleOneFifth - (_descriptionMainHeader.Length / 2);
+            for (; i > 0; i--)
+                line += " ";
+
+            //Od pierszej kolumny do drugiego nagłówka
+            i = (_consleOneFifth / 2) - (_leftMainHeader.Length / 2);
+            for (; i > 0; i--)
+                line += " ";
+
+            //Drugi nagłówek
             line += _leftMainHeader;
-            //_._._._._._._._|<nagłówekLewy>$
 
-            //#4. Oblicz ilość białych znaków potrzebnych do wydrukowania aby wypełnić odległóść między nagłówkiem lewym a nagłówkiem prawym
-            //_._._._._._._._|<nagłówekLewy>|$                  |<tu się zaczyna nagłówek prawy>
-            i = ((3 * _horizontalLineQuarter) - (_rightMainHeader.Length / 2)) - (_horizontalLineQuarter + _leftMainHeader.Length / 2);
+            //Od drugiego nagłówka do końca drugiej kolumny
+            i = _consleOneFifth - (_leftMainHeader.Length / 2) - 1;
             for (; i > 0; i--)
                 line += " ";
-            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._$|<tu się zaczyna nagłówek prawy>
 
-            //#5. Dopisz prawy nagłówek do stringa
+            //Od drugiej kolumny do trzeciego nagłówka
+            i = _consleOneFifth - (_rightMainHeader.Length / 2);
+            for (; i > 0; i--)
+                line += " ";
+
+            //Trzeci nagłówek
             line += _rightMainHeader;
-            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|$
 
-            //#6. Policz ilość białych znakó potrzebnych by osiągnąć prawy kraniec konsoli
-            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|$             |Prawy kraniec konsoli
-            i = Console.BufferWidth - 1 - ((3 * _horizontalLineQuarter) + (_rightMainHeader.Length / 2));
+            //Od trzeciego nagłówka do końca trzeciej kolumny
+            i = _consleOneFifth - (_rightMainHeader.Length / 2);
             for (; i > 0; i--)
                 line += " ";
-            //_._._._._._._._|<nagłówekLewy>|_._._._._._._._|<nagłówekPrawy>|_._._._._._._._$|Prawy kraniec konsoli
 
-            //#7. Drukowanie linii
             Console.WriteLine(line);
+            RestoreColors();
+            return 1;
+        }
+
+        public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, ConsoleColor color)
+        {
+            #region Walidacja argumentów wejściowych
+            if(description.Any(z => z == null))
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(description), message);
+            }
+
+            if (leftColumnWriting.Any(z => z == null))
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(leftColumnWriting), message);
+            }
+
+            if (rightColumnWriting.Any(z => z == null))
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(rightColumnWriting), message);
+            }
+
+            if(startY < 0)
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(startY), message);
+            }
+            #endregion
+
+            int lines = 0;
+
+            var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, ConsoleColor.White);
+            lines = tempLines;
+
+            tempLines = PrintColumn(startY, leftColumnWriting, _leftColumn_Middle, _leftColumn_SpaceToWriting, color);
+            lines = lines > tempLines ? lines : tempLines;
+
+            tempLines = PrintColumn(startY, rightColumnWriting, _rightColumn_Middle, _rightColumn_SpaceToWriting, color);
+            lines = lines > tempLines ? lines : tempLines;
+
+            PrintVerticalLines(startY, lines);
+
+            return lines;
+        }
+
+        private void PrintVerticalLines(int startY, int lines)
+        {
+            #region Walidacja danych wejściowych
+            if(startY < 0)
+            {
+                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Parametr musi być równy lub większy zero. Metoda: {nameof(PrintVerticalLines)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(startY), message);
+            }
+
+            if (lines < 0)
+            {
+                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na ilość linii jest ujemny: {lines}. Parametr musi być równy lub większy zero. Metoda: {nameof(PrintVerticalLines)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(lines), message);
+            }
+            #endregion
+            var tempB = Console.BackgroundColor;
+            var tempF = Console.ForegroundColor;
+            LineColor();
+            int i = 0;
+            for(; i < lines; i++)
+            {
+                CursorY(startY + i);
+                CursorX((_consleOneFifth)-1);
+                Console.Write("|");
+                CursorX((_consleOneFifth * 3)-1);
+                Console.Write("|");
+            }
+            Console.ForegroundColor = tempF;
+            Console.BackgroundColor = tempB;
+        }
+
+        private int PrintColumn(int startY, string[] writing, int middlePosition, int spaceToWriting, ConsoleColor color)
+        {
+            #region Walidacja argumentów wejściowych
+            if (writing.Any(z => z == null))
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintColumn)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(writing), message);
+            }
+
+            if (startY < 0)
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Parametr musi być równy lub większy zero. Metoda: {nameof(PrintColumn)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(startY), message);
+            }
+
+            if (middlePosition < 0)
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący środek kolumny jest ujemny: {middlePosition}. Parametr musi być równy lub większy zero. Metoda: {nameof(PrintColumn)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(middlePosition), message);
+            }
+
+            if (spaceToWriting < 0)
+            {
+                string message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący długość przestrzeni do drukowania jest ujemny: {spaceToWriting}. Parametr musi być równy lub większy zero. Metoda: {nameof(PrintColumn)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(spaceToWriting), message);
+            }
+            #endregion
+
+            //Sprawdzenie czy długośc każdego ze stringów mieści się w przestrzeni do pisania
+            if (writing.Any(z => z.Length > spaceToWriting))
+                writing = writing.JoinArray().SplitInParts(spaceToWriting).ToArray();
+
+            var consoleF = Console.ForegroundColor;
+            var consoleB = Console.BackgroundColor;
+            SetConsoleForeground(color);
+            CursorY(startY);
+            int lines = 0;
+            for (; lines < writing.Length; lines++)
+            {
+                CursorY(startY + lines);
+                CursorX(middlePosition - (writing[lines].Length / 2));
+                Console.Write(writing[lines]);
+            }
+            CursorY(startY);
+            Console.ForegroundColor = consoleF;
+            Console.BackgroundColor = consoleB;
+
+            return lines;
+        }
+
+        public void PrintHorizontalLine(int startY)
+        {
+            if (startY < 0)
+            {
+                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
+                    $"Parametr musi być równy lub większy zero. Metoda: {nameof(PrintHorizontalLine)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(startY), message);
+            }
+            CursorY(startY);
+            var fcolor = Console.ForegroundColor;
+            var bcolor = Console.BackgroundColor;
+            LineColor();
+            RestoreCursorX();
             Console.WriteLine(_horizontalLine);
+            Console.ForegroundColor = fcolor;
+            Console.BackgroundColor = bcolor;
+        }
+
+        public void PrintInitializationBar(int startY, string bar)
+        {
+            if(bar == null)
+            {
+                string message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                    $"Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentOutOfRangeException(nameof(bar), message);
+            }
+
+            if (startY < 0)
+            {
+                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
+                    $"Parametr musi być równy lub większy zero. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
+                throw new ArgumentOutOfRangeException(nameof(startY), message);
+            }
+
+            CursorY(startY);
+            MainHeaderColor();
+            Console.WriteLine(bar.PadBoth(Console.BufferWidth));
             RestoreColors();
         }
 
-        public void PrintTableSection(string header, string leftString, string rightString, ConsoleColor mode, bool skipHeader)
+        public void PrintInitializationDescription(int Yposition, string title) => PrintInitializationComment(Yposition, title, ConsoleColor.White);
+
+        public void PrintInitializationComment(int Yposition, string comment, ConsoleColor color)
         {
-            //Walidacja parametrów wejściowych
-            if (leftString == null || rightString == null || header == null)
+            #region Walidacja danych wejściowych
+            if (Yposition < 0)
             {
-                string message = $"Parametr metody jest null.\nParametr header: {header};\nParametr leftValue: {leftString};\nParamter rightValues: {rightString}.\n" +
-                    $"Metoda: PrintTableSection, Klasa: DrawingAtConsole.cs";
-                throw new ArgumentNullException(message);
+                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
+                    $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentOutOfRangeException(nameof(Yposition), message);
             }
 
-            //Sprawdzenie czy leftString nie jest dłuższy niż szerokość kolumny
-            string[] fragmentedLeftString = null;
-            if (leftString.Length > _horizontalLineAxis - 1)
-                fragmentedLeftString = leftString.SplitInParts(_horizontalLineAxis - 1).ToArray();
+            if (comment == null)
+            {
+                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                    $"Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentOutOfRangeException(nameof(comment), message);
+            }
+            #endregion
 
-            //Sprawdzenie czy rightString nie jest dłuższy niż szerokość kolumny
-            string[] fragmentedRightString = null;
-            if (rightString.Length > _horizontalLineAxis - 1)
-                fragmentedRightString = rightString.SplitInParts(_horizontalLineAxis - 1).ToArray();
-
-            //Drukowanie nagłówka
-            //Czy pominąć nagłówek?
-            if (!skipHeader)
-            //NIE
-            {
-                YellowColor();
-                SetLeftColumnAxisPositionForText(header.Length);
-                Console.WriteLine(header);
-                //Nowa linia
-                PrintHorizontalLine();
-                //Nowa linia
-            }
-
-            //Drukowanie treści lewej kolumny
-            SetConsoleForeground(mode);
-            //Sprawdzenie czy tekst wejściowy został podzielony
-            if (fragmentedLeftString != null)
-            //TAK
-            {
-                var currentY = Console.CursorTop;
-                for(int i = 0; i < fragmentedLeftString.Length; i++)
-                {
-                    SetLeftColumnAxisPositionForText(fragmentedLeftString[i].Length);
-                    Console.Write(fragmentedLeftString[i]);
-                    PrintVerticalLine();
-                    CursorY(currentY + i + 1);
-                    //Nowa linia
-                }
-                CursorY(currentY);
-            }
-            else
-            //NIE
-            {
-                SetLeftColumnAxisPositionForText(leftString.Length);
-                Console.Write(leftString);
-                PrintVerticalLine();
-            }
-
-            //Drukowanie treści prawej kolumny
-            //Sprawdzenie czy tekst wejściowy został podzielony
-            if (fragmentedLeftString != null)
-            //TAK
-            {
-                //Zapisanie aktualnej pozycji Y kursora
-                var currentY = Console.CursorTop;
-                for (int i = 0; i < fragmentedRightString.Length; i++)
-                {
-                    SetRightColumnAxisPositionForText(fragmentedRightString[i].Length);
-                    Console.Write(fragmentedRightString[i]);
-                    PrintVerticalLine();
-                    CursorY(currentY + i + 1);
-                    //Nowa linia
-                }
-                CursorY(currentY);
-            }
-            else
-            //NIE
-            {
-                SetLeftColumnAxisPositionForText(rightString.Length);
-                Console.Write(rightString);
-                PrintVerticalLine();
-            }
-        }
-
-        public void PrintStatusSection(string header, string leftString, string[] rightStrings, ConsoleColor mode, bool skipHeader, bool leftAlignRightColumn)
-        {
-            //Walidacja parametrów wejściowych
-            if(leftString == null || rightStrings == null || header == null)
-            {
-                string message = $"Parametr metody jest null.\nParametr header: {header};\nParametr leftValue: {leftString};\nParamter rightValues: {rightStrings}.\n" +
-                    $"Metoda: PrintStatusSection, Klasa: DrawingAtConsole.cs";
-                throw new ArgumentNullException(message);
-            }
-
-            //Sprawdzenie poprawności długości stringów w tablicy rightStrings
-            if(rightStrings.Any(z => z.Length > _horizontalLineAxis - 1))
-            {
-                //Złączenie tablicy w string i ponowne rozdzielenie
-                var mergedRightStrings = rightStrings.JoinArray();
-                rightStrings = mergedRightStrings.SplitInParts(_horizontalLineAxis - 1).ToArray();
-            }
-                
-            //Drukowanie nagłówka
-            if (!skipHeader)
-            {
-                YellowColor();
-                SetLeftColumnAxisPositionForText(header.Length);
-                Console.WriteLine(header);
-                LineColor();
-                PrintHorizontalLine();
-            }
-            //Nowa linia
-
-            //Drukowanie treści lewej kolumny
-            //Sprawdzenie czy długość tesktu do wydrukowania nie jest większa niż szerokość kolumny
-            if (leftString.Length > _horizontalLineAxis) 
-            //TAK
-            {
-                //Podzielenie tekstu na części
-                string[] fragmentedLeftString = leftString.SplitInParts(_horizontalLineAxis - 1).ToArray();
-                //Zapisanie aktualnej pozycji kursora w osi Y
-                int cursorTop = Console.CursorTop;
-                //Drukowanie tablicy
-                for (int i = 0; i < fragmentedLeftString.Length; i++)
-                {
-                    SetLeftColumnAxisPositionForText(fragmentedLeftString[i].Length);
-                    RestoreColors();
-                    Console.Write(fragmentedLeftString[i]);
-                    CursorXAxis();
-                    PrintVerticalLine();
-                    CursorX(0);
-                    CursorY(cursorTop + i + 1);
-                    //Nowa linia
-                }
-                //Przywrócenie pozycji kursora - powrót do pierwszej linii danej sekcji
-                CursorY(cursorTop);
-                CursorX(0);
-            }
-            else 
-            //NIE
-            {
-                SetLeftColumnAxisPositionForText(leftString.Length);
-                RestoreColors();
-                Console.Write(leftString);
-                CursorXAxis();
-                LineColor();
-                PrintVerticalLine();
-                //Nowa linia
-            }
-
-            //Drukowanie treści prawej kolumny
-            for (int i = 0; i < rightStrings.Length; i++)
-            {
-                PrintVerticalLine();
-                SetConsoleForeground(mode);
-                if (leftAlignRightColumn)
-                    CursorX(_horizontalLineAxis + 1);
-                else
-                    SetRightColumnAxisPositionForText(rightStrings[i].Length);
-                Console.WriteLine(rightStrings[i]);
-                //Nowa linia
-            }
-        }
-
-        public void PrintHorizontalLine(bool newline = false)
-        {
-            var fcolor = Console.ForegroundColor;
-            var bcolor = Console.BackgroundColor;
-            LineColor();
-            if (!newline)
-                Console.WriteLine(_horizontalLine);
-            else
-                Console.WriteLine("\n" + _horizontalLine);
+            SetConsoleForeground(color);
+            CursorY(Yposition);
             RestoreCursorX();
-            Console.ForegroundColor = fcolor;
-            Console.BackgroundColor = bcolor;
+            Console.Write(comment);
+            RestoreColors();
         }
 
-        public void PrintVerticalLine()
+        public void PrintInitializationStatus(int Yposition, string status, ConsoleColor color)
         {
-            var fcolor = Console.ForegroundColor;
-            var bcolor = Console.BackgroundColor;
-            CursorXAxis();
-            LineColor();
-            Console.Write("|");
-            RestoreCursorX();
-            Console.ForegroundColor = fcolor;
-            Console.BackgroundColor = bcolor;
-        }
+            #region Walidacja danych wejściowych
+            if (Yposition < 0)
+            {
+                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
+                    $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentOutOfRangeException(nameof(Yposition), message);
+            }
 
+            if (status == null)
+            {
+                string message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                    $"Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentOutOfRangeException(nameof(status), message);
+            }
+            #endregion
+
+            SetConsoleForeground(color);
+            CursorY(Yposition);
+            CursorX(Console.BufferWidth - status.Length - 1);
+            Console.Write(status);
+            RestoreColors();
+        }
+        
         #region Cursor position
         public void CursorY(int Yposition)
         {
@@ -361,63 +418,37 @@ namespace Retriever4
         {
             Console.SetCursorPosition(Console.CursorLeft, 0);
         }
-
-        public void CursorXAxis()
-        {
-            CursorX(_horizontalLineAxis);
-        }
-
-        public void SetLeftColumnAxisPositionForText(int stringLength)
-        {
-            int position = (int)Math.Round(((double)stringLength / 2), 0);
-            CursorX(_horizontalLineQuarter - position);
-        }
-
-        public void SetRightColumnAxisPositionForText(int stringLength)
-        {
-            int position = (int)Math.Round(((double)stringLength / 2), 0);
-            CursorX(_horizontalLineQuarter + _horizontalLineAxis - position);
-        }
         #endregion
 
         #region Colors
-        private static void SetConsoleBackground(ConsoleColor color)
+        private void SetConsoleBackground(ConsoleColor color)
         {
             Console.BackgroundColor = color;
         }
 
-        private static void SetConsoleForeground(ConsoleColor color)
+        private void SetConsoleForeground(ConsoleColor color)
         {
             Console.ForegroundColor = color;
         }
 
-        private static void YellowColor()
+        private void DescriptionColor()
         {
-            SetConsoleForeground(ConsoleColor.Yellow);
+            RestoreColors();
         }
 
-        private static void RedColor()
-        {
-            SetConsoleForeground(ConsoleColor.Red);
-        }
-
-        private static void GreenColor()
-        {
-            SetConsoleForeground(ConsoleColor.Green);
-        }
-
-        private static void RestoreColors()
+        private void RestoreColors()
         {
             SetConsoleForeground(ConsoleColor.White);
             SetConsoleBackground(ConsoleColor.Black);
         }
 
-        private static void MainHeaderColor()
+        private void MainHeaderColor()
         {
+            SetConsoleForeground(ConsoleColor.White);
             SetConsoleBackground(ConsoleColor.DarkBlue);
         }
 
-        private static void LineColor()
+        private void LineColor()
         {
             SetConsoleForeground(ConsoleColor.DarkYellow);
         }
