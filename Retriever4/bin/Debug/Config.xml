@@ -4,11 +4,19 @@
   <Filename>\NoteBookiRef_v3.xlsm</Filename>
   <DatabaseTableName>MD</DatabaseTableName>
   <BiosTableName>BIOS</BiosTableName>
-  <MD_ModelColumn>0</MD_ModelColumn>
-  <MD_MsnColumn>1</MD_MsnColumn>
-  <MD_OldMsnColumn>2</MD_OldMsnColumn>
-  <MD_CaseModelColumn>13</MD_CaseModelColumn>
-  <MD_PeaqModelColumn>17</MD_PeaqModelColumn>
-  <BIOS_CaseModelColumn>0</BIOS_CaseModelColumn>
-  <BIOS_BiosVerionColumn>3</BIOS_BiosVerionColumn>
+  <WearLevel>12</WearLevel>
+  <DB_Model>0</DB_Model>
+  <DB_PeaqModel>1</DB_PeaqModel>
+  <DB_Storage>6</DB_Storage>
+  <DB_Ram>7</DB_Ram>
+  <DB_Cpu>8</DB_Cpu>
+  <DB_OS>10</DB_OS>
+  <DB_CaseModel>14</DB_CaseModel>
+  <DB_MainboardVendor>16</DB_MainboardVendor>
+  <DB_ShippingMode>17</DB_ShippingMode>
+  <Bios_CaseModel>0</Bios_CaseModel>
+  <Bios_MainboardModel>2</Bios_MainboardModel>
+  <Bios_Bios>3</Bios_Bios>
+  <Bios_EC>4</Bios_EC>
+  <Bios_BuildDate>5</Bios_BuildDate>
 </Configuration>

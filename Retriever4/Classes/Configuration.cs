@@ -1,6 +1,8 @@
-﻿namespace Retriever4
+﻿using System;
+
+namespace Retriever4
 {
-    public class Configuration
+    public class Configuration : IConfiguration
     {
         public string Filepath;
         public string Filename;
@@ -16,14 +18,20 @@
         public int? DB_OS;
         public int? DB_SWM;
         public int? DB_CaseModel;
+        public int? DB_MainboardVendor;
         public int? DB_ShippingMode;
 
         public int? Bios_CaseModel;
-        public int? Bios_Vendor;
         public int? Bios_MainboardModel;
         public int? Bios_Bios;
         public int? Bios_EC;
+        public int? Bios_BuildDate;
 
         public Configuration() { }
+
+        public bool CheckFieldsForNulls()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

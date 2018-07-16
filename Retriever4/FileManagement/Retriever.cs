@@ -20,16 +20,6 @@ namespace Retriever4
     {
         
 
-        
-
-        
-
-        public static bool DoesSchemaFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + @"\Schema.xml");
-            }
-        }
-
         #region Reader methods
         
         #endregion
@@ -304,50 +294,20 @@ namespace Retriever4
         #endregion
 
         #region Hash management
-        
+
         #endregion
 
         #region Model list management
-        
+
 
         #endregion
 
         #region Configuration management
-        
+
         #endregion
 
         //#region Schema management
-        //public static void WriteSchema()
-        //{
-        //    var obj = new ObservableCollection<Container>
-        //    {
-        //        new Container()
-        //    };
 
-        //    var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
-
-        //    var sw = new StreamWriter(Environment.CurrentDirectory + @"\Schema.xml");
-
-        //    xs.Serialize(sw, obj);
-
-        //    sw.Close();
-        //}
-
-        //public static ObservableCollection<Container> ReadSchema()
-        //{
-        //    if (!DoesConfigFileExists)
-        //        throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Schema.xml.");
-
-        //    var xs = new XmlSerializer(typeof(ObservableCollection<Container>));
-
-        //    var sr = new StreamReader(Environment.CurrentDirectory + @"\Schema.xml");
-
-        //    var container = xs.Deserialize(sr) as ObservableCollection<Container>;
-
-        //    sr.Close();
-
-        //    return container;
-        //}
         //#endregion
 
     }

@@ -64,6 +64,8 @@
     <Compile Include="FileManagement\Log.cs" />
     <Compile Include="FileManagement\ModelFile.cs" />
     <Compile Include="FileManagement\SHA1File.cs" />
+    <Compile Include="Interfaces\IConfiguration.cs" />
+    <Compile Include="Interfaces\IDatabaseFile.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="FileManagement\Retriever.cs" />

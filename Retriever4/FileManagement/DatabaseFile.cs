@@ -1,17 +1,24 @@
 ﻿using ExcelDataReader;
+using Retriever4.Interfaces;
 using System;
 using System.IO;
 
 namespace Retriever4.FileManagement
 {
-    public static class DatabaseFile
+    public class DatabaseFile : IDatabaseFile
     {
-        public static bool DoesDatabaseFileExists(string filepath, string filename)
+        /// <summary>
+        /// Checks if database file exists. Depends on config file.
+        /// </summary>
+        /// <param name="filepath"></param>
+        /// <param name="filename"></param>
+        /// <returns></returns>
+        public bool DoesDatabaseFileExists(string filepath, string filename)
         {
             return File.Exists(filepath + filename);
         }
 
-        public static object ReadDetailsFromDatabase(string filepath, string filename, string tableName, int row, int column)
+        public object ReadDetailsFromDatabase(string filepath, string filename, string tableName, int row, int column)
         {
             if (string.IsNullOrEmpty(filepath) || string.IsNullOrEmpty(filename))
             {
