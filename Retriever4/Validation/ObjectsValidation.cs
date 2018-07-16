@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Retriever4.Validation
 {
-    public static class ObjectTests
+    public static class ObjectsValidation
     {
         public static bool CheckFieldsForNulls(object myObject, string[] ignoreFields)
         {

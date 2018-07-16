@@ -18,25 +18,11 @@ namespace Retriever4
 {
     public static class Retriever
     {
-        //private static Match match;
+        
 
-        public static bool DoesHashFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + "/SHA1.txt");
-            }
-        }
+        
 
-        public static bool DoestModelListFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + "/Model.xml");
-            }
-        }
-
-        public static bool DoesConfigFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + @"\Config.xml");
-            }
-        }
+        
 
         public static bool DoesSchemaFileExists {
             get {
@@ -45,43 +31,7 @@ namespace Retriever4
         }
 
         #region Reader methods
-        public static bool DoesDatabaseFileExists(string filepath, string filename)
-        {
-            return File.Exists(filepath + filename);
-        }
-
-        public static object ReadDetailsFromDatabase(string filepath, string filename, string tableName, int row, int column)
-        {
-            if (string.IsNullOrEmpty(filepath) || string.IsNullOrEmpty(filename))
-            {
-                throw new InvalidDataException("Nie można połączyć się z plikiem excel. Któryś z argumentów kontruktora jest pusty:\n" +
-                    $"filepath = {filepath}\n" +
-                    $"filename = {filename}");
-            }
-
-            object anwser = null;
-
-            try
-            {
-                using (FileStream stream = new FileStream(filepath + filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
-                {
-                    var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-                    var result = excelReader.AsDataSet();
-
-                    var table = result.Tables[tableName];
-                    anwser = table.Rows[row][column];
-                }
-            }
-            catch (Exception e)
-            {
-                string message = $"Nie udało się utworzyć połączenia z plikiem excel Nie można odczytać bazy.\n\nTreść błędu:\n" +
-                    $"{e.Message}\n\n" +
-                    $"Wywołania:\n" +
-                    $"{e.StackTrace}";
-            }
-
-            return anwser;
-        }
+        
         #endregion
 
         #region Gatherer methods
@@ -102,7 +52,7 @@ namespace Retriever4
 
         public static IEnumerable<object> ReadArrayFromComputer(string query, string property, string scope = @"root/cimv2")
         {
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
+            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
             {
                 foreach (var z in search.Get())
                 {
@@ -118,7 +68,7 @@ namespace Retriever4
         {
             var scope = @"ROOT\wmi";
             var query = "SELECT * FROM BatteryStaticData";
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
+            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
             {
                 foreach (var z in search.Get())
                 {
@@ -151,7 +101,7 @@ namespace Retriever4
             }
 
             query = "SELECT * FROM BatteryFullChargedCapacity";
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
+            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
             {
                 foreach (var z in search.Get())
                 {
@@ -204,20 +154,6 @@ namespace Retriever4
         public static bool CheckWirelessConnection()
         {
             return NetworkInterface.GetIsNetworkAvailable();
-        }
-
-        public static void Test()
-        {
-            Console.WriteLine("Active TCP Connections");
-
-            IPGlobalProperties properties = IPGlobalProperties.GetIPGlobalProperties();
-            TcpConnectionInformation[] connections = properties.GetActiveTcpConnections();
-            foreach (TcpConnectionInformation c in connections)
-            {
-                Console.WriteLine("{0} <==> {1}",
-                    c.LocalEndPoint.ToString(),
-                    c.RemoteEndPoint.ToString());
-            }
         }
 
         public static Dictionary<string, string> CheckEthernetInterfaceMAC()
@@ -368,148 +304,16 @@ namespace Retriever4
         #endregion
 
         #region Hash management
-        public static string ComputeSHA1(string filepath, string filename)
-        {
-            FileStream stream = new FileStream(filepath + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-
-            using (SHA1Managed sha1 = new SHA1Managed())
-            {
-                var hash = sha1.ComputeHash(stream);
-                var sb = new StringBuilder(hash.Length * 2);
-
-                foreach (byte b in hash)
-                {
-                    sb.Append(b.ToString("X2"));
-                }
-                return sb.ToString();
-            }
-        }
-
-        public static string ReadHash()
-        {
-            string anwser = "";
-
-            if (!File.Exists(Environment.CurrentDirectory + "/SHA1.txt"))
-            {
-                File.Create(Environment.CurrentDirectory + "/SHA1.txt");
-                return anwser;
-            }
-
-            using (StreamReader sr = new StreamReader(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
-            {
-                anwser = sr.ReadLine();
-            }
-
-            return anwser;
-        }
-
-        public static void WriteHash(string hash)
-        {
-            if (string.IsNullOrEmpty(hash))
-                throw new InvalidDataException($"Nie można zapisać hasha do pliku. Argument metody jest pusty: {hash}.");
-            using (StreamWriter sw = new StreamWriter(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
-            {
-                sw.WriteLine(hash);
-            }
-        }
+        
         #endregion
 
         #region Model list management
-        public static void SerializeModelList(Configuration config)
-        {
-            var temp = GatherModels(config.DatabaseTableName, config.BiosTableName, config.Filepath, 
-                config.Filename, (int)config.DB_Model, (int)config.DB_PeaqModel, (int)config.DB_CaseModel, (int)config.Bios_CaseModel);
-
-            var list = new ObservableCollection<Location>(temp.OrderBy(z => z.Model));
-
-            var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
-
-            var sw = new StreamWriter(Environment.CurrentDirectory + @"\Model.xml");
-
-            xs.Serialize(sw, list);
-
-            sw.Close();
-        }
-
-        public static ObservableCollection<Location> DeserializeModelList()
-        {
-            var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
-
-            var sr = new StreamReader(Environment.CurrentDirectory + @"\Model.xml");
-
-            var computerList = xs.Deserialize(sr) as ObservableCollection<Location>;
-
-            sr.Close();
-            return computerList;
-        }
-
-        private static IEnumerable<Location> GatherModels(string dbTableName, string biosTableName,
-            string filepath, string filename, int modelColumn, int peaqModelColumn, int mdCaseModelColumn, int biosCaseModelColumn)
-        {
-            //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var stream = new FileStream(filepath + filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
-            var result = excelReader.AsDataSet();
-
-            var modelTable = result.Tables[dbTableName];
-            for (var i = 1; i < modelTable.Rows.Count; i++)
-            {
-                var md = modelTable.Rows[i][modelColumn].ToString();
-                if (string.IsNullOrEmpty(md))
-                    continue;
-
-                string peaqModel = modelTable.Rows[i][peaqModelColumn].ToString();
-
-                var caseModel = modelTable.Rows[i][mdCaseModelColumn].ToString();
-
-                var biosTable = result.Tables[biosTableName];
-                int biosRow = 0;
-                for (int j = 0; j < biosTable.Rows.Count; j++)
-                {
-                    if (biosTable.Rows[j][biosCaseModelColumn].ToString().Contains(caseModel))
-                    {
-                        biosRow = j;
-                    }
-                }
-
-                yield return new Location(md, peaqModel, i, biosRow);
-            }
-        }
+        
 
         #endregion
 
         #region Configuration management
-        public static Configuration ReadConfiguration()
-        {
-            if (!DoesConfigFileExists)
-                throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Config.xml.");
-            Configuration config = new Configuration();
-
-            var xs = new XmlSerializer(typeof(Configuration));
-
-            var sr = new StreamReader(Environment.CurrentDirectory + @"\Config.xml");
-
-            config = xs.Deserialize(sr) as Configuration;
-
-            sr.Close();
-
-            if (string.IsNullOrEmpty(config.Filepath))
-                config.Filepath = Environment.CurrentDirectory;
-
-            return config;
-        }
-
-        public static void WriteConfiguration()
-        {
-            Configuration config = new Configuration();
-            var xs = new XmlSerializer(typeof(Configuration));
-
-            var sw = new StreamWriter(Environment.CurrentDirectory + @"\Config.xml");
-
-            xs.Serialize(sw, config);
-
-            sw.Close();
-        }
+        
         #endregion
 
         //#region Schema management
