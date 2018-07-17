@@ -1,16 +1,11 @@
 ﻿using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
-using System.Xml.Serialization;
 using System.Text.RegularExpressions;
 using System.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Management;
 using System.IO;
 using System;
-using System.Collections.ObjectModel;
 using System.Collections.Generic;
-using ExcelDataReader;
 using Retriever4.Enums;
 using Retriever4.Utilities;
 
@@ -18,43 +13,97 @@ namespace Retriever4
 {
     public static class Retriever
     {
-        
-
-        #region Reader methods
-        
-        #endregion
-
-        #region Gatherer methods
+        /// <summary>
+        /// Returns value of specific property from specific class.
+        /// </summary>
+        /// <param name="query">WQL query</param>
+        /// <param name="property">Class property.</param>
+        /// <param name="scope">Scope for searching.</param>
+        /// <returns>Property value.</returns>
         public static object ReadDetailsFromComputer(string query, string property, string scope = @"root/cimv2")
         {
-            object anwser = null;
-            ManagementScope _scope = new ManagementScope(scope);
-            ObjectQuery _query = new ObjectQuery(query);
-            using (ManagementObjectSearcher search = new ManagementObjectSearcher(_scope, _query))
+            //Validation
+            if (string.IsNullOrEmpty(query))
             {
-                foreach (var z in search.Get())
+                string message = $"Zapytanie WQL jest puste. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
+                throw new Exception(message);
+            }
+            if (string.IsNullOrEmpty(property))
+            {
+                string message = $"Nie podano właściwości do pobrania. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
+                throw new Exception(message);
+            }
+
+            object anwser = null;
+            try
+            {
+                using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
                 {
-                    anwser = z[property];
+                    foreach (var z in search.Get())
+                    {
+                        anwser = z[property];
+                    }
                 }
             }
+            catch(Exception e)
+            {
+                string message = $"Pobranie danych z WMI zakończone niepowodzeniem.\nZapytanie: {query}\nWłaściwość: {property}\n" +
+                    $"Zakres: {scope}\n\nPowód: {e.Message}\n{e.InnerException}\n\nMetoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.cs.";
+                throw new Exception(message, e);
+            }
+            
             return anwser;
         }
 
+        /// <summary>
+        /// Returns collection of objects from WMI class.
+        /// </summary>
+        /// <param name="query">WQL query</param>
+        /// <param name="property">Class property.</param>
+        /// <param name="scope">Scope for searching.</param>
+        /// <returns>Collection of property values.</returns>
         public static IEnumerable<object> ReadArrayFromComputer(string query, string property, string scope = @"root/cimv2")
         {
-            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
+            //Validation
+            if (string.IsNullOrEmpty(query))
             {
-                foreach (var z in search.Get())
-                {
-                    if (z[property] != null)
-                        yield return z[property];
-                    else
-                        yield return null;
-                }
+                string message = $"Zapytanie WQL jest puste. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
+                throw new Exception(message);
             }
+            if (string.IsNullOrEmpty(property))
+            {
+                string message = $"Nie podano właściwości do pobrania. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
+                throw new Exception(message);
+            }
+
+            ManagementObjectSearcher search;
+            ManagementObjectCollection collection;
+            //Attempt to get property
+            try
+            {
+                search = new ManagementObjectSearcher(scope, query);
+                collection = search.Get();
+
+            }
+            catch(Exception e)
+            {
+                string message = $"Pobranie danych z WMI zakończone niepowodzeniem.\nZapytanie: {query}\nWłaściwość: {property}\n" +
+                    $"Zakres: {scope}\n\nPowód: {e.Message}\n{e.InnerException}\n\nMetoda: {nameof(ReadArrayFromComputer)}, klasa: Retriever.cs.";
+                throw new Exception(message, e);
+            }
+
+            //Returning as IEnumerable
+            foreach (var z in collection)
+            {
+                if (z[property] != null)
+                    yield return z[property];
+                else
+                    yield return null;
+            }
+
         }
 
-        public static void _SPECIAL_WearLevelData(string model)
+        public static void _SPECIAL_WearLevelData(string title)
         {
             var scope = @"ROOT\wmi";
             var query = "SELECT * FROM BatteryStaticData";
@@ -63,7 +112,7 @@ namespace Retriever4
                 foreach (var z in search.Get())
                 {
                     using (StreamWriter sw = new StreamWriter(new FileStream(
-                            Environment.CurrentDirectory + @"\" + $"{model}.BatteryStaticData.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
+                            Environment.CurrentDirectory + @"\" + $"{title}.BatteryStaticData.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
                             FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite)))
                     {
                         foreach (var x in z.Properties)
@@ -96,7 +145,7 @@ namespace Retriever4
                 foreach (var z in search.Get())
                 {
                     using (StreamWriter sw = new StreamWriter(new FileStream(
-                            Environment.CurrentDirectory + @"\" + $"{model}.BatteryFullChargedCapacity.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
+                            Environment.CurrentDirectory + @"\" + $"{title}.BatteryFullChargedCapacity.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
                             FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite)))
                     {
                         foreach (var x in z.Properties)
@@ -291,24 +340,6 @@ namespace Retriever4
             }
             return null;
         }
-        #endregion
-
-        #region Hash management
-
-        #endregion
-
-        #region Model list management
-
-
-        #endregion
-
-        #region Configuration management
-
-        #endregion
-
-        //#region Schema management
-
-        //#endregion
 
     }
 }

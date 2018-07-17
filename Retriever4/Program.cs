@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Management;
 
 namespace Retriever4
 {
@@ -26,12 +27,12 @@ namespace Retriever4
         static void Main(string[] args)
         {
 
-            DrawingAtConsoleTests.DrawingAtConsole_DrawingTestsWithVariousConsoleWidths();
+            Console.ReadLine();
             ////Initialization();
             //if (!Menu())
             //if (_model == null)
             //    return;
-
+            return;
         }
 
         private static bool Menu()
