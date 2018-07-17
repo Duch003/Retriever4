@@ -1,22 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Filepath></Filepath>
-  <Filename>\NoteBookiRef_v3.xlsm</Filename>
-  <DatabaseTableName>MD</DatabaseTableName>
-  <BiosTableName>BIOS</BiosTableName>
-  <WearLevel>12</WearLevel>
-  <DB_Model>0</DB_Model>
-  <DB_PeaqModel>1</DB_PeaqModel>
-  <DB_Storage>6</DB_Storage>
-  <DB_Ram>7</DB_Ram>
-  <DB_Cpu>8</DB_Cpu>
-  <DB_OS>10</DB_OS>
-  <DB_CaseModel>14</DB_CaseModel>
-  <DB_MainboardVendor>16</DB_MainboardVendor>
-  <DB_ShippingMode>17</DB_ShippingMode>
-  <Bios_CaseModel>0</Bios_CaseModel>
-  <Bios_MainboardModel>2</Bios_MainboardModel>
-  <Bios_Bios>3</Bios_Bios>
-  <Bios_EC>4</Bios_EC>
-  <Bios_BuildDate>5</Bios_BuildDate>
+  <filepath></filepath>
+  <filename>\NoteBookiRef_v3.xlsm</filename>
+  <databaseTableName>MD</databaseTableName>
+  <biosTableName>BIOS</biosTableName>
+  <wearLevel>12</wearLevel>
+  <db_Model>0</db_Model>
+  <db_PeaqModel>1</db_PeaqModel>
+  <db_Storage>6</db_Storage>
+  <db_Ram>7</db_Ram>
+  <db_Cpu>8</db_Cpu>
+  <db_OS>10</db_OS>
+  <db_CaseModel>14</db_CaseModel>
+  <db_MainboardVendor>16</db_MainboardVendor>
+  <db_ShippingMode>17</db_ShippingMode>
+  <bios_CaseModel>0</Bios_CaseModel>
+  <bios_MainboardModel>2</Bios_MainboardModel>
+  <bios_Bios>3</bios_Bios>
+  <bios_EC>4</bios_EC>
+  <bios_BuildDate>5</bios_BuildDate>
 </Configuration>

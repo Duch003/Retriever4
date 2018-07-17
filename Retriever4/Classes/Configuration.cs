@@ -2,36 +2,31 @@
 
 namespace Retriever4
 {
-    public class Configuration : IConfiguration
+    public class Configuration
     {
-        public string Filepath;
-        public string Filename;
-        public string DatabaseTableName;
-        public string BiosTableName;
-        public int? WearLevel;
+        public string filepath;
+        public string filename;
+        public string databaseTableName;
+        public string biosTableName;
+        public int? wearLevel;
 
-        public int? DB_Model;
-        public int? DB_PeaqModel;
-        public int? DB_Storage;
-        public int? DB_Ram;
-        public int? DB_Cpu;
-        public int? DB_OS;
-        public int? DB_SWM;
-        public int? DB_CaseModel;
-        public int? DB_MainboardVendor;
-        public int? DB_ShippingMode;
+        public int? db_Model;
+        public int? db_PeaqModel;
+        public int? db_Storage;
+        public int? db_Ram;
+        public int? db_Cpu;
+        public int? db_OS;
+        public int? db_SWM;
+        public int? db_CaseModel;
+        public int? db_MainboardVendor;
+        public int? db_ShippingMode;
 
-        public int? Bios_CaseModel;
-        public int? Bios_MainboardModel;
-        public int? Bios_Bios;
-        public int? Bios_EC;
-        public int? Bios_BuildDate;
+        public int? bios_CaseModel;
+        public int? bios_MainboardModel;
+        public int? bios_Bios;
+        public int? bios_EC;
+        public int? bios_BuildDate;
 
         public Configuration() { }
-
-        public bool CheckFieldsForNulls()
-        {
-            throw new NotImplementedException();
-        }
     }
 }
