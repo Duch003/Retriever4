@@ -20,7 +20,7 @@ namespace Retriever4
         /// <param name="properties">Properties You want to retrieve. If null - retrieve everything.</param>
         /// <param name="scope">Management scope.</param>
         /// <returns>Dictionary where key is the class property and value is an array of property values.</returns>
-        public static Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
+        private static Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
         {
             Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
             //Creating an object searcher
@@ -40,9 +40,9 @@ namespace Retriever4
                         {
                             //Check if is property an array
                             if (x.IsArray)
-                                anwser[i].Add(x.Name, (dynamic)z[x.Name]);
+                                anwser[i].Add(x.Name, (dynamic)z[x.Name] == null ? "" : (dynamic)z[x.Name]);
                             else
-                                anwser[i].Add(x.Name, x.Value );
+                                anwser[i].Add(x.Name, x.Value == null ? "" : x.Value);
                         }
                     //If particular properties are given, take only them
                     else
@@ -51,9 +51,9 @@ namespace Retriever4
                         {
                             //Check if is property an array
                             if (z.Properties[properties[j]].IsArray)
-                                anwser[i].Add(properties[j], (dynamic)z[properties[j]]);
+                                anwser[i].Add(properties[j], (dynamic)z[properties[j]] == null ? "" : (dynamic)z[properties[j]]);
                             else
-                                anwser[i].Add(properties[i], z[properties[i]]);
+                                anwser[i].Add(properties[j], z[properties[j]] == null ? "" : z[properties[j]]);
                         }
                     //Increment dictionary array size
                     i++;
@@ -132,26 +132,9 @@ namespace Retriever4
             }
         }
 
-        /// <summary>
-        /// Checks if any device throws error.
-        /// </summary>
-        /// <returns>Dictionary of devices names with theier error messages. Empty if everything is fine.</returns>
-        public static Dictionary<string, DeviceManagerErrorCode> CheckDeviceManager()
-        {
-            string query = "SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0";
-            string scope = @"root/cimv2";
-            Dictionary<string, DeviceManagerErrorCode> ans = new Dictionary<string, DeviceManagerErrorCode>();
-            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
-            {
-                foreach (var z in search.Get())
-                {
-                    var key = z["Caption"].ToString();
-                    var value = (DeviceManagerErrorCode)((uint)z["ConfigManagerErrorCode"]);
-                    ans.Add(key, value);
-                }
-            }
-            return ans;
-        }
+        public static Dictionary<string, dynamic>[] CheckDeviceManager()
+            => GetDeviceData("SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0", 
+                new string[] { "Caption", "ConfigManagerErrorCode" }, @"root/cimv2");
 
         public static bool CheckWirelessConnection()
         {
@@ -172,23 +155,9 @@ namespace Retriever4
             return ans;
         }
 
-        //public static WindowsActivationStatus CheckWindowsActivationStatus()
-        //{
-        //    string query = "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ApplicationID = '55c92734-d682-4d71-983e-d6ec3f16059f' AND PartialProductKey != null";
-        //    string property = "LicenseStatus";
-        //    string scope = "root/cimv2";
-
-        //    object ans = ReadDetailsFromComputer(query, property, scope);
-        //    WindowsActivationStatus status = WindowsActivationStatus.NotFound;
-        //    using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
-        //    {
-        //        foreach (var z in search.Get())
-        //        {
-        //            status = (WindowsActivationStatus)((uint)z[property]);
-        //        }
-        //    }
-        //    return status;
-        //}
+        public static Dictionary<string, dynamic>[] CheckWindowsActivationStatus()
+            => GetDeviceData("SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ApplicationID = '55c92734-d682-4d71-983e-d6ec3f16059f' AND PartialProductKey != null",
+                new string[] { "LicenseStatus" }, "root/cimv2");
 
         public static SecureBootStatus CheckSecureBootStatus()
         {
@@ -202,30 +171,9 @@ namespace Retriever4
             return status;
         }
 
-        public static string GetWindowsProductKey()
-        {
-            string query = "SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null";
-            string property = "OA3xOriginalProductKey";
-            string scope = "root/cimv2";
-            string ans = null;
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
-            {
-                foreach (var z in search.Get())
-                {
-                    try
-                    {
-                        ans = z[property].ToString();
-                    }
-                    catch (Exception e)
-                    {
-                        string message = $"Wartosc z[{property}]: {z[property]}";
-                        throw new Exception(message);
+        public static Dictionary<string, dynamic>[] GetWindowsProductKey()
+            => GetDeviceData("SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null", new string[] { "OA3xOriginalProductKey" }, @"root/cimv2");
 
-                    }
-                }
-            }
-            return ans;
-        }
 
         //Pobieranie SWM z plików swconf.dat
         public static string[] GetSwm()
