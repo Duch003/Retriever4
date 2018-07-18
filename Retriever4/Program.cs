@@ -26,7 +26,7 @@ namespace Retriever4
 
         static void Main(string[] args)
         {
-
+            var obj = Retriever.GetDeviceData("SELECT * FROM Win32_ComputerSystem", null);
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())

@@ -14,93 +14,52 @@ namespace Retriever4
     public static class Retriever
     {
         /// <summary>
-        /// Returns value of specific property from specific class.
+        /// Retrieve data from wmi instaces and save them into dictionaries.
         /// </summary>
-        /// <param name="query">WQL query</param>
-        /// <param name="property">Class property.</param>
-        /// <param name="scope">Scope for searching.</param>
-        /// <returns>Property value.</returns>
-        public static object ReadDetailsFromComputer(string query, string property, string scope = @"root/cimv2")
+        /// <param name="query">WQL query.</param>
+        /// <param name="properties">Properties You want to retrieve. If null - retrieve everything.</param>
+        /// <param name="scope">Management scope.</param>
+        /// <returns>Dictionary where key is the class property and value is an array of property values.</returns>
+        public static Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
         {
-            //Validation
-            if (string.IsNullOrEmpty(query))
+            Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
+            //Creating an object searcher
+            using(ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query))
             {
-                string message = $"Zapytanie WQL jest puste. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
-                throw new Exception(message);
-            }
-            if (string.IsNullOrEmpty(property))
-            {
-                string message = $"Nie podano właściwości do pobrania. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
-                throw new Exception(message);
-            }
-
-            object anwser = null;
-            try
-            {
-                using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
+                //Iterator for every object gathered by ManagementObjectSearcher
+                int i = 0;
+                //Get class instances
+                foreach (var z in searcher.Get())
                 {
-                    foreach (var z in search.Get())
-                    {
-                        anwser = z[property];
-                    }
+                    //For each instance create different dictionary
+                    anwser = anwser.Expand();
+                    anwser[i] = new Dictionary<string, dynamic>();
+                    //If there arent particular properties given, take everything
+                    if (properties == null || properties?.Length == 0)
+                        foreach (var x in z.Properties)
+                        {
+                            //Check if is property an array
+                            if (x.IsArray)
+                                anwser[i].Add(x.Name, (dynamic)z[x.Name]);
+                            else
+                                anwser[i].Add(x.Name, x.Value );
+                        }
+                    //If particular properties are given, take only them
+                    else
+                        //Loop for properties array
+                        for (int j = 0; j < properties.Length; j++)
+                        {
+                            //Check if is property an array
+                            if (z.Properties[properties[j]].IsArray)
+                                anwser[i].Add(properties[j], (dynamic)z[properties[j]]);
+                            else
+                                anwser[i].Add(properties[i], z[properties[i]]);
+                        }
+                    //Increment dictionary array size
+                    i++;
                 }
             }
-            catch(Exception e)
-            {
-                string message = $"Pobranie danych z WMI zakończone niepowodzeniem.\nZapytanie: {query}\nWłaściwość: {property}\n" +
-                    $"Zakres: {scope}\n\nPowód: {e.Message}\n{e.InnerException}\n\nMetoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.cs.";
-                throw new Exception(message, e);
-            }
-            
             return anwser;
-        }
-
-        /// <summary>
-        /// Returns collection of objects from WMI class.
-        /// </summary>
-        /// <param name="query">WQL query</param>
-        /// <param name="property">Class property.</param>
-        /// <param name="scope">Scope for searching.</param>
-        /// <returns>Collection of property values.</returns>
-        public static IEnumerable<object> ReadArrayFromComputer(string query, string property, string scope = @"root/cimv2")
-        {
-            //Validation
-            if (string.IsNullOrEmpty(query))
-            {
-                string message = $"Zapytanie WQL jest puste. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
-                throw new Exception(message);
-            }
-            if (string.IsNullOrEmpty(property))
-            {
-                string message = $"Nie podano właściwości do pobrania. Metoda: {nameof(ReadDetailsFromComputer)}, klasa: Retriever.";
-                throw new Exception(message);
-            }
-
-            ManagementObjectSearcher search;
-            ManagementObjectCollection collection;
-            //Attempt to get property
-            try
-            {
-                search = new ManagementObjectSearcher(scope, query);
-                collection = search.Get();
-
-            }
-            catch(Exception e)
-            {
-                string message = $"Pobranie danych z WMI zakończone niepowodzeniem.\nZapytanie: {query}\nWłaściwość: {property}\n" +
-                    $"Zakres: {scope}\n\nPowód: {e.Message}\n{e.InnerException}\n\nMetoda: {nameof(ReadArrayFromComputer)}, klasa: Retriever.cs.";
-                throw new Exception(message, e);
-            }
-
-            //Returning as IEnumerable
-            foreach (var z in collection)
-            {
-                if (z[property] != null)
-                    yield return z[property];
-                else
-                    yield return null;
-            }
-
         }
 
         public static void _SPECIAL_WearLevelData(string title)
@@ -173,12 +132,16 @@ namespace Retriever4
             }
         }
 
+        /// <summary>
+        /// Checks if any device throws error.
+        /// </summary>
+        /// <returns>Dictionary of devices names with theier error messages. Empty if everything is fine.</returns>
         public static Dictionary<string, DeviceManagerErrorCode> CheckDeviceManager()
         {
             string query = "SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0";
             string scope = @"root/cimv2";
             Dictionary<string, DeviceManagerErrorCode> ans = new Dictionary<string, DeviceManagerErrorCode>();
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
+            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
             {
                 foreach (var z in search.Get())
                 {
@@ -209,21 +172,23 @@ namespace Retriever4
             return ans;
         }
 
-        public static WindowsActivationStatus CheckWindowsActivationStatus()
-        {
-            string query = "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ApplicationID = '55c92734-d682-4d71-983e-d6ec3f16059f' AND PartialProductKey != null";
-            string property = "LicenseStatus";
-            string scope = "root/cimv2";
-            WindowsActivationStatus status = WindowsActivationStatus.NotFound;
-            using (System.Management.ManagementObjectSearcher search = new System.Management.ManagementObjectSearcher(scope, query))
-            {
-                foreach (var z in search.Get())
-                {
-                    status = (WindowsActivationStatus)((uint)z[property]);
-                }
-            }
-            return status;
-        }
+        //public static WindowsActivationStatus CheckWindowsActivationStatus()
+        //{
+        //    string query = "SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ApplicationID = '55c92734-d682-4d71-983e-d6ec3f16059f' AND PartialProductKey != null";
+        //    string property = "LicenseStatus";
+        //    string scope = "root/cimv2";
+
+        //    object ans = ReadDetailsFromComputer(query, property, scope);
+        //    WindowsActivationStatus status = WindowsActivationStatus.NotFound;
+        //    using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
+        //    {
+        //        foreach (var z in search.Get())
+        //        {
+        //            status = (WindowsActivationStatus)((uint)z[property]);
+        //        }
+        //    }
+        //    return status;
+        //}
 
         public static SecureBootStatus CheckSecureBootStatus()
         {
@@ -303,43 +268,43 @@ namespace Retriever4
             return ans;
         }
 
-        public static string AnalyzeForModel()
-        {
-            object[] model = new object[2];
-            string query = "SELECT * FROM Win32_ComputerSystem";
+        //public static string AnalyzeForModel()
+        //{
+        //    object[] model = new object[2];
+        //    string query = "SELECT * FROM Win32_ComputerSystem";
 
-            model[0] = ReadDetailsFromComputer(query, "Model", @"root/cimv2");
+        //    model[0] = ReadDetailsFromComputer(query, "Model", @"root/cimv2");
 
 
 
-            query = "SELECT * FROM Win32_BIOS";
-            model[1] = ReadDetailsFromComputer(query, "Manufacturer");
+        //    query = "SELECT * FROM Win32_BIOS";
+        //    model[1] = ReadDetailsFromComputer(query, "Manufacturer");
 
-            query = "SELECT * FROM Win32_ComputerSystem";
-            string[] oemstring = (string[])ReadDetailsFromComputer(query, "OEMStringArray");
-            string[] patterns = new string[]
-            {
-                @"\d{5}",
-                @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d",
-                @"[A-Za-z]\d{4}\W[A-Za-z]\d\d[A-Za-z]\d",
-                @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d[A-Za-z]",
-                @"[A-Za-z]\d{4}\W[A-Za-z][A-Za-z]\d[A-Za-z]"
-            };
-            for (int i = 0; i < model.Length; i++)
-            {
-                if (model[i] == null)
-                    continue;
-                for (int j = 0; j < patterns.Length; j++)
-                {
-                    Match match = Regex.Match(model[i].ToString(), patterns[j].ToString());
-                    if (match.Success)
-                    {
-                        return match.Value;
-                    }
-                }
-            }
-            return null;
-        }
+        //    query = "SELECT * FROM Win32_ComputerSystem";
+        //    string[] oemstring = (string[])ReadDetailsFromComputer(query, "OEMStringArray");
+        //    string[] patterns = new string[]
+        //    {
+        //        @"\d{5}",
+        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d",
+        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d\d[A-Za-z]\d",
+        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d[A-Za-z]",
+        //        @"[A-Za-z]\d{4}\W[A-Za-z][A-Za-z]\d[A-Za-z]"
+        //    };
+        //    for (int i = 0; i < model.Length; i++)
+        //    {
+        //        if (model[i] == null)
+        //            continue;
+        //        for (int j = 0; j < patterns.Length; j++)
+        //        {
+        //            Match match = Regex.Match(model[i].ToString(), patterns[j].ToString());
+        //            if (match.Success)
+        //            {
+        //                return match.Value;
+        //            }
+        //        }
+        //    }
+        //    return null;
+        //}
 
     }
 }
