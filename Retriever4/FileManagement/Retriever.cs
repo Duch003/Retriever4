@@ -236,6 +236,18 @@ namespace Retriever4
 
         public static Dictionary<string, dynamic>[] BatteriesData()
         {
+            var temp = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
+            if(temp == null || temp.Count() == 0)
+            {
+                //Nie znaleziono baterii
+            }
+            Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
+            for (int i = 0; i < temp.Length; i++)
+            {
+                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {temp[i]}", new string[] { "FullChargedCapacity"}, @"root\wmi");
+                //Przeliczać wear level dla każdego tagu. Wszytkie informacje sa.
+            }
+            
 
         }
 
