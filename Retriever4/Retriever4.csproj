@@ -71,7 +71,10 @@
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
+    <Compile Include="Utilities\DetectDeviceModel.cs" />
+    <Compile Include="Validation\DoubleValidation.cs" />
     <Compile Include="Validation\ObjectsValidation.cs" />
+    <Compile Include="Validation\StringValidation.cs" />
     <Compile Include="_GLOBAL.cs" />
   </ItemGroup>
   <ItemGroup>

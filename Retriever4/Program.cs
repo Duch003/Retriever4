@@ -15,7 +15,7 @@ namespace Retriever4
     {
         private static Configuration _config;
         private static Location _model = null;
-        private static ObservableCollection<Location> _modelList;
+        public static ObservableCollection<Location> _modelList { get; private set; }
         private static DrawingAtConsole _engine;
 
         private static readonly string _success = "Zrobione";
@@ -26,7 +26,7 @@ namespace Retriever4
 
         static void Main(string[] args)
         {
-            var ans = Retriever.CheckDeviceManager();
+            DetectDeviceModel.FindModel("S1415-I2N1S");
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())
