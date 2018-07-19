@@ -26,7 +26,7 @@ namespace Retriever4
 
         static void Main(string[] args)
         {
-            DetectDeviceModel.FindModel("S1415-I2N1S");
+            Retriever.Test();
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())

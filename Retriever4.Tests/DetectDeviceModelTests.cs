@@ -25,6 +25,7 @@ namespace Retriever4.Tests
         [TestCase("PNB S1414-I1BI S", "S1414-I1BI S")]
         [TestCase("CNB MEDION S1415-I1C", "S1415-I1C")]
         [TestCase("PEAQC2015-I5N1", "C2015-I5N1")]
+        [TestCase("S1415-I1C PEAQ", "S1415-I1C")]
         public void DetectDeviceModel_PatternsDetectionTests(string raw, string expected)
         {
             string model = DetectDeviceModel.DetectModel(raw);

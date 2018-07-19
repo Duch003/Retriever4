@@ -216,43 +216,40 @@ namespace Retriever4
             return ans;
         }
 
-        //public static string AnalyzeForModel()
-        //{
-        //    object[] model = new object[2];
-        //    string query = "SELECT * FROM Win32_ComputerSystem";
+        public static Dictionary<string, dynamic>[] GetModelString()
+        => GetDeviceData("SELECT Model FROM Win32_ComputerSystem", new string[] { "Model" }, @"root/cimv2");
 
-        //    model[0] = ReadDetailsFromComputer(query, "Model", @"root/cimv2");
+        public static Dictionary<string, dynamic>[] MainboardBiosData() 
+            => GetDeviceData("SELECT SMBIOSBIOSVersion, ReleaseDate, FROM Win32_BIOS", new string[] { "SMBIOSBIOSVersion", "ReleaseDate" });
 
+        public static Dictionary<string, dynamic>[] MainboardModel()
+            => GetDeviceData("SELECT Product FROM Win32_Mainboard", new string[] { "Product" });
 
+        public static Dictionary<string, dynamic>[] ProcessorID()
+            => GetDeviceData("SELECT Name FROM Win32_Processor", new string[] { "Name" });
 
-        //    query = "SELECT * FROM Win32_BIOS";
-        //    model[1] = ReadDetailsFromComputer(query, "Manufacturer");
+        public static Dictionary<string, dynamic>[] RamData()
+            => GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
 
-        //    query = "SELECT * FROM Win32_ComputerSystem";
-        //    string[] oemstring = (string[])ReadDetailsFromComputer(query, "OEMStringArray");
-        //    string[] patterns = new string[]
-        //    {
-        //        @"\d{5}",
-        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d",
-        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d\d[A-Za-z]\d",
-        //        @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z]\d[A-Za-z]",
-        //        @"[A-Za-z]\d{4}\W[A-Za-z][A-Za-z]\d[A-Za-z]"
-        //    };
-        //    for (int i = 0; i < model.Length; i++)
-        //    {
-        //        if (model[i] == null)
-        //            continue;
-        //        for (int j = 0; j < patterns.Length; j++)
-        //        {
-        //            Match match = Regex.Match(model[i].ToString(), patterns[j].ToString());
-        //            if (match.Success)
-        //            {
-        //                return match.Value;
-        //            }
-        //        }
-        //    }
-        //    return null;
-        //}
+        public static Dictionary<string, dynamic>[] StorageData()
+            => GetDeviceData("SELECT Size FROM Win32_DiskDrive", new string[] { "Size" });
 
+        public static Dictionary<string, dynamic>[] BatteriesData()
+        {
+
+        }
+
+        public static void CheckEC()
+        {
+            var ans = GetDeviceData("SELECT * FROM MS_SystemInformation", null, @"root\WMI");
+            foreach(var z in ans)
+            {
+                foreach(var x in z)
+                {
+                    Console.WriteLine($"{x.Key}: {x.Value}");
+                }
+            }
+            Console.ReadLine();
+        }
     }
 }

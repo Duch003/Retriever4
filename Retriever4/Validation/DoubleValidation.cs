@@ -5,7 +5,8 @@ using System.Text;
 
 namespace Retriever4.Validation
 {
-    class DoubleValidation
+    public static class DoubleValidation
     {
+
     }
 }
