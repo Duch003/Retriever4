@@ -26,7 +26,8 @@ namespace Retriever4
 
         static void Main(string[] args)
         {
-            Retriever.Test();
+            //Retriever.MainboardModel();
+            RetrieverMethodsTests.TestAllQueries();
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())

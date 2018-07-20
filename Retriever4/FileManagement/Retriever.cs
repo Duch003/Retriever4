@@ -11,8 +11,11 @@ using Retriever4.Utilities;
 
 namespace Retriever4
 {
-    public static class Retriever
+    public class Retriever
     {
+        //Construcor for tests
+        public Retriever() { }
+
         /// <summary>
         /// Retrieve data from wmi instaces and save them into dictionaries.
         /// </summary>
@@ -62,84 +65,11 @@ namespace Retriever4
             return anwser;
         }
 
-        public static void _SPECIAL_WearLevelData(string title)
-        {
-            var scope = @"ROOT\wmi";
-            var query = "SELECT * FROM BatteryStaticData";
-            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
-            {
-                foreach (var z in search.Get())
-                {
-                    using (StreamWriter sw = new StreamWriter(new FileStream(
-                            Environment.CurrentDirectory + @"\" + $"{title}.BatteryStaticData.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
-                            FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite)))
-                    {
-                        foreach (var x in z.Properties)
-                        {
-                            if (x.Value == null)
-                            {
-                                sw.WriteLine("{0}: {1}", x.Name.PadRight(50), x.Value);
-                                continue;
-                            }
-                            Type tempType = x?.Value?.GetType();
-                            if (tempType.IsArray)
-                            {
-                                var tempArray = (object[])x.Value;
-                                sw.WriteLine($"{x.Name}");
-                                foreach (var y in tempArray)
-                                    sw.WriteLine("          {y}");
-                            }
-                            else
-                            {
-                                sw.WriteLine("{0}: {1}", x.Name.PadRight(50), x.Value);
-                            }
-                        }
-                    }
-                }
-            }
-
-            query = "SELECT * FROM BatteryFullChargedCapacity";
-            using (ManagementObjectSearcher search = new ManagementObjectSearcher(scope, query))
-            {
-                foreach (var z in search.Get())
-                {
-                    using (StreamWriter sw = new StreamWriter(new FileStream(
-                            Environment.CurrentDirectory + @"\" + $"{title}.BatteryFullChargedCapacity.{DateTime.Now.ToString().Replace(@"/", ".").Replace(":", ".")}.txt",
-                            FileMode.CreateNew, FileAccess.Write, FileShare.ReadWrite)))
-                    {
-                        foreach (var x in z.Properties)
-                        {
-                            if (x.Value == null)
-                            {
-                                sw.WriteLine("{0}: {1}", x.Name.PadRight(50), x.Value);
-                                continue;
-                            }
-                            Type tempType = x.Value.GetType();
-                            if (tempType.IsArray)
-                            {
-                                var tempArray = (object[])x.Value;
-                                sw.WriteLine($"{x.Name}");
-                                foreach (var y in tempArray)
-                                    sw.WriteLine($"          {y}");
-                            }
-                            else
-                            {
-                                sw.WriteLine("{0}: {1}", x.Name.PadRight(50), x.Value);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         public static Dictionary<string, dynamic>[] CheckDeviceManager()
             => GetDeviceData("SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0", 
                 new string[] { "Caption", "ConfigManagerErrorCode" }, @"root/cimv2");
 
-        public static bool CheckWirelessConnection()
-        {
-            return NetworkInterface.GetIsNetworkAvailable();
-        }
+        public static bool CheckWirelessConnection() => NetworkInterface.GetIsNetworkAvailable();
 
         public static Dictionary<string, string> CheckEthernetInterfaceMAC()
         {
@@ -174,8 +104,6 @@ namespace Retriever4
         public static Dictionary<string, dynamic>[] GetWindowsProductKey()
             => GetDeviceData("SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null", new string[] { "OA3xOriginalProductKey" }, @"root/cimv2");
 
-
-        //Pobieranie SWM z plików swconf.dat
         public static string[] GetSwm()
         {
             var i = 0;
@@ -217,13 +145,13 @@ namespace Retriever4
         }
 
         public static Dictionary<string, dynamic>[] GetModelString()
-        => GetDeviceData("SELECT Model FROM Win32_ComputerSystem", new string[] { "Model" }, @"root/cimv2");
+            => GetDeviceData("SELECT Model FROM Win32_ComputerSystem", new string[] { "Model" }, @"root/cimv2");
 
         public static Dictionary<string, dynamic>[] MainboardBiosData() 
-            => GetDeviceData("SELECT SMBIOSBIOSVersion, ReleaseDate, FROM Win32_BIOS", new string[] { "SMBIOSBIOSVersion", "ReleaseDate" });
+            => GetDeviceData("SELECT SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS", new string[] { "SMBIOSBIOSVersion", "ReleaseDate" });
 
         public static Dictionary<string, dynamic>[] MainboardModel()
-            => GetDeviceData("SELECT Product FROM Win32_Mainboard", new string[] { "Product" });
+            => GetDeviceData("SELECT Product FROM Win32_BaseBoard", new string[] { "Product" });
 
         public static Dictionary<string, dynamic>[] ProcessorID()
             => GetDeviceData("SELECT Name FROM Win32_Processor", new string[] { "Name" });
@@ -236,32 +164,38 @@ namespace Retriever4
 
         public static Dictionary<string, dynamic>[] BatteriesData()
         {
-            var temp = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
-            if(temp == null || temp.Count() == 0)
+            var staticData = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
+            if(staticData == null || staticData.Count() == 0)
             {
                 //Nie znaleziono baterii
             }
+            int j = 0;
             Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
-            for (int i = 0; i < temp.Length; i++)
+            for (int i = 0; i < staticData.Length; i++)
             {
-                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {temp[i]}", new string[] { "FullChargedCapacity"}, @"root\wmi");
-                //Przeliczać wear level dla każdego tagu. Wszytkie informacje sa.
-            }
-            
-
-        }
-
-        public static void CheckEC()
-        {
-            var ans = GetDeviceData("SELECT * FROM MS_SystemInformation", null, @"root\WMI");
-            foreach(var z in ans)
-            {
-                foreach(var x in z)
+                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {staticData[i]["Tag"]}", new string[] { "FullChargedCapacity" }, @"root\wmi");
+                if(fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
-                    Console.WriteLine($"{x.Key}: {x.Value}");
+                    //Albo nie zwraca wartosci, albo wartoci dla jednej baterii jest za duzo
                 }
+                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" });
+                if (fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
+                {
+                    //Albo nie zwraca wartosci, albo wartoci dla jednej baterii jest za duzo
+                }
+                anwser = anwser.Expand();
+                anwser[i] = new Dictionary<string, dynamic>();
+                anwser[i].Add("Tag", staticData[i]["Tag"]);
+                anwser[i].Add("DesignedCapacity", staticData[i]["DesignedCapacity"]);
+                anwser[i].Add("FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"]);
+                anwser[i].Add("EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]);
+                j++;
             }
-            Console.ReadLine();
+            return anwser;
+
         }
+
+        public static Dictionary<string, dynamic>[] OS()
+            => GetDeviceData("SELECT Caption FROM Win32_OperatingSystem", new string[] { "Caption" });
     }
 }

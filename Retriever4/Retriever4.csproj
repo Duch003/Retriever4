@@ -69,6 +69,7 @@
     <Compile Include="FileManagement\Retriever.cs" />
     <Compile Include="Enums\WindowsActivation.cs" />
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
+    <Compile Include="UnmeasurableTests\RetrieverMethodsTests.cs" />
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
     <Compile Include="Utilities\DetectDeviceModel.cs" />
