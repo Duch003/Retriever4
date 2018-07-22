@@ -22,13 +22,13 @@ namespace Retriever4.FileManagement
         /// <returns>Hashcode of database file.</returns>
         public static string ComputeSHA1()
         {
-            FileStream stream = new FileStream(_GLOBAL.Filepath + _GLOBAL.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using (SHA1Managed sha1 = new SHA1Managed())
+            var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using (var sha1 = new SHA1Managed())
             {
                 var hash = sha1.ComputeHash(stream);
                 var sb = new StringBuilder(hash.Length * 2);
 
-                foreach (byte b in hash)
+                foreach (var b in hash)
                 {
                     sb.Append(b.ToString("X2"));
                 }
@@ -43,7 +43,7 @@ namespace Retriever4.FileManagement
         public static string ReadHash()
         {
             //Default anwser
-            string anwser = "";
+            var anwser = "";
             //Return if file doesnt exists
             if (!File.Exists(Environment.CurrentDirectory + "/SHA1.txt"))
             {
@@ -51,7 +51,7 @@ namespace Retriever4.FileManagement
                 return anwser;
             }
             //Else read string from file.
-            using (StreamReader sr = new StreamReader(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
+            using (var sr = new StreamReader(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
             {
                 anwser = sr.ReadLine();
             }
@@ -66,7 +66,7 @@ namespace Retriever4.FileManagement
         {
             if (string.IsNullOrEmpty(hash))
                 throw new InvalidDataException($"Nie można zapisać hasha do pliku. Argument metody jest pusty: {hash}. Metoda: {nameof(WriteHash)}, klasaL SHA1File.cs.");
-            using (StreamWriter sw = new StreamWriter(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
+            using (var sw = new StreamWriter(new FileStream(Environment.CurrentDirectory + "/SHA1.txt", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite)))
             {
                 sw.WriteLine(hash);
             }

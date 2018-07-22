@@ -29,7 +29,7 @@ namespace Retriever4.Validation
         {
             for(int i = 0, j = 0; i < _patterns.Length; i++)
             {
-                Match match = Regex.Match(raw, _patterns[i]);
+                var match = Regex.Match(raw, _patterns[i]);
                 if (match.Success)
                 {
                     return match.Value;
@@ -40,12 +40,12 @@ namespace Retriever4.Validation
 
         public static string FindModel(string raw)
         {
-            string model = DetectModel(raw);
+            var model = DetectModel(raw);
             if(model == null)
             {
                 return "Nie wykryto.";
             }
-            var ans = Program._modelList.Where(z => z.Model.Contains(model) || z.PeaqModel.Contains(model));
+            var ans = Program.ModelList.Where(z => z.Model.Contains(model) || z.PeaqModel.Contains(model));
             if (ans == null || ans.Count() == 0)
             {
                 return $"Brak modelu {model} w bazie.";

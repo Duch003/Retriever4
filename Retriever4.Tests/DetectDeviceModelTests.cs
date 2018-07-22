@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit;
-using NUnit.Framework;
-using Retriever4.Utilities;
+﻿using NUnit.Framework;
 using Retriever4.Validation;
 
 namespace Retriever4.Tests
@@ -28,7 +22,7 @@ namespace Retriever4.Tests
         [TestCase("S1415-I1C PEAQ", "S1415-I1C")]
         public void DetectDeviceModel_PatternsDetectionTests(string raw, string expected)
         {
-            string model = DetectDeviceModel.DetectModel(raw);
+            var model = DetectDeviceModel.DetectModel(raw);
             Assert.IsTrue(model != null && model == expected);
         }
     }

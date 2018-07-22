@@ -1,6 +1,6 @@
 ﻿using Retriever4.Classes;
 using Retriever4.Enums;
-using Retriever4.UnmeasurableTests;
+using Retriever4.Tests.UnmeasurableTests;
 using Retriever4.Utilities;
 using Retriever4.Validation;
 using System;
@@ -8,15 +8,17 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management;
+using Retriever4.FileManagement;
+using Retriever4.UnmeasurableTests;
 
 namespace Retriever4
 {
     class Program
     {
-        private static Configuration _config;
-        private static Location _model = null;
-        public static ObservableCollection<Location> _modelList { get; private set; }
+        private static Location _model;
+        public static ObservableCollection<Location> ModelList { get; private set; }
         private static DrawingAtConsole _engine;
+        public static Configuration Config;
 
         private static readonly string _success = "Zrobione";
         private static readonly string _failed = "Niepowodzenie";
@@ -24,10 +26,18 @@ namespace Retriever4
         private static readonly ConsoleColor _passColor = ConsoleColor.Green;
         private static readonly ConsoleColor _warningColor = ConsoleColor.Yellow;
 
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            //Retriever.MainboardModel();
-            RetrieverMethodsTests.TestAllQueries();
+            _engine = new DrawingAtConsole();
+            Config = ConfigFileManagement.ReadConfiguration();
+            Config.MakeDataStatic();
+            ModelFile.SerializeModelList();
+            ModelList = ModelFile.DeserializeModelList();
+            FindModel();
+            //while (true)
+            //{
+                
+            //}
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())
@@ -38,170 +48,133 @@ namespace Retriever4
 
         private static bool Menu()
         {
-            bool breakLoop1 = false;
-            bool isGood = false;
             Console.Clear();
-            if (_model != null)
+            if (_model == null) return false;
+            do
             {
-                ConsoleKeyInfo z;
-                do
+                Console.WriteLine(_model.Model);
+                Console.WriteLine("Czy model urządzenia jest poprawny? (Y/N): ");
+                var z = Console.ReadKey();
+                switch (z.Key)
                 {
-                    Console.WriteLine(_model.Model);
-                    Console.WriteLine("Czy model urządzenia jest poprawny? (Y/N): ");
-                    z = Console.ReadKey();
-                    switch (z.Key)
-                    {
-                        case ConsoleKey.Y:
-                            breakLoop1 = true;
-                            isGood = true;
-                            break;
-                        case ConsoleKey.N:
-                            breakLoop1 = true;
-                            isGood = false;
-                            break;
-                        default:
-                            break;
-                    }
-                } while (!breakLoop1);
-            }
-            return isGood;
+                    case ConsoleKey.Y:
+                        return true;
+                    case ConsoleKey.N:
+                        return false;
+                }
+            } while (true);
         }
 
-        //private static void FindModel()
-        //{
-        //    bool breakLoop1 = false, breakLoop2 = false;
-        //    string pattern = "";
-        //    int index = 6, patternLength = pattern.Length; ; //0
-        //    Location[] ans = null;
-        //    //Pierwsza pętla. Osiągana za każdym razem gdy zmieni się pattern
-        //    while (!breakLoop1)
-        //    {
-        //        breakLoop2 = false;
-        //        //Wyczyszczenie konsoli.
-        //        Console.Clear();
-        //        //Ustawienie kursora na początek
-        //        Console.SetCursorPosition(0, 0);
-        //        //Wypisanie informacji na ekran
-        //        Console.Write("Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej.");
-        //        Console.WriteLine("Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.");
-        //        Console.Write(pattern);
+        /// <summary>
+        /// Menu section: manage model choice
+        /// </summary>
+        private static void FindModel()
+        {
+            //Container for pattern writed by user
+            var pattern = "";
+            //Container for strained out list of models
+            ObservableCollection<Location> ans = null;
+            //First loop, which print basic informations
+            do
+            {
+                //Clearing console and restoring cursor position
+                Console.Clear();
+                _engine.RestoreCursorY();
+                _engine.RestoreCursorX();
+                //Mechanism description
+                const string message = "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
+                                       "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
+                //Counting how many lines will cover message. Value round with celinig function
+                var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
+                //Printing informations with actual pattern
+                Console.WriteLine(message);
+                Console.Write(pattern);
+                //Restore X position and make distance between pattern and table
+                _engine.RestoreCursorX();
+                lines += 2;
+                _engine.CursorY(lines);
+                //If pattern is enough long, print matched models
+                if (pattern.Length >= 3)
+                {
+                    var pattern1 = pattern;
+                    ans = new ObservableCollection<Location>(ModelList.Where(x => x.Model.Contains(pattern1) || x.PeaqModel.Contains(pattern1)));
+                    _engine.PrintModelTable(lines, ans);
+                    lines += 2;
+                    _engine.PrintRowSelection(lines);
+                }
 
-        //        //Druga pętla
-        //        while (!breakLoop2)
-        //        {
-        //            if (pattern.Length < 3)
-        //                patternLength = pattern.Length;
-        //            //Wypisanie tabeli ze znalezionymi modelami
-        //            if (pattern.Length >= 3 && patternLength != pattern.Length)
-        //            {
-        //                patternLength = pattern.Length;
-        //                breakLoop1 = false;
-        //                breakLoop2 = false;
-        //                Console.SetCursorPosition(0, 4); //Indeks od którego zaczynam = 0, indeks nr linii = 4
+                //Second loop for managing model selection
+                bool break1;
+                do
+                {
+                    //Restore (close loop)
+                    break1 = false;
+                    //Read user key
+                    var z = Console.ReadKey();
+                    switch (z.Key)
+                    {
+                        //Remove letter from pattern and reprint whole window
+                        case ConsoleKey.Backspace:
+                            if (pattern.Length > 0)
+                            {
+                                pattern = pattern.Remove(pattern.Length - 1);
+                                break1 = true;
+                            }
+                            break;
+                        //Choose model
+                        case ConsoleKey.Enter:
+                            if (ans == null)
+                                break;
+                            _model = ans[(_engine.Y - lines) / 2];
+                            return;
+                        //Navigating table - down
+                        case ConsoleKey.DownArrow:
+                            //If actualy selected model is last one, dont move any further
+                            if (_engine.Y >= ans?.Count * 2 + lines - 2)
+                                _engine.RestoreCursorX();
+                            //Else remove actual arrows and print new ones
+                            else
+                            {
+                                _engine.ClearRowSelection(_engine.Y);
+                                _engine.CursorY(_engine.Y + 2);
+                                _engine.PrintRowSelection(_engine.Y);
+                            }
+                            break;
+                        //Navigating table - up
+                        case ConsoleKey.UpArrow:
+                            //If selected model is first one, dont go any further
+                            if (_engine.Y <= lines)
+                                _engine.RestoreCursorX();
+                            //Remove actual arrows ant print new ones
+                            else
+                            {
+                                _engine.ClearRowSelection(_engine.Y);
+                                _engine.CursorY(_engine.Y - 2);
+                                _engine.PrintRowSelection(_engine.Y);
 
-        //                var temp = from x in _modelList
-        //                           where x.Model == null ? false : x.Model.Contains(pattern)
-        //                           //|| x.MSN == null ? false : x.MSN.Contains(pattern)
-        //                           //|| x.OldMSN == null ? false : x.OldMSN.Contains(pattern)
-        //                           select x;
-        //                ans = temp.ToArray();
-        //                ConsoleHeaderColors();
-        //                //                 0       9|11                            41|43                          72|74       
-        //                Console.WriteLine("  MODEL  |               MSN              |          Stary MSN           |SELEKCJA");
-        //                ConsoleRestoreColors();
-        //                Console.WriteLine("---------+--------------------------------+------------------------------+--------");
-        //                for (int i = 0; i < ans.Count(); i++)
-        //                {
-        //                    ConsoleGreenMode();
-        //                    Console.Write(ans[i].Model);
-        //                    ConsoleRestoreColors();
-        //                    Console.SetCursorPosition(9, Console.CursorTop);
-        //                    Console.Write("|" + ans[i].MSN);
-        //                    Console.SetCursorPosition(42, Console.CursorTop);
-        //                    Console.Write("|" + ans[i].OldMSN);
-        //                    Console.SetCursorPosition(73, Console.CursorTop);
-        //                    if (Console.CursorTop == index)
-        //                        Console.WriteLine("|  [X]");
-        //                    else
-        //                        Console.WriteLine("|  [ ]");
-        //                    Console.WriteLine("---------+--------------------------------+------------------------------+--------");
-        //                }
-        //                Console.SetCursorPosition(77, 6);
-        //            }
+                            }
+                            break;
+                        //Managing pattern
+                        default:
+                            //Add new letter - accept only letters, numbers and dash
+                            if (char.IsLetterOrDigit(z.KeyChar) || z.KeyChar == '-')
+                                pattern = pattern + z.KeyChar;
+                            //Do nothing
+                            else
+                                _engine.RestoreCursorX();
+                            //Cheking pattern length. If have 3 or more - brak loop and print matched models
+                            break1 = pattern.Length >= 3;
+                            break;
+                    }
+                } while (!break1);
 
-        //            //Ustawienie kursora w linię w której wpisauje się szukany model
+            } while (true);
 
-        //            ConsoleKeyInfo z = Console.ReadKey();
 
-        //            switch (z.Key)
-        //            {
-        //                case ConsoleKey.Backspace:
-        //                    if (pattern.Length > 0)
-        //                    {
-        //                        pattern = pattern.Remove(pattern.Length - 1);
-        //                        //patternLength = pattern.Length;
-        //                        breakLoop2 = true;
-        //                    }
-        //                    break;
-        //                case ConsoleKey.Enter:
-        //                    if (ans == null)
-        //                        break;
-        //                    if (ans.Length > 0)
-        //                    {
-        //                        _model = ans[(index - 6) / 2];
-        //                        breakLoop1 = breakLoop2 = true;
-        //                    }
-        //                    break;
-        //                case ConsoleKey.DownArrow:
-        //                    if (index >= ans.Length * 2 + 4)
-        //                    {
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write("X]");
-        //                        break;
-        //                    }
-        //                    else
-        //                    {
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write(" ]");
-        //                        index += 2; ;
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write("X]");
-        //                        break;
-        //                    }
-        //                case ConsoleKey.UpArrow:
-        //                    if (index <= 6)
-        //                    {
-        //                        Console.SetCursorPosition(79, index);
-        //                        break;
-        //                    }
-        //                    else
-        //                    {
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write(" ]");
-        //                        index -= 2; ;
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write("X]");
-        //                        break;
-        //                    }
-        //                default:
-        //                    if (char.IsLetterOrDigit(z.KeyChar))
-        //                    {
-        //                        pattern = pattern + z.KeyChar;
-        //                        Console.SetCursorPosition(pattern.Length, 2);
-        //                        index = 6;
-        //                        breakLoop2 = true;
-        //                    }
-        //                    else
-        //                    {
-        //                        Console.SetCursorPosition(77, index);
-        //                        Console.Write("X]");
-        //                    }
-        //                    break;
-        //            }
-        //        }
-        //    }
-        //}
+        }
 
+
+       
         //private static void PrintDetails()
         //{
         //    Console.Clear();
@@ -571,7 +544,7 @@ namespace Retriever4
         //                PrintSection("Bios", currentBios.ToString(), tempBios[i].ToString(), color, isPrinted);
         //                isPrinted = true;
         //            }
-                        
+
         //            else
         //            {
         //                PrintSection("Bios", "", tempBios[i].ToString(), color, isPrinted);
@@ -1105,7 +1078,7 @@ namespace Retriever4
         //    else
         //    {
         //        var ansArr = _modelList?.Where(z => z.Model.Contains(model));
-                    
+
         //        if (ansArr.Count() == 0)
         //        {
         //            _engine.PrintInitializationStatus(position, "Nie wykryto.", _warningColor);

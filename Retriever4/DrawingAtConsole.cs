@@ -1,5 +1,6 @@
 ﻿using Retriever4.Utilities;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 // Console.Top = Axis Y
@@ -31,17 +32,13 @@ namespace Retriever4
     public class DrawingAtConsole
     {
         //Current cursor position
-        public int X{
-            get {
-                return Console.CursorLeft;
-            }
-        }
+        public int X => Console.CursorLeft;
 
-        public int Y {
-            get {
-                return Console.CursorTop;
-            }
-        }
+        public int Y => Console.CursorTop;
+
+        public int MaxX => Console.LargestWindowWidth;
+
+        public int MaxY => Console.LargestWindowHeight;
 
         //One fifth part of connsole width
         private readonly int _consleOneFifth;
@@ -66,10 +63,41 @@ namespace Retriever4
         private readonly int _rightColumn_SpaceToWriting;
         private readonly int _rightColumn_Middle;
 
-        //Contant titles
+        //Model table 
+        private readonly int _consoleOneTenth;
+        private readonly string _tableHorizontalSeparator;
+        //First selection column
+        private readonly int _firstSelectTable_ColumnBegin;
+        private readonly int _firstSelectTable_Middle;
+        private readonly int _firstSelectTable_SpaceToWriting;
+        private readonly int _firstSelectTable_ColumnEnd;
+        //Standard model column
+        private readonly int _modelColumn_ColumnBegin;
+        private readonly int _modelColumn_Middle;
+        private readonly int _modelColumn_SpaceToWriting;
+        private readonly int _modelColumn_ColumnEnd;
+        //Peaq model column
+        private readonly int _peaqColumn_ColumnBegin;
+        private readonly int _peaqColumn_Middle;
+        private readonly int _peaqColumn_SpaceToWriting;
+        private readonly int _peaqColumn_ColumnEnd;
+        //Selection column
+        private readonly int _secondSelectTable_ColumnBegin;
+        private readonly int _secondSelectTable_Middle;
+        private readonly int _secondSelectTable_SpaceToWriting;
+        private readonly int _secondSelectTable_ColumnEnd;
+
+        //Arrows
+        private readonly string _leftSideArrow;
+        private readonly string _rightSideArrow;
+        private readonly string _arrowCleaner;
+
+        //Constant titles
         private string _leftMainHeader { get; set; } = "RZECZYWISTE";
         private string _rightMainHeader { get; set; } = "BAZA DANYCH";
         private string _descriptionMainHeader { get; set; } = "PARAMETR";
+        private string _modelTableModelHeader { get; set; } = "MODEL";
+        private string _modelTablePeaqHeader { get; set; } = "PEAQ MODEL";
 
 
         public DrawingAtConsole()
@@ -78,10 +106,10 @@ namespace Retriever4
                 return;
 
             //Creating separators - one with cross, one without
-            string line = "";
-            string lineWithCross = "";
-            int oneFifth = (Console.BufferWidth - 1) / 5;
-            for (int i = 0; i < oneFifth; i++)
+            var line = "";
+            var lineWithCross = "";
+            var oneFifth = (Console.BufferWidth - 1) / 5;
+            for (var i = 0; i < oneFifth; i++)
             {
                 if(i == oneFifth - 1)
                 {
@@ -112,7 +140,161 @@ namespace Retriever4
             _rightColumn_End = (5 * oneFifth) - 1;
             _rightColumn_SpaceToWriting = _rightColumn_End - _rightColumn_Begin;
             _rightColumn_Middle = _rightColumn_Begin + (_rightColumn_SpaceToWriting / 2);
+
+            //Creating basic lines for model table
+            line = "";
+            lineWithCross = "";
+            for (var i = 0; i < (oneFifth / 2); i++)
+            {
+                if (i == (oneFifth / 2) - 1)
+                {
+                    line += "-";
+                    lineWithCross += "+";
+                }
+                else
+                {
+                    line += "-";
+                    lineWithCross += "-";
+                }
+            }
+
+            //Set up basic length for table
+            _consoleOneTenth = oneFifth / 2;
+
+            //Creating arrows
+            var leftArrow = "";
+            var rightArrow = "";
+            var arrowCleaner = "";
+            for(var i = 1; i < _consoleOneTenth - 2; i++)
+            {
+                if (i == 1)
+                    rightArrow += "<";
+                else
+                    rightArrow += "=";
+                if (i == _consoleOneTenth - 3)
+                    leftArrow += ">";
+                else
+                    leftArrow += "=";
+                arrowCleaner += " ";
+            }
+            //Setting up contant values
+            _arrowCleaner = arrowCleaner;
+            _leftSideArrow = leftArrow;
+            _rightSideArrow = rightArrow;
+            _tableHorizontalSeparator = lineWithCross + line  + lineWithCross + line + line + line + line + line + lineWithCross + lineWithCross;
+
             
+            _firstSelectTable_ColumnBegin = 1;
+            _firstSelectTable_ColumnEnd = _consoleOneTenth - 1;
+            _firstSelectTable_SpaceToWriting = _firstSelectTable_ColumnEnd - _firstSelectTable_ColumnBegin;
+            _firstSelectTable_Middle = _firstSelectTable_ColumnBegin + (_firstSelectTable_SpaceToWriting / 2);
+
+            _modelColumn_ColumnBegin = _consoleOneTenth + 1;
+            _modelColumn_ColumnEnd = (3 * _consoleOneTenth) - 1;
+            _modelColumn_SpaceToWriting = _modelColumn_ColumnEnd - _modelColumn_ColumnBegin;
+            _modelColumn_Middle = _modelColumn_ColumnBegin + (_modelColumn_SpaceToWriting / 2);
+
+            _peaqColumn_ColumnBegin = (3 * _consoleOneTenth) + 1;
+            _peaqColumn_ColumnEnd = (9 * _consoleOneTenth) - 1;
+            _peaqColumn_SpaceToWriting = _peaqColumn_ColumnEnd - _peaqColumn_ColumnBegin;
+            _peaqColumn_Middle = _peaqColumn_ColumnBegin + (_peaqColumn_SpaceToWriting / 2);
+
+            _secondSelectTable_ColumnBegin = (9 * _consoleOneTenth) + 1;
+            _secondSelectTable_ColumnEnd = (10 *_consoleOneTenth) - 1;
+            _secondSelectTable_SpaceToWriting = _secondSelectTable_ColumnEnd - _secondSelectTable_ColumnBegin;
+            _secondSelectTable_Middle = _secondSelectTable_ColumnBegin + (_secondSelectTable_SpaceToWriting / 2);
+        }
+
+        /// <summary>
+        /// Prints list of models with table headers.
+        /// </summary>
+        /// <param name="startY">Begining of the table.</param>
+        /// <param name="locations">List of locations to print</param>
+        public void PrintModelTable(int startY, ObservableCollection<Location> locations)
+        {
+            //Printing header (line 0)
+            var lines = 0;
+            RestoreCursorX();
+            CursorY(startY);
+            SetConsoleForeground(ConsoleColor.Yellow);
+            CursorX(_modelColumn_Middle - (_modelTableModelHeader.Length / 2));
+            Console.Write(_modelTableModelHeader);
+            CursorX(_peaqColumn_Middle - (_modelTablePeaqHeader.Length / 2));
+            Console.Write(_modelTablePeaqHeader);
+            RestoreColors();
+
+            //Printing horizontal separator (line 1)
+            lines++;
+            CursorY(startY + lines);
+            RestoreCursorX();
+            LineColor();
+            Console.Write(_tableHorizontalSeparator);
+            
+            //From line 2 goes collection
+            for (var i = 0; i < locations.Count(); i++)
+            {
+                //Printing data with vertical separators
+                var tempPeaqModel = string.IsNullOrEmpty(locations[i].PeaqModel) ? "" : locations[i].PeaqModel;
+                lines++;
+                CursorY(startY + lines);
+                RestoreColors();
+                CursorX(_firstSelectTable_ColumnEnd);
+                LineColor();
+                Console.Write("|");
+                RestoreColors();
+                CursorX(_modelColumn_Middle - (locations[i].Model.Length / 2));
+                Console.Write(locations[i].Model);
+                CursorX(_peaqColumn_Middle - (tempPeaqModel.Length / 2));
+                Console.Write(tempPeaqModel);
+                CursorX(_peaqColumn_ColumnEnd);
+                LineColor();
+                Console.Write("|");
+                RestoreColors();
+                CursorX(_modelColumn_ColumnEnd);
+                LineColor();
+                Console.Write("|");
+                RestoreColors();
+
+                //Printing horizontal line
+                lines++;
+                CursorY(startY + lines);
+                RestoreCursorX();
+                LineColor();
+                Console.Write(_tableHorizontalSeparator);
+                RestoreColors();
+            }
+            CursorY(startY + 2);
+        }
+
+        /// <summary>
+        /// Prints selection arrows in specific line.
+        /// </summary>
+        /// <param name="Y">Line in which print arrows.</param>
+        public void PrintRowSelection(int Y)
+        {
+            RestoreCursorX();
+            CursorY(Y);
+            SetConsoleForeground(ConsoleColor.Green);
+            CursorX(_firstSelectTable_ColumnEnd - _leftSideArrow.Length - 1);
+            Console.Write(_leftSideArrow);
+            CursorX(_secondSelectTable_ColumnBegin);
+            Console.Write(_rightSideArrow);
+            RestoreCursorX();
+            RestoreColors();
+        }
+
+        /// <summary>
+        /// Prints string filled by whitespaces which length is same as selection arrow length.
+        /// </summary>
+        /// <param name="Y">Line in which print blank string.</param>
+        public void ClearRowSelection(int Y)
+        {
+            RestoreCursorX();
+            CursorY(Y);
+            CursorX(_firstSelectTable_ColumnEnd - _leftSideArrow.Length - 1);
+            Console.Write(_arrowCleaner);
+            CursorX(_secondSelectTable_ColumnBegin);
+            Console.Write(_arrowCleaner);
         }
 
         /// <summary>
@@ -125,7 +307,7 @@ namespace Retriever4
             //Validation
             if (startY < 0)
             {
-                string message = $"Parametr wskazujący linię w której ma zostać wydrukowany tekst jest ujemny: {startY}. " +
+                var message = $"Parametr wskazujący linię w której ma zostać wydrukowany tekst jest ujemny: {startY}. " +
                     $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintMainHeaders)}, klasa: DrawingAtConsole.";
                 throw new ArgumentOutOfRangeException(nameof(startY), message);
             }
@@ -133,16 +315,16 @@ namespace Retriever4
             //Set cursor in specific line
             CursorY(startY);
             //Save current position of cursur
-            int tempY = Y;
+            var tempY = Y;
             //Return carriage to the begining of the line
             RestoreCursorX();
             //Set colors
             MainHeaderColor();
 
             //Printing headers is a special case of printing due to backgorund change. 
-            string line = "";
+            var line = "";
             //From left edge to first letter of first header
-            int i = (_consleOneFifth / 2) - (_descriptionMainHeader.Length / 2);
+            var i = (_consleOneFifth / 2) - (_descriptionMainHeader.Length / 2);
             for (; i > 0; i--)
                 line += " ";
 
@@ -197,7 +379,7 @@ namespace Retriever4
             //In other case
             else
             {
-                string message = $"Błąd podczas drukowania głównych nagłówków tabeli. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintMainHeaders)}, klasa: DrawingAtConsole.";
+                var message = $"Błąd podczas drukowania głównych nagłówków tabeli. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintMainHeaders)}, klasa: DrawingAtConsole.";
                 throw new Exception(message);
             }
             return Y - tempY;
@@ -217,31 +399,31 @@ namespace Retriever4
             #region Data validation
             if(description.Any(z => z == null))
             {
-                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentNullException(nameof(description), message);
             }
 
             if (leftColumnWriting.Any(z => z == null))
             {
-                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentNullException(nameof(leftColumnWriting), message);
             }
 
             if (rightColumnWriting.Any(z => z == null))
             {
-                string message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentNullException(nameof(rightColumnWriting), message);
             }
 
             if(startY < 0)
             {
-                string message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                var message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentNullException(nameof(startY), message);
             }
             #endregion
 
             //Additional lines counter
-            int lines = 0;
+            var lines = 0;
 
             //Printing description column
             var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, ConsoleColor.White);
@@ -274,7 +456,7 @@ namespace Retriever4
             //Change color for lines
             LineColor();
             //Printing lines from startY (additional lines + first line)
-            for(int i = 0; i < lines+1; i++)
+            for(var i = 0; i < lines+1; i++)
             {
                 CursorY(startY + i);
                 CursorX((_consleOneFifth)-1);
@@ -311,7 +493,7 @@ namespace Retriever4
             //Set cursor position
             CursorY(startY);
             //Additional lines counter
-            int lines = 0;
+            var lines = 0;
             //Printing
             for (; lines < writing.Length; lines++)
             {
@@ -339,7 +521,7 @@ namespace Retriever4
             //Validation
             if (startY < 0)
             {
-                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
+                var message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
                     $"Parametr musi być równy lub większy zero. Metoda: {nameof(PrintHorizontalLine)}, klasa: DrawingAtConsole.";
                 throw new ArgumentOutOfRangeException(nameof(startY), message);
             }
@@ -347,7 +529,7 @@ namespace Retriever4
             //Set cursor position
             CursorY(startY);
             //Save current cursor position
-            int tempY = Y;
+            var tempY = Y;
             //Save colors
             var fcolor = Console.ForegroundColor;
             var bcolor = Console.BackgroundColor;
@@ -373,7 +555,7 @@ namespace Retriever4
             //In other case
             else
             {
-                string message = $"Błąd podczas drukowania poziomego separatora. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintHorizontalLine)}, klasa: DrawingAtConsole.";
+                var message = $"Błąd podczas drukowania poziomego separatora. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintHorizontalLine)}, klasa: DrawingAtConsole.";
                 throw new Exception(message);
             }
             return Y - tempY;
@@ -390,21 +572,21 @@ namespace Retriever4
             //Validation
             if(bar == null)
             {
-                string message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                var message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
                     $"Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(bar), message);
             }
 
             if (startY < 0)
             {
-                string message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
+                var message = $"Nie można wydrukować pionowego separatora. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. " +
                     $"Parametr musi być równy lub większy zero. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
                 throw new ArgumentOutOfRangeException(nameof(startY), message);
             }
             //Set cursor position
             CursorY(startY);
             //Save current position
-            int tempY = Y;
+            var tempY = Y;
             //Change color
             MainHeaderColor();
             //Print
@@ -424,7 +606,7 @@ namespace Retriever4
             //In other case
             else
             {
-                string message = $"Błąd podczas drukowania nagłówka dla ekranu inicjalizacji. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
+                var message = $"Błąd podczas drukowania nagłówka dla ekranu inicjalizacji. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
                 throw new Exception(message);
             }
             return Y - tempY;
@@ -450,27 +632,27 @@ namespace Retriever4
             #region Validation
             if (Yposition < 0)
             {
-                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
+                var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
                     $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(Yposition), message);
             }
 
             if (comment == null)
             {
-                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazuje na null. " +
                     $"Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(comment), message);
             }
             #endregion
             //Additional lines counter
-            int lines = 0; 
+            var lines = 0; 
             //Check if comment is longer than allowed space
             //If is, split it in parts and print in multiple lines
             if (comment.Length > Console.BufferWidth - 15)
             {
-                string[] splittedComment = comment.SplitInParts(Console.BufferWidth - 15).ToArray();
+                var splittedComment = comment.SplitInParts(Console.BufferWidth - 15).ToArray();
                 SetConsoleForeground(color);
-                for (int i = 0; i < splittedComment.Length; i++)
+                for (var i = 0; i < splittedComment.Length; i++)
                 {
                     CursorY(Yposition + lines);
                     RestoreCursorX();
@@ -505,14 +687,14 @@ namespace Retriever4
             #region Validation
             if (Yposition < 0)
             {
-                string message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
+                var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
                     $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(Yposition), message);
             }
 
             if (status == null)
             {
-                string message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
+                var message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
                     $"Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(status), message);
             }
@@ -523,7 +705,7 @@ namespace Retriever4
             //Set cursor position
             CursorY(Yposition);
             //Save current Y position
-            int tempY = Y;
+            var tempY = Y;
             //Return carriage to the begining of the line
             CursorX(Console.BufferWidth - status.Length - 1);
             //Printing
@@ -543,7 +725,7 @@ namespace Retriever4
             //In other case
             else
             {
-                string message = $"Błąd podczas drukowania nagłówka dla ekranu inicjalizacji. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
+                var message = $"Błąd podczas drukowania nagłówka dla ekranu inicjalizacji. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
                 throw new Exception(message);
             }
             return Y - tempY;

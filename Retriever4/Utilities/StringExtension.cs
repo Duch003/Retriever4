@@ -22,7 +22,7 @@ namespace Retriever4.Utilities
             if (s == null)
                 throw new ArgumentNullException("Wartość wejściowa jest null");
 
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
                 if (char.IsLetter(s[i]) && i >= 0)
                 {
                     s = s.Remove(i, 1);
@@ -37,7 +37,7 @@ namespace Retriever4.Utilities
                 throw new ArgumentNullException("Wartość wejściowa jest null");
             if (except == null)
                 except = new char[0];
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
                 if ((char.IsSymbol(s[i]) || char.IsPunctuation(s[i])) && i >= 0 && !except.Any(z => z == s[i]))
                 {
                     s = s.Remove(i, 1);
@@ -51,7 +51,7 @@ namespace Retriever4.Utilities
             if (s == null)
                 throw new ArgumentNullException("Wartość wejściowa jest null");
 
-            for (int i = 0; i < s.Length; i++)
+            for (var i = 0; i < s.Length; i++)
                 if (char.IsWhiteSpace(s[i]) && i >= 0)
                 {
                     s = s.Remove(i, 1);
@@ -62,16 +62,16 @@ namespace Retriever4.Utilities
 
         public static string JoinArray(this string[] arr)
         {
-            string merged = "";
-            for (int i = 0; i < arr.Length; i++)
+            var merged = "";
+            for (var i = 0; i < arr.Length; i++)
                 merged += arr[i] + " ";
             return merged;
         }
 
         public static string PadBoth(this string str, int length)
         {
-            int spaces = length - str.Length;
-            int padLeft = spaces / 2 + str.Length;
+            var spaces = length - str.Length;
+            var padLeft = spaces / 2 + str.Length;
             return str.PadLeft(padLeft).PadRight(length, ' ');
         }
     }

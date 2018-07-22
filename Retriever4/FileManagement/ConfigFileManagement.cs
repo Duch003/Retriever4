@@ -25,7 +25,7 @@ namespace Retriever4.FileManagement
             if (!DoesConfigFileExists)
                 throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Config.xml.");
             //Create instance of config
-            Configuration config = new Configuration();
+            var config = new Configuration();
             //Create serializer
             var xs = new XmlSerializer(typeof(Configuration));
             //Open stream
@@ -46,7 +46,7 @@ namespace Retriever4.FileManagement
         /// </summary>
         public static void WriteConfiguration()
         {
-            Configuration config = new Configuration();
+            var config = new Configuration();
             var xs = new XmlSerializer(typeof(Configuration));
             var sw = new StreamWriter(Environment.CurrentDirectory + @"\Config.xml");
             xs.Serialize(sw, config);

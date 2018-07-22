@@ -62,21 +62,20 @@
     <Compile Include="FileManagement\ConfigFileManagement.cs" />
     <Compile Include="FileManagement\DatabaseFileManagement.cs" />
     <Compile Include="FileManagement\Log.cs" />
-    <Compile Include="FileManagement\ModelFile.Management.cs" />
+    <Compile Include="FileManagement\ModelFileManagement.cs" />
     <Compile Include="FileManagement\SHA1FileManagement.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="FileManagement\Retriever.cs" />
-    <Compile Include="Enums\WindowsActivation.cs" />
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
     <Compile Include="UnmeasurableTests\RetrieverMethodsTests.cs" />
+    <Compile Include="Utilities\Retriever.cs" />
+    <Compile Include="Enums\WindowsActivation.cs" />
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
     <Compile Include="Utilities\DetectDeviceModel.cs" />
     <Compile Include="Validation\DoubleValidation.cs" />
     <Compile Include="Validation\ObjectsValidation.cs" />
     <Compile Include="Validation\StringValidation.cs" />
-    <Compile Include="_GLOBAL.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

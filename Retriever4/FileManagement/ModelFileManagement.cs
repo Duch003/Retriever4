@@ -65,29 +65,29 @@ namespace Retriever4.FileManagement
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             //Open connection
-            var stream = new FileStream(_GLOBAL.Filepath + _GLOBAL.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
             var result = excelReader.AsDataSet();
 
             //Read Model Database
-            var modelTable = result.Tables[_GLOBAL.DatabaseTableName];
+            var modelTable = result.Tables[Configuration.DatabaseTableName];
             for (var i = 1; i < modelTable.Rows.Count; i++)
             {
                 //Save model
-                var md = modelTable.Rows[i][_GLOBAL.DB_Model].ToString();
+                var md = modelTable.Rows[i][Configuration.DB_Model].ToString();
                 if (string.IsNullOrEmpty(md))
                     continue;
                 //Save peaq Model
-                string peaqModel = modelTable.Rows[i][_GLOBAL.DB_PeaqModel].ToString();
+                var peaqModel = modelTable.Rows[i][Configuration.DB_PeaqModel].ToString();
                 //Save case model to join tables on it
-                var caseModel = modelTable.Rows[i][_GLOBAL.DB_CaseModel].ToString();
+                var caseModel = modelTable.Rows[i][Configuration.DB_CaseModel].ToString();
                 //Read Bios Database
-                var biosTable = result.Tables[_GLOBAL.BiosTableName];
-                int biosRow = 0;
-                for (int j = 0; j < biosTable.Rows.Count; j++)
+                var biosTable = result.Tables[Configuration.BiosTableName];
+                var biosRow = 0;
+                for (var j = 0; j < biosTable.Rows.Count; j++)
                 {
                     //Searching for matching for case model
-                    if (biosTable.Rows[j][_GLOBAL.Bios_CaseModel].ToString().Contains(caseModel))
+                    if (biosTable.Rows[j][Configuration.Bios_CaseModel].ToString().Contains(caseModel))
                     {
                         //If found, save line number
                         biosRow = j;

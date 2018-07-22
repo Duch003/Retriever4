@@ -12,7 +12,7 @@ namespace Retriever4.FileManagement
         /// <returns>True if file exists.</returns>
         public bool DoesDatabaseFileExists()
         {
-            return File.Exists(_GLOBAL.Filepath + _GLOBAL.Filename);
+            return File.Exists(Configuration.Filepath + Configuration.Filename);
         }
 
         /// <summary>
@@ -27,17 +27,17 @@ namespace Retriever4.FileManagement
             //Validation
             if (string.IsNullOrEmpty(tableName))
             {
-                string message = $"Nie podano nazwy zakładki z pliku excel. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
+                var message = $"Nie podano nazwy zakładki z pliku excel. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
                 throw new InvalidDataException(message);
             }
             if (row < 0)
             {
-                string message = $"Ujemny numer wiersza. Wiersze numerowane są od 0. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
+                var message = $"Ujemny numer wiersza. Wiersze numerowane są od 0. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
                 throw new InvalidDataException(message);
             }
             if (column < 0)
             {
-                string message = $"Ujemny numer kolumny. Wiersze numerowane są od 0. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
+                var message = $"Ujemny numer kolumny. Wiersze numerowane są od 0. Metoda: {nameof(ReadDetailsFromDatabase)}, klasa: DatabaseFileManagement.";
                 throw new InvalidDataException(message);
             }
 
@@ -46,7 +46,7 @@ namespace Retriever4.FileManagement
             //An attempt to extract cell value
             try
             {
-                using (FileStream stream = new FileStream(_GLOBAL.Filepath + _GLOBAL.Filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
                     var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
                     var result = excelReader.AsDataSet();
@@ -57,7 +57,7 @@ namespace Retriever4.FileManagement
             }
             catch (Exception e)
             {
-                string message = $"Nie udało się utworzyć połączenia z plikiem excel Nie można odczytać bazy.\n\nTreść błędu:\n" +
+                var message = $"Nie udało się utworzyć połączenia z plikiem excel Nie można odczytać bazy.\n\nTreść błędu:\n" +
                     $"{e.Message}\n\n" +
                     $"Wyjątek wewnętrzny:{e.InnerException}" +
                     $"\nWywołania:\n" +

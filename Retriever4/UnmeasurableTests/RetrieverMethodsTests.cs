@@ -1,7 +1,6 @@
-﻿using Retriever4;
-using System;
+﻿using System;
 using System.Reflection;
-namespace Retriever4.UnmeasurableTests
+namespace Retriever4.Tests.UnmeasurableTests
 {
     public class RetrieverMethodsTests
     {
@@ -9,11 +8,11 @@ namespace Retriever4.UnmeasurableTests
         {
             Console.WriteLine("TESTOWANIE POPRAWNOŚCI ZAPYTAŃ Z KLASY RETRIEVER.CS");
             Console.WriteLine();
-            Retriever obj = new Retriever();
-            Type myType = obj.GetType();
-            MethodInfo[] info = myType.GetMethods();
-            string mess = "---------------==========Passed!==========---------------";
-            ConsoleColor color = ConsoleColor.Green;
+            var obj = new Retriever();
+            var myType = obj.GetType();
+            var info = myType.GetMethods();
+            var mess = "--------------==========Passed!==========--------------";
+            var color = ConsoleColor.Green;
             foreach (var z in info)
             {
                 if (z.Name == "GetType" || z.Name == "ToString" || z.Name == "GetHashCode" || z.Name == "Equals")
@@ -25,7 +24,7 @@ namespace Retriever4.UnmeasurableTests
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.SetCursorPosition(50, Console.CursorTop);
                     Console.Write("Work!");
-                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.ForegroundColor = ConsoleColor.Gray;
                     Console.WriteLine();
                 }
                 catch (Exception e)
@@ -33,8 +32,8 @@ namespace Retriever4.UnmeasurableTests
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.SetCursorPosition(50, Console.CursorTop);
                     Console.WriteLine(e.InnerException.Message);
-                    Console.ForegroundColor = ConsoleColor.White;
-                    mess = "---------------==========Failed!==========---------------";
+                    Console.ForegroundColor = ConsoleColor.Gray;
+                    mess = "--------------==========Failed!==========--------------";
                     color = ConsoleColor.Red;
                 }
             }

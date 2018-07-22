@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Text.RegularExpressions;
-using System.Net.NetworkInformation;
+﻿using System.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Management;
 using System.IO;
@@ -8,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using Retriever4.Enums;
 using Retriever4.Utilities;
+using System.Linq;
 
 namespace Retriever4
 {
@@ -25,12 +24,12 @@ namespace Retriever4
         /// <returns>Dictionary where key is the class property and value is an array of property values.</returns>
         private static Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
         {
-            Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
+            var anwser = new Dictionary<string, dynamic>[0];
             //Creating an object searcher
-            using(ManagementObjectSearcher searcher = new ManagementObjectSearcher(scope, query))
+            using(var searcher = new ManagementObjectSearcher(scope, query))
             {
                 //Iterator for every object gathered by ManagementObjectSearcher
-                int i = 0;
+                var i = 0;
                 //Get class instances
                 foreach (var z in searcher.Get())
                 {
@@ -50,7 +49,7 @@ namespace Retriever4
                     //If particular properties are given, take only them
                     else
                         //Loop for properties array
-                        for (int j = 0; j < properties.Length; j++)
+                        for (var j = 0; j < properties.Length; j++)
                         {
                             //Check if is property an array
                             if (z.Properties[properties[j]].IsArray)
@@ -75,8 +74,8 @@ namespace Retriever4
         {
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
             var ethInterface = interfaces.Where(z => z.NetworkInterfaceType == NetworkInterfaceType.Ethernet).ToArray();
-            Dictionary<string, string> ans = new Dictionary<string, string>();
-            for (int i = 0; i < ethInterface.Length; i++)
+            var ans = new Dictionary<string, string>();
+            for (var i = 0; i < ethInterface.Length; i++)
             {
                 var name = ethInterface[i].Name;
                 var mac = ethInterface[i].GetPhysicalAddress().ToString();
@@ -107,10 +106,10 @@ namespace Retriever4
         public static string[] GetSwm()
         {
             var i = 0;
-            DriveInfo[] AllDrives = DriveInfo.GetDrives();
-            string[] ans = new string[0];
-            string[] swm = new string[0];
-            string[] letter = new string[0];
+            var AllDrives = DriveInfo.GetDrives();
+            var ans = new string[0];
+            var swm = new string[0];
+            var letter = new string[0];
             foreach (var d in AllDrives)
             {
                 //Sprawdza gotowość dysku do odczytu
@@ -126,9 +125,9 @@ namespace Retriever4
                     //W innym wypadku odczytaj 3 linię z pliku i dodaj do smiennej SWM
                     else
                     {
-                        ans.Expand();
-                        swm.Expand();
-                        letter.Expand();
+                        ans = ans.Expand();
+                        swm = swm.Expand();
+                        letter = letter.Expand();
                         //Daną wyjściową jest np: D:\12345678
                         swm[i] = $"{File.ReadLines(d.Name + "swconf.dat").Skip(2).Take(1).First()}";
                         letter[i] = $"{d.Name}";
@@ -157,7 +156,19 @@ namespace Retriever4
             => GetDeviceData("SELECT Name FROM Win32_Processor", new string[] { "Name" });
 
         public static Dictionary<string, dynamic>[] RamData()
-            => GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
+        {
+            var result = GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
+            var anwser = new Dictionary<string, dynamic>[1];
+            anwser[0] = new Dictionary<string, dynamic>();
+            long total = 0;
+            for (var i = 0; i < result.Length; i++)
+            {
+                total += (long)result[i]["Capacity"];
+                anwser[0].Add($"MemoryChip{i}", result[i]["Capacity"]);
+            }
+            anwser[0].Add("Total", total);
+            return anwser;
+        }
 
         public static Dictionary<string, dynamic>[] StorageData()
             => GetDeviceData("SELECT Size FROM Win32_DiskDrive", new string[] { "Size" });
@@ -165,34 +176,50 @@ namespace Retriever4
         public static Dictionary<string, dynamic>[] BatteriesData()
         {
             var staticData = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
-            if(staticData == null || staticData.Count() == 0)
+            var anwser = new Dictionary<string, dynamic>[0];
+            if (staticData == null || staticData.Count() == 0)
             {
-                //Nie znaleziono baterii
+                //Dictionary without battery instances
+                return anwser;
             }
-            int j = 0;
-            Dictionary<string, dynamic>[] anwser = new Dictionary<string, dynamic>[0];
-            for (int i = 0; i < staticData.Length; i++)
+            var j = 0;
+            for (var i = 0; i < staticData.Length; i++)
             {
+                
                 var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {staticData[i]["Tag"]}", new string[] { "FullChargedCapacity" }, @"root\wmi");
                 if(fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
-                    //Albo nie zwraca wartosci, albo wartoci dla jednej baterii jest za duzo
+                    var value = fullChargeCapacity == null ? "null" : fullChargeCapacity.Count().ToString();
+                    var message = "Bląd podczas pobierania FullChargeCapacity z BatteryFullChargedCapacity. Zapytanie zwróciło" +
+                        $"nieoczekiwaną liczbę rekordów: {value}. Tag: {staticData[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
+                    throw new Exception(message);
                 }
                 var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" });
                 if (fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
-                    //Albo nie zwraca wartosci, albo wartoci dla jednej baterii jest za duzo
+                    var value = currentChargeLevel == null ? "null" : currentChargeLevel.Count().ToString();
+                    var message = "Bląd podczas pobierania EstimatedChargeRemaining z Win32_Battery. Zapytanie zwróciło" +
+                        $"nieoczekiwaną liczbę rekordów: {value}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
+                    throw new Exception(message);
                 }
                 anwser = anwser.Expand();
                 anwser[i] = new Dictionary<string, dynamic>();
                 anwser[i].Add("Tag", staticData[i]["Tag"]);
-                anwser[i].Add("DesignedCapacity", staticData[i]["DesignedCapacity"]);
-                anwser[i].Add("FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"]);
+                anwser[i].Add("DesignedCapacity", staticData[i]["DesignedCapacity"] / 1000);
+                anwser[i].Add("FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000);
                 anwser[i].Add("EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]);
+                anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
                 j++;
             }
             return anwser;
 
+        }
+
+        private static double CalculateVearLevel(double fullChargeCapacity, double designedCapacity)
+        {
+            var rawlevel = 1 - (fullChargeCapacity / designedCapacity);
+            var wearlevel = Math.Round(rawlevel, 2);
+            return wearlevel;
         }
 
         public static Dictionary<string, dynamic>[] OS()

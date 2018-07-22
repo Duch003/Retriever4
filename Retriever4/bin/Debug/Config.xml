@@ -11,11 +11,12 @@
   <db_Ram>7</db_Ram>
   <db_Cpu>8</db_Cpu>
   <db_OS>10</db_OS>
+  <db_SWM>11</db_SWM>
   <db_CaseModel>14</db_CaseModel>
   <db_MainboardVendor>16</db_MainboardVendor>
   <db_ShippingMode>17</db_ShippingMode>
-  <bios_CaseModel>0</Bios_CaseModel>
-  <bios_MainboardModel>2</Bios_MainboardModel>
+  <bios_CaseModel>0</bios_CaseModel>
+  <bios_MainboardModel>2</bios_MainboardModel>
   <bios_Bios>3</bios_Bios>
   <bios_EC>4</bios_EC>
   <bios_BuildDate>5</bios_BuildDate>

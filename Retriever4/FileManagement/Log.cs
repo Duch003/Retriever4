@@ -13,13 +13,13 @@ namespace Retriever4
         public static string WriteLog(string info)
         {
             //Create title
-            string title = $"Log {DateTime.Now}.txt";
+            var title = $"Log {DateTime.Now}.txt";
             //Replace forbidden chars
             title = title.Replace(@"/", @".").Replace(@":", @"");
             //Create path
-            string path = Path.Combine(Environment.CurrentDirectory, title);
+            var path = Path.Combine(Environment.CurrentDirectory, title);
             //Write log
-            using (StreamWriter sw = new StreamWriter(new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Write)))
+            using (var sw = new StreamWriter(new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Write)))
             {
                 sw.WriteLine(info);
             }
@@ -38,7 +38,7 @@ namespace Retriever4
             //Validation
             if(e == null)
             {
-                string mess = $"Parametr typu System.Exception jest null. Metoda: {nameof(PrintErrorMessage)}, klasa: Log.cs.";
+                var mess = $"Parametr typu System.Exception jest null. Metoda: {nameof(PrintErrorMessage)}, klasa: Log.cs.";
                 throw new ArgumentNullException("e", mess);
             }
 
@@ -48,7 +48,7 @@ namespace Retriever4
             if (string.IsNullOrEmpty(file))
                 entryMessage = ">>>>>Nie podano nazwy pliku.<<<<<";
             //Printing
-            string message = $"{entryMessage}\nTreść błędu:{e.Message}\nŹródło:{e.Source}\nStos wywołań:{e.StackTrace}\nPlik {file}.";
+            var message = $"{entryMessage}\nTreść błędu:{e.Message}\nŹródło:{e.Source}\nStos wywołań:{e.StackTrace}\nPlik {file}.";
             Console.WriteLine(message);
             Console.WriteLine($"\nAplikacja nie może zostać odpalona. W folderze z programem został zapisany log o nazwie {WriteLog(message)}.\nPrześlij go proszę na ten email: Tomasz.Mankin@hemmersbach.com.");
             Console.WriteLine("\nWciśnij ENTER aby kontynuować.");
