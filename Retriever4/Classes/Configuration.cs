@@ -53,9 +53,13 @@ namespace Retriever4
 
         public Configuration() { }
 
+        /// <summary>
+        /// Checks if every field have assigned value;
+        /// </summary>
+        /// <returns>False if there are null values.</returns>
         public bool MakeDataStatic()
         {
-            if (!ObjectsValidation.CheckFieldsForNulls(this, null))
+            if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, null))
             {
                 return false;
             }

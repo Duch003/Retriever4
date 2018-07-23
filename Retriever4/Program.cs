@@ -28,12 +28,14 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            _engine = new DrawingAtConsole();
-            Config = ConfigFileManagement.ReadConfiguration();
-            Config.MakeDataStatic();
-            ModelFile.SerializeModelList();
-            ModelList = ModelFile.DeserializeModelList();
-            FindModel();
+            bool? testbool = new bool?(true);
+            TypeValidation.IsNullable(testbool);
+            //_engine = new DrawingAtConsole();
+            //Config = ConfigFileManagement.ReadConfiguration();
+            //Config.MakeDataStatic();
+            //ModelFile.SerializeModelList();
+            //ModelList = ModelFile.DeserializeModelList();
+            //FindModel();
             //while (true)
             //{
                 
@@ -174,7 +176,7 @@ namespace Retriever4
         }
 
 
-       
+
         //private static void PrintDetails()
         //{
         //    Console.Clear();
@@ -873,227 +875,106 @@ namespace Retriever4
         //    return;
         //}
 
-        //private static void Initialization(string model = "")
-        //{
-        //    int position = 0;
-        //    //Rozpoczęcie procesu weryfikującego czy aplikację można uruchomić
-        //    _engine.PrintInitializationBar(position, "PRZYGOTOWANIE APLIKACJI DO DZIAŁANIA");
+        private static bool Initialization(string model = "")
+        {
+            Console.Clear();
+            _engine.RestoreCursorX();
+            _engine.RestoreCursorY();
+            var lines = _engine.Y; //0
+            //#1. Check configuration existance
+            lines += _engine.PrintInitializationBar(lines, "INICJALIZACJA PROGRAMU");
+            lines++;
+            _engine.PrintInitializationDescription(lines, "Sprawdzanie istnienia pliku Config.xml.");
+            if (!ConfigFileManagement.DoesConfigFileExists)
+            {
+                _engine.PrintInitializationStatus(lines, "Nie znaleziono pliku", _failColor);
+                lines++;
+                _engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. " +
+                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
+                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                Console.ReadKey();
+                return false;
+            }
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
 
-        //    #region Sprawdzenie czy istnieje plik Config.xml
-        //    _engine.PrintInitializationDescription(++position, "Sprawdzenie czy istnieje plik Config.xml");
-        //    if (!Retriever.DoesConfigFileExists)
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        _engine.PrintInitializationComment(position + 1, $"\nNie znaleziono pliku kofiguracyjnego Config.xml w " +
-        //            $"ścieżce {Environment.CurrentDirectory}. Aplikacja nie może zostać uruchomiona", _failColor);
-        //        Console.WriteLine("\nWciśnij ENTER aby kontynuować.");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            //#2. Deserialize configuration
+            lines++;
+            _engine.PrintInitializationDescription(lines, "Deserializacja pliku Config.xml.");
+            try
+            {
+                Config = ConfigFileManagement.ReadConfiguration();
+            }
+            catch(Exception e)
+            {
+                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
+                lines++;
+                _engine.PrintInitializationComment(lines, $"Odczyt pliku Config.xml nie powiódł się. Prawdopodbnie jest źle wypełniony.\nTresć błędu: {e.Message}\n" +
+                    $"Błąd wewnątrzny: {e.InnerException.Message}" +
+                    $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.White);
+                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                Console.ReadKey();
+                return false;
+            }
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
 
-        //    #region Deserializacja pliku Config.xml
-        //    //Próba odczytu pliku konfiguracyjnego
-        //    _engine.PrintInitializationDescription(++position, "Deserializacja pliku Config.xml.");
-        //    try
-        //    {
-        //        _config = Retriever.ReadConfiguration();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        Log.PrintErrorMessage("\nBłąd podczas próby odczytania pliku konfiguracyjnego.", e, "Program.cs");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            //#3. Configuration null-checking
+            lines++;
+            _engine.PrintInitializationDescription(lines, "Sprawdzanie poprawności wypełnienia pliku Config.xml.");
+            if (!Config.MakeDataStatic())
+            {
+                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
+                lines++;
+                Type myType = Config.GetType();
+                var nullFields = ObjectsValidation.TakeFieldsWithNulls(Config, null);
+                var negativeFields = ObjectsValidation.TakeFieldsWithNegativeNumbers(Config, null);
+                _engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
+                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
+                Console.WriteLine("Pola z wartościami null: ");
+                foreach(var z in nullFields)
+                {
+                    Console.WriteLine($"        {z}");
+                }
+                Console.WriteLine("Pola z wartościami ujemnymi: ");
+                foreach (var z in negativeFields)
+                {
+                    Console.WriteLine($"        {z.Key}:    {z.Value}");
+                }
+                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                Console.ReadKey();
+                return false;
+            }
+            //#2. Existance of database
+            if (DatabaseFileManagement.DoesDatabaseFileExists())
+            {
 
-        //    #region Sprawdzenie poprawności wypełnienia Config.xml
-        //    //Sprawdzenie czy niezbędne pola pliku konfiguracyjnego zostały wypełnione
-        //    _engine.PrintInitializationDescription(++position, "Sprawdzenie poprawności wypełnienia Config.xml.");
-        //    if (ObjectTests.CheckFieldsForNulls(_config))
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        _engine.PrintInitializationComment(position + 1, $"\nAplikacja nie może zostać uruchomiona. " +
-        //            $"W pliku konfiguracyjnym występują wartości null.", _failColor);
-        //        Console.WriteLine("Wciśnij ENTER aby kontynuować.");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            }
+            //#4. SHA1
+            if (!SHA1FileManagement.DoesHashFileExists)
+            {
 
-        //    #region Sprawdzenie istanienia pliku Schema.xml
-        //    //Sprawdzenie czy istnieją plik schematu odczytu
-        //    _engine.PrintInitializationDescription(++position, $"Sprawdzenie istnienia pliku Schema.xml");
-        //    if (!Retriever.DoesSchemaFileExists)
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        _engine.PrintInitializationComment(position + 1, $"\nNie znaleziono pliku Schema.xml w ścieżce " +
-        //            $"{Environment.CurrentDirectory}. Aplikacja nie może zostać uruchomiona", _failColor);
-        //        Console.WriteLine("Wciśnij ENTER aby kontynuować.");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            }
+            var lastHash = SHA1FileManagement.ReadHash();
+            var currentHash = SHA1FileManagement.ComputeSHA1();
+            if(currentHash != lastHash)
+            {
 
-        //    #region Sprawdzenie istanienia pliku Schema.xml
-        //    //Sprawdzenie czy istnieją plik: bazy danych
-        //    _engine.PrintInitializationDescription(++position, $"Sprawdzenie istnienia pliku {_config.Filename.Replace(@"\", "")}");
-        //    if (!Retriever.DoesDatabaseFileExists(_config.Filepath, _config.Filename))
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        _engine.PrintInitializationComment(position + 1, $"\nNie znaleziono pliku {_config.Filename.Replace(@"\", "")} w ścieżce " +
-        //            $"{Environment.CurrentDirectory}. Aplikacja nie może zostać uruchomiona", _failColor);
-        //        Console.WriteLine("Wciśnij ENTER aby kontynuować.");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            }
+            else
+            {
 
-        //    #region Sprawdzenie czy istnieje plik SHA1.txt
-        //    //Sprawdzenie czy istnieje plik SHA1.txt
-        //    _engine.PrintInitializationDescription(++position, "Sprawdzenie czy istnieje plik SHA1.txt");
-        //    if (!Retriever.DoesHashFileExists)
-        //    {
-        //        _engine.PrintInitializationComment(++position, "Utworzenie pliku SHA1.txt", _warningColor); 
-        //        try
-        //        {
-        //            var hash = Retriever.ComputeSHA1(_config.Filepath, _config.Filename);
-        //            Retriever.WriteHash(hash);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //            Log.PrintErrorMessage("\nBłąd podczas tworzenia nowego pliku SHA1.txt.", e, "Program.cs");
-        //            Console.ReadLine();
-        //            return;
-        //        }
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            }
+            //#5. Model.xml - read/update
+            if (!ModelFile.DoestModelListFileExists)
+            {
 
-        //    #region Sprawdzenie czy istnieje plik Model.xml
-        //    //Określenie czy istnieje plik Model.xml, jeżeli nie, to utworzenie go
-        //    _engine.PrintInitializationDescription(++position, "Sprawdzenie czy istnieje plik Model.xml");
-        //    if (!Retriever.DoestModelListFileExists)
-        //    {
-        //        _engine.PrintInitializationComment(++position, "Utworzenie pliku Model.xml", _warningColor);
-        //        try
-        //        {
-        //            Retriever.SerializeModelList(_config);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //            Log.PrintErrorMessage("\nBłąd podczas tworzenia nowego pliku Model.xml.", e, "Program.cs");
-        //            Console.ReadLine();
-        //            return;
-        //        }
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
+            }
+            else
+            {
 
-        //    #region Pobieranie haszy
-        //    //Pobranie haszy
-        //    _engine.PrintInitializationDescription(++position, "Pobranie haszy");
-        //    string currentHash;
-        //    string savedHash;
-        //    try
-        //    {
-        //        currentHash = Retriever.ComputeSHA1(_config.Filepath, _config.Filename);
-        //        savedHash = Retriever.ReadHash();
-        //        if (string.IsNullOrEmpty(savedHash))
-        //        {
-        //            _engine.PrintInitializationComment(++position, "Plik SHA1.txt jest pusty. Tworzenie nowego hasza.", _warningColor);
-        //            var temp = Retriever.ComputeSHA1(_config.Filepath, _config.Filename);
-        //            Retriever.WriteHash(temp);
-        //            savedHash = temp;
-        //        }
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        Log.PrintErrorMessage("\nBłąd podczas pobierania haszy.", e, "Program.cs");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
-
-        //    #region Porównanie haszy
-        //    //Porównanie haszy i ewentualna aktualizacja pliku Model.xml
-        //    _engine.PrintInitializationDescription(++position, "Porównanie haszy");
-        //    if (!currentHash.Equals(savedHash))
-        //    {
-        //        _engine.PrintInitializationComment(++position, "Hasze są różne. Aktualizacja listy modeli.", _warningColor);
-        //        try
-        //        {
-        //            Retriever.WriteHash(currentHash);
-        //            Retriever.SerializeModelList(_config);
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //            Log.PrintErrorMessage("\nBłąd w trakcie zapisywania nowego hasza lub podczas serializacji listy modeli", e, "Program.cs");
-        //            Console.ReadLine();
-        //            return;
-        //        }
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
-
-        //    #region Deserializacja pliku Model.xml
-        //    //Deserializacja pliku Model.xml
-        //    _engine.PrintInitializationDescription(++position, "Deserializacja pliku Model.xml.");
-        //    try
-        //    {
-        //        _modelList = Retriever.DeserializeModelList();
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        _engine.PrintInitializationStatus(position, _failed, _failColor);
-        //        Log.PrintErrorMessage("\nBłąd w trakcie deserializacji listy modeli.", e, "Program.cs");
-        //        Console.ReadLine();
-        //        return;
-        //    }
-        //    _engine.PrintInitializationStatus(position, _success, _passColor);
-        //    #endregion
-
-
-
-        //    #region Próba wykrycia modelu urządzenia
-        //    //Próba wykrycia modelu urządzenia
-        //    _engine.PrintInitializationDescription(++position, "Wykrycie modelu urządzenia");
-        //    if (model.Length != 5)
-        //        model = Retriever.AnalyzeForModel();
-        //    if (string.IsNullOrEmpty(model))
-        //    {
-        //        _engine.PrintInitializationStatus(position, "Nie wykryto.", _warningColor);
-        //    }
-        //    else
-        //    {
-        //        var ansArr = _modelList?.Where(z => z.Model.Contains(model));
-
-        //        if (ansArr.Count() == 0)
-        //        {
-        //            _engine.PrintInitializationStatus(position, "Nie wykryto.", _warningColor);
-        //        }
-        //        else
-        //        {
-        //            _model = ansArr.First();
-        //            _engine.PrintInitializationStatus(position, _model.Model, _warningColor);
-        //        }
-        //    }
-
-        //    _engine.PrintInitializationComment(++position, "\nAplikacja gotowa do użycia!", _passColor);
-        //    Console.ReadLine();
-        //    #endregion
-        //}
+            }
+            //
+            return true;
+        }
     }
 
     

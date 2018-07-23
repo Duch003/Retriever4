@@ -10,7 +10,7 @@ namespace Retriever4.FileManagement
         /// Checks if file exists. Depends on config file.
         /// </summary>
         /// <returns>True if file exists.</returns>
-        public bool DoesDatabaseFileExists()
+        public static bool DoesDatabaseFileExists()
         {
             return File.Exists(Configuration.Filepath + Configuration.Filename);
         }
@@ -22,7 +22,7 @@ namespace Retriever4.FileManagement
         /// <param name="row">Row number of desired cell (counts from 0).</param>
         /// <param name="column">Column number of desired cell (counts from 0).</param>
         /// <returns>Cell value. If </returns>
-        public object ReadDetailsFromDatabase(string tableName, int row, int column)
+        public static object ReadDetailsFromDatabase(string tableName, int row, int column)
         {
             //Validation
             if (string.IsNullOrEmpty(tableName))

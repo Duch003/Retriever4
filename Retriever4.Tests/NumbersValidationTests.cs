@@ -5,7 +5,7 @@ using System;
 namespace Retriever4.Tests
 {
     [TestFixture]
-    public class DoubleValidationTests
+    public class NumbersValidationTests
     {
         [TestCase(-13, 12, true)]
         [TestCase(0, 12, true)]
@@ -15,7 +15,7 @@ namespace Retriever4.Tests
         [TestCase(14, 12, false)]
         public void CompareWearlevel_LogicTest(double real, double constant, bool expected)
         {
-            var anwser = DoubleValidation.CompareWearLevel(constant, real);
+            var anwser = NumbersValidation.CompareWearLevel(constant, real);
             Assert.IsTrue(expected == anwser);
         }
 
@@ -37,7 +37,7 @@ namespace Retriever4.Tests
         [TestCase("16 GB eMMC", 34359738368, false)]
         public void CompareStorages_VariousData(string db, double real, bool expected)
         {
-            var result = DoubleValidation.CompareStorages(db, real);
+            var result = NumbersValidation.CompareStorages(db, real);
             Assert.IsTrue(result == expected);
         }
 
@@ -48,8 +48,9 @@ namespace Retriever4.Tests
         [TestCase(null, -9)]
         public void CompareStorages_DatabaseArgumentIsNullOrRealValueIsNegative_ThrowsException(string db, double real)
         {
-            Assert.Throws<ArgumentException>(() => DoubleValidation.CompareStorages(db, real));
+            Assert.Throws<ArgumentException>(() => NumbersValidation.CompareStorages(db, real));
         }
 
+        
     }
 }

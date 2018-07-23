@@ -3,7 +3,7 @@ using System;
 
 namespace Retriever4.Validation
 {
-    public static class DoubleValidation
+    public static class NumbersValidation
     {
         /// <summary>
         /// Check if realValue is lower or equal dbValue.
@@ -70,5 +70,7 @@ namespace Retriever4.Validation
         {
             return a == b;
         }
+
+        
     }
 }

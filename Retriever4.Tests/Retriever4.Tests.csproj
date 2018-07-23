@@ -48,10 +48,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DetectDeviceModelTests.cs" />
-    <Compile Include="DoubleValidationTests.cs" />
+    <Compile Include="NumbersValidationTests.cs" />
     <Compile Include="ObjectsValidationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="StringValidationTests.cs" />
+    <Compile Include="TypeValidationTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

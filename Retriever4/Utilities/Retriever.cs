@@ -150,7 +150,31 @@ namespace Retriever4
             => GetDeviceData("SELECT SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS", new string[] { "SMBIOSBIOSVersion", "ReleaseDate" });
 
         public static Dictionary<string, dynamic>[] MainboardModel()
-            => GetDeviceData("SELECT Product FROM Win32_BaseBoard", new string[] { "Product" });
+        {
+            var firstData = GetDeviceData("SELECT Product FROM Win32_BaseBoard", new string[] { "Product" });
+            if(firstData.Count() != 1)
+            {
+                var value = firstData == null ? "null" : firstData.Count().ToString();
+                var message = "Bląd podczas pobierania Product z Win32_BaseBoard. Zapytanie zwróciło" +
+                    $"nieoczekiwaną liczbę rekordów: {value}. Metoda: {nameof(MainboardModel)}, klasa: Retriever.cs.";
+                throw new Exception(message);
+
+            }
+            var secondData = GetDeviceData("SELECT OEMStringArray FROM Win32_ComputerSystem", new string[] { "OEMStringArray" });
+            if (secondData.Count() != 1)
+            {
+                var value = secondData == null ? "null" : secondData.Count().ToString();
+                var message = "Bląd podczas pobierania OEMStringArray z Win32_ComputerSystem. Zapytanie zwróciło" +
+                    $"nieoczekiwaną liczbę rekordów: {value}. Metoda: {nameof(MainboardModel)}, klasa: Retriever.cs.";
+                throw new Exception(message);
+
+            }
+            Dictionary<string, dynamic>[] ans = new Dictionary<string, dynamic>[1];
+            ans[0] = new Dictionary<string, dynamic>();
+            ans[0].Add("Product", firstData[0]["Product"]);
+            ans[0].Add("OEMStringArray", secondData[0]["OEMStringArray"]);
+            return ans;
+        }   
 
         public static Dictionary<string, dynamic>[] ProcessorID()
             => GetDeviceData("SELECT Name FROM Win32_Processor", new string[] { "Name" });

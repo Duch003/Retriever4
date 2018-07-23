@@ -73,9 +73,10 @@
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
     <Compile Include="Utilities\DetectDeviceModel.cs" />
-    <Compile Include="Validation\DoubleValidation.cs" />
+    <Compile Include="Validation\NumbersValidation.cs" />
     <Compile Include="Validation\ObjectsValidation.cs" />
     <Compile Include="Validation\StringValidation.cs" />
+    <Compile Include="Validation\TypeValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
