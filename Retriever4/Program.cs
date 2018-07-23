@@ -28,8 +28,30 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            bool? testbool = new bool?(true);
-            TypeValidation.IsNullable(testbool);
+            var config = new Configuration
+            {
+                filepath = Environment.CurrentDirectory,
+                filename = "TestBase.xlsx",
+                databaseTableName = "Test",
+                biosTableName = "BIOS",
+                db_Model = 0,
+                db_PeaqModel = -5,
+                db_CaseModel = 17,
+                db_Cpu = -7,
+                db_MainboardVendor = 6,
+                db_OS = 4,
+                db_Ram = 5,
+                db_ShippingMode = -3,
+                db_Storage = 9,
+                db_SWM = 8,
+                wearLevel = 12,
+                bios_Bios = 1,
+                bios_BuildDate = 2,
+                bios_CaseModel = 3,
+                bios_EC = 4,
+                bios_MainboardModel = 5
+            };
+            
             //_engine = new DrawingAtConsole();
             //Config = ConfigFileManagement.ReadConfiguration();
             //Config.MakeDataStatic();
@@ -924,21 +946,8 @@ namespace Retriever4
             {
                 _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
                 lines++;
-                Type myType = Config.GetType();
-                var nullFields = ObjectsValidation.TakeFieldsWithNulls(Config, null);
-                var negativeFields = ObjectsValidation.TakeFieldsWithNegativeNumbers(Config, null);
                 _engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
                     "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
-                Console.WriteLine("Pola z wartościami null: ");
-                foreach(var z in nullFields)
-                {
-                    Console.WriteLine($"        {z}");
-                }
-                Console.WriteLine("Pola z wartościami ujemnymi: ");
-                foreach (var z in negativeFields)
-                {
-                    Console.WriteLine($"        {z.Key}:    {z.Value}");
-                }
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 Console.ReadKey();
                 return false;

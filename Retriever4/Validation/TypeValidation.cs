@@ -30,17 +30,13 @@ namespace Retriever4.Validation
             }
         }
 
-        public static bool IsNullable(this object o)
+        public static bool IsNullable<T>(this T obj)
         {
-            
-            if(o == null)
-            {
-                string message = $"Parametr wejściowy jest null. Metoda: {nameof(IsNullable)}, klasa: TypeValidation.cs.";
-                throw new ArgumentNullException(nameof(o), message);
-            }
-            Type myType = o.GetType();
-            //return myType.IsGenericType && myType.GetGenericTypeDefinition() == typeof(Nullable<>);
-            return Nullable.GetUnderlyingType(o.GetType()) == typeof(Nullable<>);
+            if (obj == null) return true; // obvious
+            Type type = typeof(T);
+            if (!type.IsValueType) return true; // ref-type
+            if (Nullable.GetUnderlyingType(type) != null) return true; // Nullable<T>
+            return false; // value-type
         }
     }
 }
