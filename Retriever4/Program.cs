@@ -28,29 +28,32 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            var config = new Configuration
-            {
-                filepath = Environment.CurrentDirectory,
-                filename = "TestBase.xlsx",
-                databaseTableName = "Test",
-                biosTableName = "BIOS",
-                db_Model = 0,
-                db_PeaqModel = -5,
-                db_CaseModel = 17,
-                db_Cpu = -7,
-                db_MainboardVendor = 6,
-                db_OS = 4,
-                db_Ram = 5,
-                db_ShippingMode = -3,
-                db_Storage = 9,
-                db_SWM = 8,
-                wearLevel = 12,
-                bios_Bios = 1,
-                bios_BuildDate = 2,
-                bios_CaseModel = 3,
-                bios_EC = 4,
-                bios_MainboardModel = 5
-            };
+            _engine = new DrawingAtConsole();
+            Initialization();
+            //TODO Komenda -Config tworzy plik schematu do wypełnienia
+            //var config = new Configuration
+            //{
+            //    filepath = Environment.CurrentDirectory,
+            //    filename = "TestBase.xlsx",
+            //    databaseTableName = "Test",
+            //    biosTableName = "BIOS",
+            //    db_Model = 0,
+            //    db_PeaqModel = -5,
+            //    db_CaseModel = 17,
+            //    db_Cpu = -7,
+            //    db_MainboardVendor = 6,
+            //    db_OS = 4,
+            //    db_Ram = 5,
+            //    db_ShippingMode = -3,
+            //    db_Storage = 9,
+            //    db_SWM = 8,
+            //    wearLevel = 12,
+            //    bios_Bios = 1,
+            //    bios_BuildDate = 2,
+            //    bios_CaseModel = 3,
+            //    bios_EC = 4,
+            //    bios_MainboardModel = 5
+            //};
             
             //_engine = new DrawingAtConsole();
             //Config = ConfigFileManagement.ReadConfiguration();
@@ -952,36 +955,132 @@ namespace Retriever4
                 Console.ReadKey();
                 return false;
             }
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+
             //#2. Existance of database
+            lines++;
             if (DatabaseFileManagement.DoesDatabaseFileExists())
             {
-
+                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
+                lines++;
+                _engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {Config.filename} w ścieżce {Config.filepath}", ConsoleColor.Gray);
+                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                Console.ReadKey();
+                return false;
             }
-            //#4. SHA1
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+
+            //#4. Reading SHA1.txt
+            lines++;
+            _engine.PrintInitializationDescription(lines, "Odczyt hasza z pliku SHA1.txt.");
+            var lastHash = "";
+            //If file doesnt exists, just create new one.
             if (!SHA1FileManagement.DoesHashFileExists)
             {
-
+                lines++;
+                _engine.PrintInitializationComment(lines, "Nie znaleziono pliku SHA1.txt. Tworzenie nowego pliku...", _warningColor);
+                var hash = "";
+                try
+                {
+                    hash = SHA1FileManagement.ComputeSHA1();
+                    SHA1FileManagement.WriteHash(hash);
+                }
+                catch(Exception e)
+                {
+                    lines++;
+                    _engine.PrintInitializationComment(lines, $"Błąd podczas tworzenia nowego pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
+                        $"Program nie moż zostać uruchomiony.", _failColor);
+                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                    Console.ReadKey();
+                    return false;
+                }
+                lastHash = hash;
             }
-            var lastHash = SHA1FileManagement.ReadHash();
-            var currentHash = SHA1FileManagement.ComputeSHA1();
-            if(currentHash != lastHash)
-            {
-
-            }
+            //If does exists, just read hashcode
             else
             {
-
+                try
+                {
+                    lastHash = SHA1FileManagement.ReadHash();
+                    _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+                }
+                catch(Exception e)
+                {
+                    lines++;
+                    _engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
+                        $"Program nie moż zostać uruchomiony.", _failColor);
+                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                    Console.ReadKey();
+                    return false;
+                }
             }
-            //#5. Model.xml - read/update
-            if (!ModelFile.DoestModelListFileExists)
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+            
+            //$6 Computing current hash
+            lines++;
+            _engine.PrintInitializationDescription(lines, $"Odczyt aktualnego hasza pliku {Config.filename.Replace(@"/", "")}.");
+            var currentHash = "";
+            try
             {
-
+                currentHash = SHA1FileManagement.ComputeSHA1();
             }
+            catch(Exception e)
+            {
+                lines++;
+                _engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania odczytywania hasza pliku {Config.filename.Replace(@"/", "")}.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
+                    $"Program nie moż zostać uruchomiony.", _failColor);
+                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                Console.ReadKey();
+                return false;
+            }
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+
+            //$7. Hash copmarison
+            lines++;
+            _engine.PrintInitializationDescription(lines, $"Sprawdzenie czy lista modeli jest aktualna i odczyt listy.");
+            //If hashes are diffrent, then refresh list and deserialize.
+            if (currentHash != lastHash || !ModelFile.DoestModelListFileExists)
+            {
+                lines++;
+                _engine.PrintInitializationComment(lines, "Hasze są różne. Aktualizacja listy modeli...", _warningColor);
+                try
+                {
+                    ModelFile.SerializeModelList();
+                    SHA1FileManagement.WriteHash(currentHash);
+                    ModelList = ModelFile.DeserializeModelList();
+                }
+                catch (Exception e)
+                {
+                    lines++;
+                    _engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml lub odczytu listy..\nTreść błędu: " +
+                        $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
+                        $"Program nie moż zostać uruchomiony.", _failColor);
+                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                    Console.ReadKey();
+                    return false;
+                }
+            }
+            //Else just deserialize
             else
             {
-
+                try
+                {
+                    ModelList = ModelFile.DeserializeModelList();
+                }
+                catch(Exception e)
+                {
+                    lines++;
+                    _engine.PrintInitializationComment(lines, $"Błąd podczas odczytu listy modeli w pliku Model.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
+                        $"Program nie moż zostać uruchomiony.", _failColor);
+                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
+                    Console.ReadKey();
+                    return false;
+                }
             }
-            //
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+            lines += 3;
+            _engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij ENTER aby kontynuować...", ConsoleColor.White);
+            Console.ReadKey();
             return true;
         }
     }

@@ -30,6 +30,8 @@ namespace Retriever4.FileManagement
             var list = new ObservableCollection<Location>(temp.OrderBy(z => z.Model));
             //Create serializer
             var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
+            if (!DoestModelListFileExists)
+                File.Create(Environment.CurrentDirectory + @"\Model.xml");
             //Open stream
             var sw = new StreamWriter(Environment.CurrentDirectory + @"\Model.xml");
             //Serialze data

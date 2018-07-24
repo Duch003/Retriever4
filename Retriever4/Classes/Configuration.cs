@@ -59,7 +59,8 @@ namespace Retriever4
         /// <returns>False if there are null values.</returns>
         public bool MakeDataStatic()
         {
-            if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, null))
+            if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, 
+                new[] {nameof(filepath), nameof(filename), nameof(databaseTableName), nameof(biosTableName)}))
             {
                 return false;
             }
