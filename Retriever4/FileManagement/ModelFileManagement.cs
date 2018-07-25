@@ -1,4 +1,5 @@
 ﻿using ExcelDataReader;
+using Retriever4.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,50 +9,61 @@ using System.Xml.Serialization;
 
 namespace Retriever4.FileManagement
 {
-    public static class ModelFile
+    public class ModelFile : IModelListManager
     {
         /// <summary>
         /// Return true if exists.
         /// </summary>
-        public static bool DoestModelListFileExists {
+        public bool DoestModelListFileExists {
             get {
                 return File.Exists(Environment.CurrentDirectory + "/Model.xml");
             }
         }
 
+        public ModelFile() { }
+
         /// <summary>
         /// Save / overwrite Model.xml file with current model list.
         /// </summary>
-        public static void SerializeModelList()
+        public bool SerializeModelList()
         {
-            //Invoke method thet gather essential data
-            var temp = GatherModels();
-            //Convert to collection
-            var list = new ObservableCollection<Location>(temp.OrderBy(z => z.Model));
-            //Create serializer
-            var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
-            if (!DoestModelListFileExists)
-                File.Create(Environment.CurrentDirectory + @"\Model.xml");
-            //Open stream
-            var sw = new StreamWriter(Environment.CurrentDirectory + @"\Model.xml");
-            //Serialze data
-            xs.Serialize(sw, list);
-            //Close
-            sw.Close();
+            try
+            {
+                //Invoke method thet gather essential data
+                var temp = GatherModels();
+                //Convert to collection
+                var list = new ObservableCollection<Location>(temp.OrderBy(z => z.Model));
+                //Create serializer
+                var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
+                if (!DoestModelListFileExists)
+                    File.Create(Environment.CurrentDirectory + @"\Model.xml");
+                //Open stream
+                var sw = new StreamWriter(Environment.CurrentDirectory + @"\Model.xml");
+                //Serialze data
+                xs.Serialize(sw, list);
+                //Close
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                string message = $"Nie można utworzyć pliku Model.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: SerializeModelList, klasa: ModelFileManagement.cs.";
+                throw new Exception(message);
+            }
+            return true;
         }
 
         /// <summary>
         /// Reads serialized datafrom Model.xml
         /// </summary>
         /// <returns>Collection of locations.</returns>
-        public static ObservableCollection<Location> DeserializeModelList()
+        public List<Location> DeserializeModelList()
         {
             //Create serializer
-            var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
+            var xs = new XmlSerializer(typeof(List<Location>));
             //Open stream
             var sr = new StreamReader(Environment.CurrentDirectory + @"\Model.xml");
             //Deserialize data
-            var computerList = xs.Deserialize(sr) as ObservableCollection<Location>;
+            var computerList = xs.Deserialize(sr) as List<Location>;
             //Close
             sr.Close();
             return computerList;
@@ -61,7 +73,7 @@ namespace Retriever4.FileManagement
         /// Open and read excel database file. Gather essential informations from specific cells. Depends on Config.
         /// </summary>
         /// <returns>Collection of devices locations.</returns>
-        private static IEnumerable<Location> GatherModels()
+        private IEnumerable<Location> GatherModels()
         {
             //Uncomment in case of encoding troubles.
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);

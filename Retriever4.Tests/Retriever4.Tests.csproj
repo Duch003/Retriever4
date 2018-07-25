@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DetectDeviceModelTests.cs" />
+    <Compile Include="MainClassTests.cs" />
     <Compile Include="NumbersValidationTests.cs" />
     <Compile Include="ObjectsValidationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -10,13 +10,14 @@ using System.Linq;
 using System.Management;
 using Retriever4.FileManagement;
 using Retriever4.UnmeasurableTests;
+using Retriever4.Interfaces;
 
 namespace Retriever4
 {
-    class Program
+    public class Program
     {
         private static Location _model;
-        public static ObservableCollection<Location> ModelList { get; private set; }
+        public static List<Location> ModelList { get; private set; }
         private static DrawingAtConsole _engine;
         public static Configuration Config;
 
@@ -29,42 +30,9 @@ namespace Retriever4
         private static void Main(string[] args)
         {
             _engine = new DrawingAtConsole();
-            Initialization();
+            Initialization(new DatabaseFileManagement(), new ConfigFileManagement(), new ModelFile());
             //TODO Komenda -Config tworzy plik schematu do wypełnienia
-            //var config = new Configuration
-            //{
-            //    filepath = Environment.CurrentDirectory,
-            //    filename = "TestBase.xlsx",
-            //    databaseTableName = "Test",
-            //    biosTableName = "BIOS",
-            //    db_Model = 0,
-            //    db_PeaqModel = -5,
-            //    db_CaseModel = 17,
-            //    db_Cpu = -7,
-            //    db_MainboardVendor = 6,
-            //    db_OS = 4,
-            //    db_Ram = 5,
-            //    db_ShippingMode = -3,
-            //    db_Storage = 9,
-            //    db_SWM = 8,
-            //    wearLevel = 12,
-            //    bios_Bios = 1,
-            //    bios_BuildDate = 2,
-            //    bios_CaseModel = 3,
-            //    bios_EC = 4,
-            //    bios_MainboardModel = 5
-            //};
             
-            //_engine = new DrawingAtConsole();
-            //Config = ConfigFileManagement.ReadConfiguration();
-            //Config.MakeDataStatic();
-            //ModelFile.SerializeModelList();
-            //ModelList = ModelFile.DeserializeModelList();
-            //FindModel();
-            //while (true)
-            //{
-                
-            //}
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())
@@ -900,17 +868,24 @@ namespace Retriever4
         //    return;
         //}
 
-        private static bool Initialization(string model = "")
+        private static bool Initialization(IDatabaseManager dbMgmt, IConfigFileManager configMgmt, IModelListManager listMgmt, string model = "")
         {
             Console.Clear();
             _engine.RestoreCursorX();
             _engine.RestoreCursorY();
             var lines = _engine.Y; //0
-            //#1. Check configuration existance
+            
             lines += _engine.PrintInitializationBar(lines, "INICJALIZACJA PROGRAMU");
+            //#0. Creating necessary instances
+            lines++;
+            _engine.PrintInitializationDescription(lines, "Tworzenie instancji niezbędnych modułów.");
+            
+            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
+
+            //#1. Check configuration existance
             lines++;
             _engine.PrintInitializationDescription(lines, "Sprawdzanie istnienia pliku Config.xml.");
-            if (!ConfigFileManagement.DoesConfigFileExists)
+            if (!configMgmt.DoesConfigFileExists)
             {
                 _engine.PrintInitializationStatus(lines, "Nie znaleziono pliku", _failColor);
                 lines++;
@@ -927,7 +902,7 @@ namespace Retriever4
             _engine.PrintInitializationDescription(lines, "Deserializacja pliku Config.xml.");
             try
             {
-                Config = ConfigFileManagement.ReadConfiguration();
+                Config = configMgmt.ReadConfiguration();
             }
             catch(Exception e)
             {
@@ -959,7 +934,8 @@ namespace Retriever4
 
             //#2. Existance of database
             lines++;
-            if (DatabaseFileManagement.DoesDatabaseFileExists())
+            _engine.PrintInitializationDescription(lines, "Sprawdzenie istnienia bazy danych.");
+            if (!dbMgmt.DoesDatabaseFileExists)
             {
                 _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
                 lines++;
@@ -1039,22 +1015,22 @@ namespace Retriever4
             lines++;
             _engine.PrintInitializationDescription(lines, $"Sprawdzenie czy lista modeli jest aktualna i odczyt listy.");
             //If hashes are diffrent, then refresh list and deserialize.
-            if (currentHash != lastHash || !ModelFile.DoestModelListFileExists)
+            if (currentHash != lastHash || !listMgmt.DoestModelListFileExists)
             {
                 lines++;
                 _engine.PrintInitializationComment(lines, "Hasze są różne. Aktualizacja listy modeli...", _warningColor);
                 try
                 {
-                    ModelFile.SerializeModelList();
+                    listMgmt.SerializeModelList();
                     SHA1FileManagement.WriteHash(currentHash);
-                    ModelList = ModelFile.DeserializeModelList();
+                    ModelList = listMgmt.DeserializeModelList();
                 }
                 catch (Exception e)
                 {
                     lines++;
                     _engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml lub odczytu listy..\nTreść błędu: " +
                         $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                        $"Program nie moż zostać uruchomiony.", _failColor);
+                        $"Program nie może zostać uruchomiony.", _failColor);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                     Console.ReadKey();
                     return false;
@@ -1065,7 +1041,7 @@ namespace Retriever4
             {
                 try
                 {
-                    ModelList = ModelFile.DeserializeModelList();
+                    ModelList = listMgmt.DeserializeModelList();
                 }
                 catch(Exception e)
                 {

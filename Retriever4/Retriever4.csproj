@@ -64,6 +64,9 @@
     <Compile Include="FileManagement\Log.cs" />
     <Compile Include="FileManagement\ModelFileManagement.cs" />
     <Compile Include="FileManagement\SHA1FileManagement.cs" />
+    <Compile Include="Interfaces\IConfigFileManager.cs" />
+    <Compile Include="Interfaces\IDatabaseManager.cs" />
+    <Compile Include="Interfaces\IModelListManager.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
