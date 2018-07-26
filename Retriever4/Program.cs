@@ -14,25 +14,25 @@ using Retriever4.Interfaces;
 
 namespace Retriever4
 {
-    public class Program
+    public static class Program
     {
         private static Location _model;
-        public static List<Location> ModelList { get; private set; }
-        private static DrawingAtConsole _engine;
+        public static List<Location> ModelList;
+        private static IDrawingAtConsole _engine;
+        private static IDrawingAtConsole mockEngine;
         public static Configuration Config;
 
         private static readonly string _success = "Zrobione";
         private static readonly string _failed = "Niepowodzenie";
-        private static readonly ConsoleColor _failColor = ConsoleColor.DarkRed;
-        private static readonly ConsoleColor _passColor = ConsoleColor.Green;
-        private static readonly ConsoleColor _warningColor = ConsoleColor.Yellow;
+        private static readonly ConsoleColor _fail = ConsoleColor.DarkRed;
+        private static readonly ConsoleColor _pass = ConsoleColor.Green;
+        private static readonly ConsoleColor _warning = ConsoleColor.Yellow;
 
         private static void Main(string[] args)
         {
-            _engine = new DrawingAtConsole();
-            Initialization(new DatabaseFileManagement(), new ConfigFileManagement(), new ModelFile());
+            //ProgramValidation.Initialization(new DatabaseFileManagement(), new ConfigFileManagement(), new ModelFile(), new SHA1FileManagement(), ref Config, ref ModelList, ref _engine, _pass, _fail, _warning);
             //TODO Komenda -Config tworzy plik schematu do wypełnienia
-            
+            ProgramInitialization_ConfigFileDoesntExists_ReturnsFalse();
             Console.ReadLine();
             ////Initialization();
             //if (!Menu())
@@ -40,6 +40,235 @@ namespace Retriever4
             //    return;
             return;
         }
+
+        public static void ProgramInitialization_ConfigFileDoesntExists_ReturnsFalse()
+        {
+            mockEngine = new MockDrawingAtConsole();
+            var mockDB = new MockDatabaseManager
+            {
+                DoesDatabaseFileExists_RETURNS = true,
+                ReadDettailsFromDatabase_RETURNS = null
+            };
+            var mockConfig = new MockConfigFileManager
+            {
+                DoesConfigFileExists_RETURNS = true,
+                ReadConfiguration_RETURNS = new Configuration
+                {
+                    filepath = Environment.CurrentDirectory,
+                    filename = "TestBase.xlsx",
+                    databaseTableName = "DB",
+                    biosTableName = "BIOS",
+                    db_Model = 0,
+                    db_PeaqModel = 1,
+                    db_CaseModel = 17,
+                    db_Cpu = 7,
+                    db_MainboardVendor = 6,
+                    db_OS = 4,
+                    db_Ram = 5,
+                    db_ShippingMode = 16,
+                    db_Storage = 9,
+                    db_SWM = 8,
+                    wearLevel = 12,
+                    bios_Bios = 1,
+                    bios_BuildDate = 2,
+                    bios_CaseModel = 3,
+                    bios_EC = 4,
+                    bios_MainboardModel = 5
+
+                },
+            WriteConfiguration_RETURNS = true
+            };
+            var mockList = new MockModelListManager
+            {
+                DoestModelListFileExists_RETURNS = true,
+                DeserializeModelList_RETURNS = new List<Location>
+                {
+                    new Location("99850", "", 1, 3),
+                    new Location("12345", "", 2, 7),
+                    new Location("60150", "", 8, 3),
+                    new Location("60650", "", 3, 6),
+                    new Location("60011", "CNB C1008-I01N", 4, 0),
+                },
+                SerializeModelList_RETURNS = true
+            };
+
+            var mockSHA1 = new MockSHA1Manager
+            {
+                ComputeSHA1_RETURNS = "12345",
+                DoesHashFileExists_RETURNS = true,
+                ReadHash_RETURNS = null,
+                WriteHash_RETURNS = true
+            };
+
+            var shouldBeTrue = ProgramValidation.Initialization(mockDB, mockConfig, mockList, mockSHA1, ref mockEngine, ref Config,
+                ref ModelList, _pass, _fail, _warning);
+            var initializationCheck =
+                Config != null &&
+                mockEngine != null &&
+                ModelList != null &&
+                ModelList.Count == 5;
+        }
+
+
+        public class MockDatabaseManager : IDatabaseManager
+        {
+            public bool DoesDatabaseFileExists_RETURNS;
+            public object ReadDettailsFromDatabase_RETURNS;
+
+            public bool DoesDatabaseFileExists => DoesDatabaseFileExists_RETURNS;
+            public object ReadDetailsFromDatabase(string tableName, int row, int column) => ReadDettailsFromDatabase_RETURNS;
+        }
+
+        public class MockConfigFileManager : IConfigFileManager
+        {
+            public bool DoesConfigFileExists_RETURNS;
+            public Configuration ReadConfiguration_RETURNS;
+            public bool WriteConfiguration_RETURNS;
+
+            public bool DoesConfigFileExists => DoesConfigFileExists_RETURNS;
+            public Configuration ReadConfiguration() => ReadConfiguration_RETURNS;
+            public bool WriteConfiguration() => WriteConfiguration_RETURNS;
+        }
+
+        public class MockModelListManager : IModelListManager
+        {
+            public bool DoestModelListFileExists_RETURNS;
+            public List<Location> DeserializeModelList_RETURNS;
+            public bool SerializeModelList_RETURNS;
+
+            public bool DoestModelListFileExists => DoestModelListFileExists_RETURNS;
+            public List<Location> DeserializeModelList() => DeserializeModelList_RETURNS;
+            public bool SerializeModelList() => SerializeModelList_RETURNS;
+        }
+
+        public class MockSHA1Manager : ISHA1FileManager
+        {
+            public bool DoesHashFileExists_RETURNS;
+            public string ComputeSHA1_RETURNS;
+            public string ReadHash_RETURNS;
+            public bool WriteHash_RETURNS;
+
+            public bool DoesHashFileExists => DoesHashFileExists_RETURNS;
+            public string ComputeSHA1() => ComputeSHA1_RETURNS;
+            public string ReadHash() => ReadHash_RETURNS;
+            public bool WriteHash(string hash) => WriteHash_RETURNS;
+        }
+
+        public class MockDrawingAtConsole : IDrawingAtConsole
+        {
+            public int X => 0;
+
+            public int Y => 0;
+
+            public int MaxX => 0;
+
+            public int MaxY => 0;
+
+            public void ClearRowSelection(int Y)
+            {
+
+            }
+
+            public void CursorX(int Xposition)
+            {
+
+            }
+
+            public void CursorY(int Yposition)
+            {
+
+            }
+
+            public int PrintHorizontalLine(int startY)
+            {
+                return 0;
+            }
+
+            public int PrintInitializationBar(int startY, string bar)
+            {
+                return 0;
+            }
+
+            public int PrintInitializationComment(int Yposition, string comment, ConsoleColor color)
+            {
+                return 0;
+            }
+
+            public int PrintInitializationDescription(int Yposition, string title)
+            {
+                return 0;
+            }
+
+            public int PrintInitializationStatus(int Yposition, string status, ConsoleColor color)
+            {
+                return 0;
+            }
+
+            public int PrintMainHeaders(int startY)
+            {
+                return 0;
+            }
+
+            public void PrintModelTable(int startY, List<Location> locations)
+            {
+
+            }
+
+            public void PrintRowSelection(int Y)
+            {
+
+            }
+
+            public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, ConsoleColor color)
+            {
+                return 0;
+            }
+
+            public void RestoreCursorX()
+            {
+
+            }
+
+            public void RestoreCursorY()
+            {
+
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         private static bool Menu()
         {
@@ -68,7 +297,7 @@ namespace Retriever4
             //Container for pattern writed by user
             var pattern = "";
             //Container for strained out list of models
-            ObservableCollection<Location> ans = null;
+            List<Location> ans = null;
             //First loop, which print basic informations
             do
             {
@@ -77,8 +306,9 @@ namespace Retriever4
                 _engine.RestoreCursorY();
                 _engine.RestoreCursorX();
                 //Mechanism description
-                const string message = "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
-                                       "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
+                const string message =
+                    "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
+                    "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
                 //Counting how many lines will cover message. Value round with celinig function
                 var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
                 //Printing informations with actual pattern
@@ -92,7 +322,8 @@ namespace Retriever4
                 if (pattern.Length >= 3)
                 {
                     var pattern1 = pattern;
-                    ans = new ObservableCollection<Location>(ModelList.Where(x => x.Model.Contains(pattern1) || x.PeaqModel.Contains(pattern1)));
+                    ans = new List<Location>(ModelList.Where(x =>
+                        x.Model.Contains(pattern1) || x.PeaqModel.Contains(pattern1)));
                     _engine.PrintModelTable(lines, ans);
                     lines += 2;
                     _engine.PrintRowSelection(lines);
@@ -115,6 +346,7 @@ namespace Retriever4
                                 pattern = pattern.Remove(pattern.Length - 1);
                                 break1 = true;
                             }
+
                             break;
                         //Choose model
                         case ConsoleKey.Enter:
@@ -134,6 +366,7 @@ namespace Retriever4
                                 _engine.CursorY(_engine.Y + 2);
                                 _engine.PrintRowSelection(_engine.Y);
                             }
+
                             break;
                         //Navigating table - up
                         case ConsoleKey.UpArrow:
@@ -148,6 +381,7 @@ namespace Retriever4
                                 _engine.PrintRowSelection(_engine.Y);
 
                             }
+
                             break;
                         //Managing pattern
                         default:
@@ -868,198 +1102,7 @@ namespace Retriever4
         //    return;
         //}
 
-        private static bool Initialization(IDatabaseManager dbMgmt, IConfigFileManager configMgmt, IModelListManager listMgmt, string model = "")
-        {
-            Console.Clear();
-            _engine.RestoreCursorX();
-            _engine.RestoreCursorY();
-            var lines = _engine.Y; //0
-            
-            lines += _engine.PrintInitializationBar(lines, "INICJALIZACJA PROGRAMU");
-            //#0. Creating necessary instances
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Tworzenie instancji niezbędnych modułów.");
-            
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //#1. Check configuration existance
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Sprawdzanie istnienia pliku Config.xml.");
-            if (!configMgmt.DoesConfigFileExists)
-            {
-                _engine.PrintInitializationStatus(lines, "Nie znaleziono pliku", _failColor);
-                lines++;
-                _engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. " +
-                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //#2. Deserialize configuration
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Deserializacja pliku Config.xml.");
-            try
-            {
-                Config = configMgmt.ReadConfiguration();
-            }
-            catch(Exception e)
-            {
-                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
-                lines++;
-                _engine.PrintInitializationComment(lines, $"Odczyt pliku Config.xml nie powiódł się. Prawdopodbnie jest źle wypełniony.\nTresć błędu: {e.Message}\n" +
-                    $"Błąd wewnątrzny: {e.InnerException.Message}" +
-                    $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.White);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //#3. Configuration null-checking
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Sprawdzanie poprawności wypełnienia pliku Config.xml.");
-            if (!Config.MakeDataStatic())
-            {
-                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
-                lines++;
-                _engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
-                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //#2. Existance of database
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Sprawdzenie istnienia bazy danych.");
-            if (!dbMgmt.DoesDatabaseFileExists)
-            {
-                _engine.PrintInitializationStatus(lines, "Niepowodzenie!", _failColor);
-                lines++;
-                _engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {Config.filename} w ścieżce {Config.filepath}", ConsoleColor.Gray);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //#4. Reading SHA1.txt
-            lines++;
-            _engine.PrintInitializationDescription(lines, "Odczyt hasza z pliku SHA1.txt.");
-            var lastHash = "";
-            //If file doesnt exists, just create new one.
-            if (!SHA1FileManagement.DoesHashFileExists)
-            {
-                lines++;
-                _engine.PrintInitializationComment(lines, "Nie znaleziono pliku SHA1.txt. Tworzenie nowego pliku...", _warningColor);
-                var hash = "";
-                try
-                {
-                    hash = SHA1FileManagement.ComputeSHA1();
-                    SHA1FileManagement.WriteHash(hash);
-                }
-                catch(Exception e)
-                {
-                    lines++;
-                    _engine.PrintInitializationComment(lines, $"Błąd podczas tworzenia nowego pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                        $"Program nie moż zostać uruchomiony.", _failColor);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-                lastHash = hash;
-            }
-            //If does exists, just read hashcode
-            else
-            {
-                try
-                {
-                    lastHash = SHA1FileManagement.ReadHash();
-                    _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-                }
-                catch(Exception e)
-                {
-                    lines++;
-                    _engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                        $"Program nie moż zostać uruchomiony.", _failColor);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-            
-            //$6 Computing current hash
-            lines++;
-            _engine.PrintInitializationDescription(lines, $"Odczyt aktualnego hasza pliku {Config.filename.Replace(@"/", "")}.");
-            var currentHash = "";
-            try
-            {
-                currentHash = SHA1FileManagement.ComputeSHA1();
-            }
-            catch(Exception e)
-            {
-                lines++;
-                _engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania odczytywania hasza pliku {Config.filename.Replace(@"/", "")}.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                    $"Program nie moż zostać uruchomiony.", _failColor);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-
-            //$7. Hash copmarison
-            lines++;
-            _engine.PrintInitializationDescription(lines, $"Sprawdzenie czy lista modeli jest aktualna i odczyt listy.");
-            //If hashes are diffrent, then refresh list and deserialize.
-            if (currentHash != lastHash || !listMgmt.DoestModelListFileExists)
-            {
-                lines++;
-                _engine.PrintInitializationComment(lines, "Hasze są różne. Aktualizacja listy modeli...", _warningColor);
-                try
-                {
-                    listMgmt.SerializeModelList();
-                    SHA1FileManagement.WriteHash(currentHash);
-                    ModelList = listMgmt.DeserializeModelList();
-                }
-                catch (Exception e)
-                {
-                    lines++;
-                    _engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml lub odczytu listy..\nTreść błędu: " +
-                        $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                        $"Program nie może zostać uruchomiony.", _failColor);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            //Else just deserialize
-            else
-            {
-                try
-                {
-                    ModelList = listMgmt.DeserializeModelList();
-                }
-                catch(Exception e)
-                {
-                    lines++;
-                    _engine.PrintInitializationComment(lines, $"Błąd podczas odczytu listy modeli w pliku Model.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException.Message}" +
-                        $"Program nie moż zostać uruchomiony.", _failColor);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            _engine.PrintInitializationStatus(lines, "Zrobione", _passColor);
-            lines += 3;
-            _engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij ENTER aby kontynuować...", ConsoleColor.White);
-            Console.ReadKey();
-            return true;
-        }
     }
 
-    
+
 }

@@ -14,11 +14,7 @@ namespace Retriever4.FileManagement
         /// <summary>
         /// Return true if exists.
         /// </summary>
-        public bool DoestModelListFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + "/Model.xml");
-            }
-        }
+        public bool DoestModelListFileExists => File.Exists(Environment.CurrentDirectory + "/Model.xml");
 
         public ModelFile() { }
 
@@ -58,6 +54,8 @@ namespace Retriever4.FileManagement
         /// <returns>Collection of locations.</returns>
         public List<Location> DeserializeModelList()
         {
+            if (new FileInfo(Environment.CurrentDirectory + @"\Model.xml").Length == 0)
+                return new List<Location>();
             //Create serializer
             var xs = new XmlSerializer(typeof(List<Location>));
             //Open stream

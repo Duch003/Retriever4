@@ -48,7 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DetectDeviceModelTests.cs" />
-    <Compile Include="MainClassTests.cs" />
+    <Compile Include="Factories\ConfigurationFactory.cs" />
+    <Compile Include="ProgramValidationTests.cs" />
     <Compile Include="NumbersValidationTests.cs" />
     <Compile Include="ObjectsValidationTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

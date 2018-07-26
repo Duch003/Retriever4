@@ -10,13 +10,7 @@ namespace Retriever4.FileManagement
         /// <summary>
         /// Returns true if file exists.
         /// </summary>
-        public bool DoesConfigFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + @"\Config.xml");
-            }
-        }
-
-        public ConfigFileManagement() { }
+        public bool DoesConfigFileExists => File.Exists(Environment.CurrentDirectory + @"\Config.xml");
 
         /// <summary>
         /// Read config file. 
@@ -27,14 +21,14 @@ namespace Retriever4.FileManagement
             //If file doesnt exists throw exception. File must exists and be readable.
             if (!DoesConfigFileExists)
                 throw new FileNotFoundException("Nie znaleziono pliku konfiguracyjnego Config.xml.");
-            //Create instance of config
-            var config = new Configuration();
+            if (new FileInfo(Environment.CurrentDirectory + @"\Config.xml").Length == 0)
+                return new Configuration();
             //Create serializer
             var xs = new XmlSerializer(typeof(Configuration));
             //Open stream
             var sr = new StreamReader(Environment.CurrentDirectory + @"\Config.xml");
             //Deserialize file
-            config = xs.Deserialize(sr) as Configuration;
+            var config = xs.Deserialize(sr) as Configuration;
             //Close stream
             sr.Close();
             //If path is empty, fill it with default path
@@ -59,7 +53,8 @@ namespace Retriever4.FileManagement
             }
             catch(Exception e)
             {
-                string message = $"Nie można utworzyć pliku Config.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: WriteConfiguration, klasa: ConfigFileManagement.cs.";
+                var message = $"Nie można utworzyć pliku Config.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: " +
+                              $"{e.InnerException?.Message}.\nMetoda: WriteConfiguration, klasa: ConfigFileManagement.cs.";
                 throw new Exception(message);
             }
             return true;

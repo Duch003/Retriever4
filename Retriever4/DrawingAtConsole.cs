@@ -1,7 +1,9 @@
 ﻿using Retriever4.Utilities;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Retriever4.Interfaces;
 
 // Console.Top = Axis Y
 // Console.Left = Axis X
@@ -29,7 +31,7 @@ using System.Linq;
 
 namespace Retriever4
 {
-    public class DrawingAtConsole
+    public class DrawingAtConsole : IDrawingAtConsole
     {
         //Current cursor position
         public int X => Console.CursorLeft;
@@ -210,7 +212,7 @@ namespace Retriever4
         /// </summary>
         /// <param name="startY">Begining of the table.</param>
         /// <param name="locations">List of locations to print</param>
-        public void PrintModelTable(int startY, ObservableCollection<Location> locations)
+        public void PrintModelTable(int startY, List<Location> locations)
         {
             //Printing header (line 0)
             var lines = 0;

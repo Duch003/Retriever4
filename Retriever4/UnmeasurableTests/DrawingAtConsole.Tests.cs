@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Forms;
 
@@ -52,7 +53,7 @@ namespace Retriever4.UnmeasurableTests
                 Console.WindowWidth = width + 1;
                 Console.BufferWidth = width + 1;
                 var engine = new DrawingAtConsole();
-                var  modelList = new ObservableCollection<Location>
+                var modelList = new List<Location>
                 {
                     new Location("99850", null, 0, 0),
                     new Location("12345", "Test", 0, 0),

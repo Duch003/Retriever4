@@ -2,25 +2,22 @@
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
+using Retriever4.Interfaces;
 
 namespace Retriever4.FileManagement
 {
-    public static class SHA1FileManagement
+    public class SHA1FileManagement : ISHA1FileManager
     {
         /// <summary>
         /// Return true if file exists
         /// </summary>
-        public static bool DoesHashFileExists {
-            get {
-                return File.Exists(Environment.CurrentDirectory + "/SHA1.txt");
-            }
-        }
+        public bool DoesHashFileExists => File.Exists(Environment.CurrentDirectory + "/SHA1.txt");
 
         /// <summary>
         /// Compute hash code. Depends on Config.
         /// </summary>
         /// <returns>Hashcode of database file.</returns>
-        public static string ComputeSHA1()
+        public string ComputeSHA1()
         {
             var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using (var sha1 = new SHA1Managed())
@@ -40,7 +37,7 @@ namespace Retriever4.FileManagement
         /// Reads hash string from SHA1.txt.
         /// </summary>
         /// <returns>Returns hash string.</returns>
-        public static string ReadHash()
+        public string ReadHash()
         {
             //Default anwser
             var anwser = "";
@@ -55,14 +52,14 @@ namespace Retriever4.FileManagement
             {
                 anwser = sr.ReadLine();
             }
-            return anwser;
+            return anwser ?? "";
         }
 
         /// <summary>
         /// Saves hash to SHA1.txt file.
         /// </summary>
         /// <param name="hash">Hash to write.</param>
-        public static void WriteHash(string hash)
+        public bool WriteHash(string hash)
         {
             if (string.IsNullOrEmpty(hash))
                 throw new InvalidDataException($"Nie można zapisać hasha do pliku. Argument metody jest pusty: {hash}. Metoda: {nameof(WriteHash)}, klasaL SHA1File.cs.");
@@ -70,6 +67,7 @@ namespace Retriever4.FileManagement
             {
                 sw.WriteLine(hash);
             }
+            return true;
         }
     }
 }
