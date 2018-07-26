@@ -69,6 +69,7 @@
     <Compile Include="Interfaces\IDrawingAtConsole.cs" />
     <Compile Include="Interfaces\IModelListManager.cs" />
     <Compile Include="Interfaces\ISHA1FileManager.cs" />
+    <Compile Include="Interfaces\IWmiReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />

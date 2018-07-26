@@ -26,5 +26,6 @@ namespace Retriever4.Interfaces
         int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, ConsoleColor color);
         int PrintHorizontalLine(int startY);
         void PrintModelTable(int startY, List<Location> locations);
+        void Wait();
     }
 }

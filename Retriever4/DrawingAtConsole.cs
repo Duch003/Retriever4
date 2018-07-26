@@ -732,6 +732,11 @@ namespace Retriever4
             }
             return Y - tempY;
         }
+
+        /// <summary>
+        /// Useless method, but needed for unit tests.
+        /// </summary>
+        public void Wait() => Console.ReadKey();
         
         #region Cursor position
         public void CursorY(int Yposition)

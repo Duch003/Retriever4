@@ -7,10 +7,11 @@ using System.Collections.Generic;
 using Retriever4.Enums;
 using Retriever4.Utilities;
 using System.Linq;
+using Retriever4.Interfaces;
 
 namespace Retriever4
 {
-    public class Retriever
+    public class Retriever : IWmiReader
     {
         //Construcor for tests
         public Retriever() { }
@@ -22,7 +23,7 @@ namespace Retriever4
         /// <param name="properties">Properties You want to retrieve. If null - retrieve everything.</param>
         /// <param name="scope">Management scope.</param>
         /// <returns>Dictionary where key is the class property and value is an array of property values.</returns>
-        private static Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
+        private Dictionary<string, dynamic>[] GetDeviceData (string query, string[] properties, string scope = @"root/cimv2")
         {
             var anwser = new Dictionary<string, dynamic>[0];
             //Creating an object searcher
@@ -64,13 +65,13 @@ namespace Retriever4
             return anwser;
         }
 
-        public static Dictionary<string, dynamic>[] CheckDeviceManager()
+        public Dictionary<string, dynamic>[] CheckDeviceManager()
             => GetDeviceData("SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0", 
                 new string[] { "Caption", "ConfigManagerErrorCode" }, @"root/cimv2");
 
-        public static bool CheckWirelessConnection() => NetworkInterface.GetIsNetworkAvailable();
+        public bool CheckWirelessConnection() => NetworkInterface.GetIsNetworkAvailable();
 
-        public static Dictionary<string, string> CheckEthernetInterfaceMAC()
+        public Dictionary<string, string> CheckEthernetInterfaceMAC()
         {
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
             var ethInterface = interfaces.Where(z => z.NetworkInterfaceType == NetworkInterfaceType.Ethernet).ToArray();
@@ -84,11 +85,11 @@ namespace Retriever4
             return ans;
         }
 
-        public static Dictionary<string, dynamic>[] CheckWindowsActivationStatus()
+        public Dictionary<string, dynamic>[] CheckWindowsActivationStatus()
             => GetDeviceData("SELECT LicenseStatus FROM SoftwareLicensingProduct WHERE ApplicationID = '55c92734-d682-4d71-983e-d6ec3f16059f' AND PartialProductKey != null",
                 new string[] { "LicenseStatus" }, "root/cimv2");
 
-        public static SecureBootStatus CheckSecureBootStatus()
+        public SecureBootStatus CheckSecureBootStatus()
         {
             var temp = Registry.GetValue(@"HKEY_LOCAL_MACHINE\SYSTEM\ControlSet001\Control\SecureBoot\State",
                "UEFISecureBootEnabled", 2);
@@ -100,10 +101,10 @@ namespace Retriever4
             return status;
         }
 
-        public static Dictionary<string, dynamic>[] GetWindowsProductKey()
+        public Dictionary<string, dynamic>[] GetWindowsProductKey()
             => GetDeviceData("SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null", new string[] { "OA3xOriginalProductKey" }, @"root/cimv2");
 
-        public static string[] GetSwm()
+        public string[] GetSwm()
         {
             var i = 0;
             var AllDrives = DriveInfo.GetDrives();
@@ -143,13 +144,13 @@ namespace Retriever4
             return ans;
         }
 
-        public static Dictionary<string, dynamic>[] GetModelString()
+        public Dictionary<string, dynamic>[] GetModelString()
             => GetDeviceData("SELECT Model FROM Win32_ComputerSystem", new string[] { "Model" }, @"root/cimv2");
 
-        public static Dictionary<string, dynamic>[] MainboardBiosData() 
+        public Dictionary<string, dynamic>[] MainboardBiosData() 
             => GetDeviceData("SELECT SMBIOSBIOSVersion, ReleaseDate FROM Win32_BIOS", new string[] { "SMBIOSBIOSVersion", "ReleaseDate" });
 
-        public static Dictionary<string, dynamic>[] MainboardModel()
+        public Dictionary<string, dynamic>[] MainboardModel()
         {
             var firstData = GetDeviceData("SELECT Product FROM Win32_BaseBoard", new string[] { "Product" });
             if(firstData.Count() != 1)
@@ -176,10 +177,10 @@ namespace Retriever4
             return ans;
         }   
 
-        public static Dictionary<string, dynamic>[] ProcessorID()
+        public Dictionary<string, dynamic>[] ProcessorID()
             => GetDeviceData("SELECT Name FROM Win32_Processor", new string[] { "Name" });
 
-        public static Dictionary<string, dynamic>[] RamData()
+        public Dictionary<string, dynamic>[] RamData()
         {
             var result = GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
             var anwser = new Dictionary<string, dynamic>[1];
@@ -194,28 +195,28 @@ namespace Retriever4
             return anwser;
         }
 
-        public static Dictionary<string, dynamic>[] StorageData()
+        public Dictionary<string, dynamic>[] StorageData()
             => GetDeviceData("SELECT Size FROM Win32_DiskDrive", new string[] { "Size" });
 
-        public static Dictionary<string, dynamic>[] BatteriesData()
+        public Dictionary<string, dynamic>[] BatteriesData()
         {
-            var staticData = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
+            var Data = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
             var anwser = new Dictionary<string, dynamic>[0];
-            if (staticData == null || staticData.Count() == 0)
+            if (Data == null || Data.Count() == 0)
             {
                 //Dictionary without battery instances
                 return anwser;
             }
             var j = 0;
-            for (var i = 0; i < staticData.Length; i++)
+            for (var i = 0; i < Data.Length; i++)
             {
                 
-                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {staticData[i]["Tag"]}", new string[] { "FullChargedCapacity" }, @"root\wmi");
+                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {Data[i]["Tag"]}", new string[] { "FullChargedCapacity" }, @"root\wmi");
                 if(fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
                     var value = fullChargeCapacity == null ? "null" : fullChargeCapacity.Count().ToString();
                     var message = "Bląd podczas pobierania FullChargeCapacity z BatteryFullChargedCapacity. Zapytanie zwróciło" +
-                        $"nieoczekiwaną liczbę rekordów: {value}. Tag: {staticData[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
+                        $"nieoczekiwaną liczbę rekordów: {value}. Tag: {Data[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
                     throw new Exception(message);
                 }
                 var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" });
@@ -228,8 +229,8 @@ namespace Retriever4
                 }
                 anwser = anwser.Expand();
                 anwser[i] = new Dictionary<string, dynamic>();
-                anwser[i].Add("Tag", staticData[i]["Tag"]);
-                anwser[i].Add("DesignedCapacity", staticData[i]["DesignedCapacity"] / 1000);
+                anwser[i].Add("Tag", Data[i]["Tag"]);
+                anwser[i].Add("DesignedCapacity", Data[i]["DesignedCapacity"] / 1000);
                 anwser[i].Add("FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000);
                 anwser[i].Add("EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]);
                 anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
@@ -239,14 +240,14 @@ namespace Retriever4
 
         }
 
-        private static double CalculateVearLevel(double fullChargeCapacity, double designedCapacity)
+        private double CalculateVearLevel(double fullChargeCapacity, double designedCapacity)
         {
             var rawlevel = 1 - (fullChargeCapacity / designedCapacity);
             var wearlevel = Math.Round(rawlevel, 2);
             return wearlevel;
         }
 
-        public static Dictionary<string, dynamic>[] OS()
+        public Dictionary<string, dynamic>[] OS()
             => GetDeviceData("SELECT Caption FROM Win32_OperatingSystem", new string[] { "Caption" });
     }
 }

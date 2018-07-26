@@ -583,5 +583,9 @@ namespace Retriever4.Tests
         {
             
         }
+
+        public void Wait()
+        {
+        }
     }
 }
