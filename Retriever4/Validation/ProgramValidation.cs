@@ -14,14 +14,34 @@ namespace Retriever4.Validation
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
 
+        //public bool PrepareObjects(ref IDrawingAtConsole engine)
+        //{
+        //    try
+        //    {
+                
+        //    }
+        //    catch(Exception e)
+        //    {
+        //        string message = $"Błąd podczas preinicjalizacji. Treść błędu: {e.Message}.\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: {nameof(PrepareObjects)}, klasa: ProgramValidation.cs.";
+        //        throw new Exception(message);
+        //    }
+        //    return true;
+        //}
+
+        
+
         public static bool Initialization(ref IDrawingAtConsole engine, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
             ConsoleColor pass, ConsoleColor fail, ConsoleColor warning)
         {
+            //Preparation
             dbMgmt = new DatabaseFileManagement();
             configMgmt = new ConfigFileManagement();
             listMgmt = new ModelFile();
             shaMgmt = new SHA1FileManagement();
             engine = new DrawingAtConsole();
+            gatherer = new Retriever();
+
+            //Console clearing
             Console.Clear();
             engine.RestoreCursorX();
             engine.RestoreCursorY();
@@ -215,7 +235,7 @@ namespace Retriever4.Validation
             lines++;
             engine.PrintInitializationDescription(lines, $"Próba wykrycia modelu urządzenia: ");
             Dictionary<string, dynamic>[] model = null;
-            string result;
+            Location result = null;
             int state = 0;
             try
             {
@@ -237,7 +257,7 @@ namespace Retriever4.Validation
                             continue;
                         else
                         {
-                            state = DetectDeviceModel.FindModel(x.ToString(),out result);
+                            state = DetectDeviceModel.FindModel(x.ToString(), modelList, out result);
                         }
                     }
                 }
@@ -247,15 +267,15 @@ namespace Retriever4.Validation
             {
                 //Not found in database
                 case -1:
-                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    engine.PrintInitializationStatus(lines, "Brak modelu w bazie.", fail);
                     break;
                 //Not found
                 case 0:
-                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    engine.PrintInitializationStatus(lines, "Nie wykryto.", warning);
                     break;
                 //Found
                 case 1:
-                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    engine.PrintInitializationStatus(lines, $"{result?.Model}", pass);
                     break;
             }
 

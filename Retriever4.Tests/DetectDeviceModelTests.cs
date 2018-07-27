@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using Retriever4.Validation;
+using System;
+using System.Collections.Generic;
 
 namespace Retriever4.Tests
 {
@@ -24,6 +26,50 @@ namespace Retriever4.Tests
         {
             var model = DetectDeviceModel.DetectModel(raw);
             Assert.IsTrue(model != null && model == expected);
+        }
+
+        [TestCase("99850", "99850", 1)]
+        [TestCase("43215", null, -1)]
+        [TestCase("UnfitString", null, 0)]
+        public void DetectDeviceModel_FindModelLogic_ReturnsTrue(string raw, string expectedModel, int expectedState)
+        {
+            Location model = null;
+            var locations = new List<Location>
+            {
+                new Location("99850", "", 1, 3),
+                new Location("12345", "", 2, 7),
+                new Location("60150", "", 8, 3),
+                new Location("60650", "", 3, 6),
+                new Location("60011", "CNB C1008-I01N", 4, 0)
+            };
+
+            
+            var state = DetectDeviceModel.FindModel(raw, locations, out model);
+            Assert.IsTrue(state == expectedState);
+        }
+
+        [Test]
+        public void DetectDeviceModel_FindModelNullRaw_ThrowsException()
+        {
+            Location model = null;
+            var locations = new List<Location>
+            {
+                new Location("99850", "", 1, 3),
+                new Location("12345", "", 2, 7),
+                new Location("60150", "", 8, 3),
+                new Location("60650", "", 3, 6),
+                new Location("60011", "CNB C1008-I01N", 4, 0)
+            };
+
+            Assert.Throws<ArgumentException>(() => DetectDeviceModel.FindModel(null, locations, out model));
+        }
+
+        [Test]
+        public void DetectDeviceModel_FindModelNullList_ThrowsException()
+        {
+            Location model = null;
+
+            Assert.Throws<ArgumentException>(() => DetectDeviceModel.FindModel("60011", null, out model));
         }
     }
 }

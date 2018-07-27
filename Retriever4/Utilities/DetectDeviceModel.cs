@@ -43,24 +43,37 @@ namespace Retriever4.Validation
         /// </summary>
         /// <param name="raw">Raw text to being looked for.</param>
         /// <param name="result">In case if model has been found, there will be its model. Null in any other case.</param>
-        /// <returns>-1 if model not found in database, 0 if model not found or 1 if model found.</returns>
-        public static int FindModel(string raw, out string result)
+        /// <returns>-1 if model not found in list, 0 if model not found or 1 if model found.</returns>
+        public static int FindModel(string raw, List<Location> devices, out Location result)
         {
+            if (string.IsNullOrEmpty(raw))
+            {
+                string message = $"Argument wejściowy jest pusty lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
+                throw new ArgumentException(message, nameof(raw));
+            }
+
+            if (devices == null || devices?.Count == 0)
+            {
+                string message = $"Lista wejściowa jest pusta lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
+                throw new ArgumentException(message, nameof(devices));
+            }
+
             var returnState = 0;
             result = null;
             var model = DetectModel(raw);
             if(model == null)
             {
                 returnState = 0;
+                return returnState;
             }
-            var ans = Program.ModelList.Where(z => z.Model.Contains(model) || z.PeaqModel.Contains(model));
+            var ans = devices.Where(z => z.Model.Contains(model) || z.PeaqModel.Contains(model));
             var enumerable = ans as Location[] ?? ans.ToArray();
             if (!enumerable.Any())
                 returnState = -1;
             else
             {
                 returnState = 1;
-                result = enumerable.First().Model;
+                result = enumerable.First();
             }
 
             return returnState;

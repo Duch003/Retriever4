@@ -17,9 +17,10 @@ namespace Retriever4
     public static class Program
     {
         private static Location _model;
-        public static List<Location> ModelList;
+        private static List<Location> ModelList;
         private static IDrawingAtConsole _engine;
         public static Configuration Config;
+        private static IWmiReader reader;
 
         private static readonly string _success = "Zrobione";
         private static readonly string _failed = "Niepowodzenie";
@@ -60,7 +61,7 @@ namespace Retriever4
         {
             try
             {
-                ProgramValidation.Initialization(ref _engine, ref Config, ref ModelList, _pass, _fail, _warning);
+                ProgramValidation.Initialization(ref _engine, ref Config, ref ModelList, ref reader, _pass, _fail, _warning);
             }
             catch (Exception e)
             {
@@ -206,7 +207,12 @@ namespace Retriever4
 
         private static void PrintSpecification()
         {
+            Console.Clear();
+            _engine.RestoreCursorX();
+            _engine.RestoreCursorY();
+            int line = _engine.Y;
 
+            _engine.PrintMainHeaders
         }
 
     }
