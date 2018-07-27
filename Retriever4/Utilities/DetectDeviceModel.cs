@@ -38,22 +38,32 @@ namespace Retriever4.Validation
             return null;
         }
 
-        public static string FindModel(string raw)
+        /// <summary>
+        /// Checks string for model pattern.
+        /// </summary>
+        /// <param name="raw">Raw text to being looked for.</param>
+        /// <param name="result">In case if model has been found, there will be its model. Null in any other case.</param>
+        /// <returns>-1 if model not found in database, 0 if model not found or 1 if model found.</returns>
+        public static int FindModel(string raw, out string result)
         {
+            var returnState = 0;
+            result = null;
             var model = DetectModel(raw);
             if(model == null)
             {
-                return "Nie wykryto.";
+                returnState = 0;
             }
             var ans = Program.ModelList.Where(z => z.Model.Contains(model) || z.PeaqModel.Contains(model));
-            if (ans == null || ans.Count() == 0)
-            {
-                return $"Brak modelu {model} w bazie.";
-            }
+            var enumerable = ans as Location[] ?? ans.ToArray();
+            if (!enumerable.Any())
+                returnState = -1;
             else
             {
-                return ans.First().Model;
+                returnState = 1;
+                result = enumerable.First().Model;
             }
+
+            return returnState;
         }
     }
 }

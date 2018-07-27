@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using System.Windows.Forms;
 using Retriever4.FileManagement;
 using Retriever4.Interfaces;
 
@@ -12,7 +14,8 @@ namespace Retriever4.Validation
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
 
-        public static bool Initialization(ref IDrawingAtConsole engine, ref Configuration config, ref List<Location> modelList, ConsoleColor pass, ConsoleColor fail, ConsoleColor warning)
+        public static bool Initialization(ref IDrawingAtConsole engine, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
+            ConsoleColor pass, ConsoleColor fail, ConsoleColor warning)
         {
             dbMgmt = new DatabaseFileManagement();
             configMgmt = new ConfigFileManagement();
@@ -20,7 +23,7 @@ namespace Retriever4.Validation
             shaMgmt = new SHA1FileManagement();
             engine = new DrawingAtConsole();
             Console.Clear();
-            Program.Engine.RestoreCursorX();
+            engine.RestoreCursorX();
             engine.RestoreCursorY();
             var lines = engine.Y;
 
@@ -207,6 +210,55 @@ namespace Retriever4.Validation
                 }
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
+
+            //An attempt to dected device model
+            lines++;
+            engine.PrintInitializationDescription(lines, $"Próba wykrycia modelu urządzenia: ");
+            Dictionary<string, dynamic>[] model = null;
+            string result;
+            int state = 0;
+            try
+            {
+                model = gatherer.GetModelString();
+            }
+            catch (Exception e)
+            {
+                engine.PrintInitializationStatus(lines, "Nie można uzyskać danych.", fail);
+            }
+            if(model == null)
+                engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+            else
+            {
+                foreach (var z in model)
+                {
+                    foreach (var x in z.Values)
+                    {
+                        if (x == null)
+                            continue;
+                        else
+                        {
+                            state = DetectDeviceModel.FindModel(x.ToString(),out result);
+                        }
+                    }
+                }
+            }
+
+            switch (state)
+            {
+                //Not found in database
+                case -1:
+                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    break;
+                //Not found
+                case 0:
+                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    break;
+                //Found
+                case 1:
+                    engine.PrintInitializationStatus(lines, "Brak danych.", warning);
+                    break;
+            }
+
             lines += 3;
             engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij ENTER aby kontynuować...", ConsoleColor.White);
             engine.Wait();
