@@ -42,21 +42,21 @@ namespace Retriever4.Tests
         [TestCase("E15K", "E15KUN")]
         [TestCase("E15K", "E15K")]
         [TestCase("D17K", "D17KUN")]
-        [TestCase("D17KxR", "D17KR")]
+        [TestCase("D17K*R", "D17KR")]
         [TestCase("Nt16H", "NT16H")]
         [TestCase("E15K", "E15KGN")]
         [TestCase("E15S", "E15SIN")]
         [TestCase("Wingman", "3165 3ND", Ignore = "Potrzebna porpawka w bazie danych")] //Zamienić
         [TestCase("Polo 2", "MA50LU", Ignore = "Potrzebna porpawka w bazie danych")] //Zamienić
-        [TestCase("D17KxR", "D17KGR")]
+        [TestCase("D17K*R", "D17KGR")]
         [TestCase("WMBT1031", "CNB PEAQ P1211T MD60011", Ignore = "Potrzebna porpawka w bazie danych")]
         [TestCase("P670RE1M", "P670RE1M")]
         [TestCase("P670RE1-M", "P670RE1M")]
-        [TestCase("NSBW1x02", "NSBW1402")]
+        [TestCase("NSBW1*02", "NSBW1402")]
         [TestCase("WMBT1031", "WMBT8931", Ignore = "Potrzebna porpawka w bazie danych")] //Niesprecyzowane w bazie, trzeba dodać po średniku wartość WMBT8931, 60011
         [TestCase("NT13A", "NT13A")]
         [TestCase("Skoda", "E1232T", Ignore = "Potrzebna porpawka w bazie danych")] //99466
-        [TestCase("D17KxR", "D17KRR")]
+        [TestCase("D17K*R", "D17KRR")]
         [TestCase("D17S", "D17SFN")]
         [TestCase("NSSL1502", "NSSL1502")]
         [TestCase("NSBW1x02", "NSBW1502")]

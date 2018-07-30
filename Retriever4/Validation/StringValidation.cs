@@ -81,7 +81,7 @@ namespace Retriever4.Validation
             var matched = true;
             for(var i = 0; i < patterns.Length; i++)
             {
-                patterns[i] = patterns[i].RemoveSymbols().Replace("x", @"\w?").ToLower();
+                patterns[i] = patterns[i].RemoveSymbols().Replace("*", @"\w?").ToLower();
                 var match = Regex.Match(realModel.ToLower(), patterns[i]);
                 matched = matched && match.Success;
             }
