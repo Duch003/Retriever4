@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace Retriever4.UnmeasurableTests
@@ -14,16 +15,16 @@ namespace Retriever4.UnmeasurableTests
                 Console.Clear();
                 Console.WindowWidth = width + 1;
                 Console.BufferWidth = width + 1;
-                var engine = new DrawingAtConsole();
+                var engine = new DrawingAtConsole(Color.Black);
                 var line = 0;
                 line += engine.PrintInitializationBar(line, "Ładowanie programu");
                 line++;
                 line += engine.PrintHorizontalLine(line);
                 line++;
                 line += engine.PrintInitializationDescription(line, "Te munere corpora usu. Sed in virtute vulputate, est eu repudiandae dissentiunt. Et ius agam doctus, sit id omnis phaedrum. Ei mel dicta propriae, his oporteat imperdiet definitionem ut, sit hinc copiosae constituto ne.");
-                line += engine.PrintInitializationStatus(line, "Zrobione", ConsoleColor.Green);
+                line += engine.PrintInitializationStatus(line, "Zrobione", Color.Green);
                 line++;
-                line += engine.PrintInitializationComment(line, "Komentarz", ConsoleColor.Yellow);
+                line += engine.PrintInitializationComment(line, "Komentarz", Color.Yellow);
                 line++;
                 line += engine.PrintHorizontalLine(line);
                 line++;
@@ -33,7 +34,7 @@ namespace Retriever4.UnmeasurableTests
                 line++;
                 line += engine.PrintSection(line++, new[] { "Omnes partem vituperatoribus ea vis. An mea novum inermis. Te possit molestie quo. Ei eros efficiendi mei. Detracto ocurreret adipiscing ea per. Et intellegebat definitionem sea." },
                     new[] { "Lorem ipsum dolor sit amet, ne consulatu evertitur vel, appareat mediocritatem mei ex, omnium bonorum commune an vel. Eam te prima nihil vivendum. Eleifend mandamus petentium at ius, inani sapientem an nec. Ad per viris facete, an ignota docendi salutandi vis, ne illud scriptorem interpretaris cum." },
-                    new[] { "Id vix unum antiopam. Per ipsum dignissim rationibus et. Ne ius modo facilis, menandri definitionem at sed, fabellas tractatos repudiare eos ea. Ei vix mutat veniam philosophia, nec nonumy dissentias ad. Omnis partiendo incorrupte ius id." }, ConsoleColor.Red);
+                    new[] { "Id vix unum antiopam. Per ipsum dignissim rationibus et. Ne ius modo facilis, menandri definitionem at sed, fabellas tractatos repudiare eos ea. Ei vix mutat veniam philosophia, nec nonumy dissentias ad. Omnis partiendo incorrupte ius id." }, Color.Red);
                 line++;
                 engine.PrintHorizontalLine(line);
                 Console.WriteLine($"\nSzerokość okna/bufora = {width + 1}[znaków]");
@@ -52,7 +53,7 @@ namespace Retriever4.UnmeasurableTests
                 Console.Clear();
                 Console.WindowWidth = width + 1;
                 Console.BufferWidth = width + 1;
-                var engine = new DrawingAtConsole();
+                var engine = new DrawingAtConsole(Color.Black);
                 var modelList = new List<Location>
                 {
                     new Location("99850", null, 0, 0),

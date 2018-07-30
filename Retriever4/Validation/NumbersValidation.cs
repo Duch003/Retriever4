@@ -22,7 +22,7 @@ namespace Retriever4.Validation
         /// <param name="dbValue">Raw string from database.</param>
         /// <param name="realRawValue">Raw value from computer in B.</param>
         /// <returns>True if realValue eqals dbValue with two-way 14% tolerance.</returns>
-        public static bool CompareStorages(string dbRawValue, double realRawValue)
+        public static bool CompareStorages(string dbRawValue, double realRawValue, out double dbValue, out double realValue)
         {
             if(string.IsNullOrEmpty(dbRawValue))
             {
@@ -37,13 +37,13 @@ namespace Retriever4.Validation
 
             //Converting realValue [B] to [GB]
             double gigabyte = 1000000000;//1073741824;//[B]
-            var realValue = realRawValue / gigabyte;
+            realValue = realRawValue / gigabyte;
             //Checking dbValue unit (true if [TB])
             var tb = dbRawValue.ToLower().Contains("tb");
             //Remove unwanted chars from dbRawValue, only numbers stay
             dbRawValue = dbRawValue.RemoveLetters().Replace(',', '.').RemoveWhiteSpaces();
             //Attepmt to parsing
-            if(!double.TryParse(dbRawValue, out var dbValue))
+            if(!double.TryParse(dbRawValue, out dbValue))
             {
                 var message = $"Nie można przekonwertować ciągu <<{dbRawValue}>> na double. Metoda: {nameof(CompareStorages)}, klasa: DoubleValidation.cs.";
                 throw new Exception(message);
@@ -57,6 +57,7 @@ namespace Retriever4.Validation
             var upperEdge = dbValue * 1.14;
             var lowerEdge = dbValue * 0.86;
             //Return result
+            realValue = Math.Round(realValue, 0);
             return (upperEdge >= realValue) && (lowerEdge <= realValue);  
         }
 

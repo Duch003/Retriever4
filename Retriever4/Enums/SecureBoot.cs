@@ -2,8 +2,8 @@
 {
     public enum SecureBootStatus : byte
     {
-        Disabled = 0,
-        Enabled = 1,
-        NotSupported = 2
+        Wyłączony = 0,
+        Włączony = 1,
+        NieWspierany = 2
     }
 }

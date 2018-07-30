@@ -74,5 +74,12 @@ namespace Retriever4.Utilities
             var padLeft = spaces / 2 + str.Length;
             return str.PadLeft(padLeft).PadRight(length, ' ');
         }
+
+        public static string RetrieveDateTime(this string s)
+        {
+            var result = "";
+            result += s.Substring(0, 4) + "-" + s.Substring(4, 2) + "-" + s.Substring(6, 2);
+            return result;
+        }
     }
 }

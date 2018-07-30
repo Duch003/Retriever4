@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Drawing;
 using System.Linq;
 using Retriever4.Interfaces;
 
@@ -101,8 +102,11 @@ namespace Retriever4
         private string _modelTableModelHeader { get; set; } = "MODEL";
         private string _modelTablePeaqHeader { get; set; } = "PEAQ MODEL";
 
+        private readonly string _clearLine;
+        private Color _defaultBackground = Color.Black;
 
-        public DrawingAtConsole()
+
+        public DrawingAtConsole(Color defaultBackground)
         {
             if (Console.BufferWidth < 80)
                 return;
@@ -205,6 +209,9 @@ namespace Retriever4
             _secondSelectTable_ColumnEnd = (10 *_consoleOneTenth) - 1;
             _secondSelectTable_SpaceToWriting = _secondSelectTable_ColumnEnd - _secondSelectTable_ColumnBegin;
             _secondSelectTable_Middle = _secondSelectTable_ColumnBegin + (_secondSelectTable_SpaceToWriting / 2);
+
+            for (var i = 0; i < Console.BufferWidth; i++)
+                _clearLine += " ";
         }
 
         /// <summary>
@@ -218,7 +225,7 @@ namespace Retriever4
             var lines = 0;
             RestoreCursorX();
             CursorY(startY);
-            SetConsoleForeground(ConsoleColor.Yellow);
+            SetConsoleForeground(Color.Yellow);
             CursorX(_modelColumn_Middle - (_modelTableModelHeader.Length / 2));
             Console.Write(_modelTableModelHeader);
             CursorX(_peaqColumn_Middle - (_modelTablePeaqHeader.Length / 2));
@@ -276,7 +283,7 @@ namespace Retriever4
         {
             RestoreCursorX();
             CursorY(Y);
-            SetConsoleForeground(ConsoleColor.Green);
+            SetConsoleForeground(Color.Green);
             CursorX(_firstSelectTable_ColumnEnd - _leftSideArrow.Length - 1);
             Console.Write(_leftSideArrow);
             CursorX(_secondSelectTable_ColumnBegin);
@@ -396,7 +403,7 @@ namespace Retriever4
         /// <param name="rightColumnWriting">Put here values for second column.</param>
         /// <param name="color">Set color for left and right column.</param>
         /// <returns>How many additional lines took printing.</returns>
-        public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, ConsoleColor color)
+        public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, Color color)
         {
             #region Data validation
             if(description.Any(z => z == null))
@@ -428,7 +435,7 @@ namespace Retriever4
             var lines = 0;
 
             //Printing description column
-            var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, ConsoleColor.White);
+            var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, Color.White);
             lines = tempLines;
 
             //Printing left column
@@ -437,6 +444,106 @@ namespace Retriever4
 
             //Printing right column
             tempLines = PrintColumn(startY, rightColumnWriting, _rightColumn_Middle, _rightColumn_SpaceToWriting, color);
+            lines = lines > tempLines ? lines : tempLines;
+
+            //Automaticly fill table with vertical lines depends on largest amount of lines that took printing particular columns
+            PrintVerticalLines(startY, lines);
+
+            return lines;
+        }
+
+        public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, 
+            Color leftColumnColor, Color rightColumnColor)
+        {
+            #region Data validation
+            if (description.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(description), message);
+            }
+
+            if (leftColumnWriting.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(leftColumnWriting), message);
+            }
+
+            if (rightColumnWriting.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(rightColumnWriting), message);
+            }
+
+            if (startY < 0)
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(startY), message);
+            }
+            #endregion
+
+            //Additional lines counter
+            var lines = 0;
+
+            //Printing description column
+            var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, Color.White);
+            lines = tempLines;
+
+            //Printing left column
+            tempLines = PrintColumn(startY, leftColumnWriting, _leftColumn_Middle, _leftColumn_SpaceToWriting, leftColumnColor);
+            lines = lines > tempLines ? lines : tempLines;
+
+            //Printing right column
+            tempLines = PrintColumn(startY, rightColumnWriting, _rightColumn_Middle, _rightColumn_SpaceToWriting, rightColumnColor);
+            lines = lines > tempLines ? lines : tempLines;
+
+            //Automaticly fill table with vertical lines depends on largest amount of lines that took printing particular columns
+            PrintVerticalLines(startY, lines);
+
+            return lines;
+        }
+
+        public int PrintSection(int startY, string[] description, string[] leftColumnWriting, string[] rightColumnWriting, 
+            Color leftColumnColor, Color rightColumnColor, Color descriptionColumnColor)
+        {
+            #region Data validation
+            if (description.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(description), message);
+            }
+
+            if (leftColumnWriting.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(leftColumnWriting), message);
+            }
+
+            if (rightColumnWriting.Any(z => z == null))
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Tablica wejściowa zawiera w sobie string wskazujący na null. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(rightColumnWriting), message);
+            }
+
+            if (startY < 0)
+            {
+                var message = $"Nie można wydrukować nagłówka parametru. Parametr wejściowy wskazujący na pierwszą linię jest ujemny: {startY}. Metoda: {nameof(PrintSection)}, klasa: DrawingAtConsole.cs.";
+                throw new ArgumentNullException(nameof(startY), message);
+            }
+            #endregion
+
+            //Additional lines counter
+            var lines = 0;
+
+            //Printing description column
+            var tempLines = PrintColumn(startY, description, _descriptionColumn_Middle, _descriptionColumn_SpaceToWriting, descriptionColumnColor);
+            lines = tempLines;
+
+            //Printing left column
+            tempLines = PrintColumn(startY, leftColumnWriting, _leftColumn_Middle, _leftColumn_SpaceToWriting, leftColumnColor);
+            lines = lines > tempLines ? lines : tempLines;
+
+            //Printing right column
+            tempLines = PrintColumn(startY, rightColumnWriting, _rightColumn_Middle, _rightColumn_SpaceToWriting, rightColumnColor);
             lines = lines > tempLines ? lines : tempLines;
 
             //Automaticly fill table with vertical lines depends on largest amount of lines that took printing particular columns
@@ -480,7 +587,7 @@ namespace Retriever4
         /// <param name="spaceToWriting">Area to print in specific column</param>
         /// <param name="color">Text color (foreground).</param>
         /// <returns>How many additional lines took printing.</returns>
-        private int PrintColumn(int startY, string[] writing, int middlePosition, int spaceToWriting, ConsoleColor color)
+        private int PrintColumn(int startY, string[] writing, int middlePosition, int spaceToWriting, Color color)
         {
             //Check every string in array if fit to column bounds
             if (writing.Any(z => z.Length > spaceToWriting))
@@ -620,7 +727,7 @@ namespace Retriever4
         /// <param name="Yposition">Console line number (from top to bottom).</param>
         /// <param name="title">Description.</param>
         /// <returns>How many additional lines took printing.</returns>
-        public int PrintInitializationDescription(int Yposition, string title) => PrintInitializationComment(Yposition, title, ConsoleColor.White);
+        public int PrintInitializationDescription(int Yposition, string title) => PrintInitializationComment(Yposition, title, Color.White);
 
         /// <summary>
         /// Print additional comment for current action.
@@ -629,7 +736,7 @@ namespace Retriever4
         /// <param name="comment">Description.</param>
         /// <param name="color">Text foreground color.</param>
         /// <returns></returns>
-        public int PrintInitializationComment(int Yposition, string comment, ConsoleColor color)
+        public int PrintInitializationComment(int Yposition, string comment, Color color)
         {
             #region Validation
             if (Yposition < 0)
@@ -684,7 +791,7 @@ namespace Retriever4
         /// <param name="status">Status for action.</param>
         /// <param name="color">Color of statuc writing.</param>
         /// <returns>How many lines took printing (sholud be 0).</returns>
-        public int PrintInitializationStatus(int Yposition, string status, ConsoleColor color)
+        public int PrintInitializationStatus(int Yposition, string status, Color color)
         {
             #region Validation
             if (Yposition < 0)
@@ -737,6 +844,12 @@ namespace Retriever4
         /// Useless method, but needed for unit tests.
         /// </summary>
         public void Wait() => Console.ReadKey();
+
+        public void ClearLine(int Y)
+        {
+            CursorY(Y);
+            Console.Write(_clearLine);
+        }
         
         #region Cursor position
         public void CursorY(int Yposition)
@@ -761,14 +874,14 @@ namespace Retriever4
         #endregion
 
         #region Colors
-        private void SetConsoleBackground(ConsoleColor color)
+        private void SetConsoleBackground(Color color)
         {
-            Console.BackgroundColor = color;
+            Colorful.Console.BackgroundColor = color;
         }
 
-        private void SetConsoleForeground(ConsoleColor color)
+        private void SetConsoleForeground(Color color)
         {
-            Console.ForegroundColor = color;
+            Colorful.Console.ForegroundColor = color;
         }
 
         private void DescriptionColor()
@@ -778,19 +891,19 @@ namespace Retriever4
 
         private void RestoreColors()
         {
-            SetConsoleForeground(ConsoleColor.White);
-            SetConsoleBackground(ConsoleColor.Black);
+            SetConsoleForeground(Color.White);
+            SetConsoleBackground(_defaultBackground);
         }
 
         private void MainHeaderColor()
         {
-            SetConsoleForeground(ConsoleColor.White);
-            SetConsoleBackground(ConsoleColor.DarkBlue);
+            SetConsoleForeground(Color.White);
+            SetConsoleBackground(Color.DarkBlue);
         }
 
         private void LineColor()
         {
-            SetConsoleForeground(ConsoleColor.DarkYellow);
+            SetConsoleForeground(Color.DarkGoldenrod);
         }
         #endregion
     }

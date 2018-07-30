@@ -15,3 +15,4 @@ C:\Users\Duch003\source\repos\Retriever4\Retriever4.Tests\obj\Debug\Retriever4.T
 C:\Users\Duch003\source\repos\Retriever4\Retriever4.Tests\obj\Debug\Retriever4.Tests.csproj.CopyComplete
 C:\Users\Duch003\source\repos\Retriever4\Retriever4.Tests\obj\Debug\Retriever4.Tests.dll
 C:\Users\Duch003\source\repos\Retriever4\Retriever4.Tests\obj\Debug\Retriever4.Tests.pdb
+C:\Users\Duch003\source\repos\Retriever4\Retriever4.Tests\bin\Debug\Colorful.Console.dll

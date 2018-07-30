@@ -7,6 +7,9 @@ using System.Collections.Generic;
 using Retriever4.Enums;
 using Retriever4.Utilities;
 using System.Linq;
+using System.Threading;
+using InTheHand.Net.Sockets;
+using Retriever4.Classes;
 using Retriever4.Interfaces;
 
 namespace Retriever4
@@ -43,9 +46,9 @@ namespace Retriever4
                         {
                             //Check if is property an array
                             if (x.IsArray)
-                                anwser[i].Add(x.Name, (dynamic)z[x.Name] == null ? "" : (dynamic)z[x.Name]);
+                                anwser[i].Add(x.Name, (dynamic) z[x.Name] == null ? "" : (dynamic) z[x.Name]);
                             else
-                                anwser[i].Add(x.Name, x.Value == null ? "" : x.Value);
+                                anwser[i].Add(x.Name, x.Value ?? "");
                         }
                     //If particular properties are given, take only them
                     else
@@ -53,12 +56,12 @@ namespace Retriever4
                         for (var j = 0; j < properties.Length; j++)
                         {
                             //Check if is property an array
-                            if (z.Properties[properties[j]].IsArray)
-                                anwser[i].Add(properties[j], (dynamic)z[properties[j]] == null ? "" : (dynamic)z[properties[j]]);
+                            if (z[properties[j]].GetType().IsArray)
+                                anwser[i].Add(properties[j], (dynamic) z[properties[j]] == null ? "" : (dynamic)z[properties[j]]);
                             else
                                 anwser[i].Add(properties[j], z[properties[j]] == null ? "" : z[properties[j]]);
                         }
-                    //Increment dictionary array size
+                //Increment dictionary array size
                     i++;
                 }
             }
@@ -69,17 +72,38 @@ namespace Retriever4
             => GetDeviceData("SELECT Caption, ConfigManagerErrorCode FROM Win32_PNPEntity WHERE ConfigManagerErrorCode != 0", 
                 new string[] { "Caption", "ConfigManagerErrorCode" }, @"root/cimv2");
 
-        public bool CheckWirelessConnection() => NetworkInterface.GetIsNetworkAvailable();
+        public Dictionary<string, dynamic>[] CheckWirelessConnection()
+        {
+            var anwser = new Dictionary<string, dynamic>[0];
+            var devices = NetworkInterface.GetAllNetworkInterfaces()
+                .Where(z => z.NetworkInterfaceType == NetworkInterfaceType.Wireless80211);
+            var i = 0;
+            foreach (var z in devices)
+            {
+                anwser = anwser.Expand();
+                anwser[i] = new Dictionary<string, dynamic>
+                {
+                    {"Description", z.Description},
+                    {"OperationalStatus", z.OperationalStatus},
+                    {"BytesSent", z.GetIPv4Statistics().BytesSent},
+                    {"BytesReceived", z.GetIPv4Statistics().BytesReceived}
+                };
+                i++;
+            }
+
+            return anwser;
+
+        }
 
         public Dictionary<string, string> CheckEthernetInterfaceMAC()
         {
             var interfaces = NetworkInterface.GetAllNetworkInterfaces();
-            var ethInterface = interfaces.Where(z => z.NetworkInterfaceType == NetworkInterfaceType.Ethernet).ToArray();
+            var ethInterface = interfaces.Where(z => z.NetworkInterfaceType == NetworkInterfaceType.Ethernet).ToArray(); 
             var ans = new Dictionary<string, string>();
-            for (var i = 0; i < ethInterface.Length; i++)
+            foreach (var z in ethInterface)
             {
-                var name = ethInterface[i].Name;
-                var mac = ethInterface[i].GetPhysicalAddress().ToString();
+                var name = z.Description;
+                var mac = z.GetPhysicalAddress().ToString();
                 ans.Add(name, mac);
             }
             return ans;
@@ -95,7 +119,7 @@ namespace Retriever4
                "UEFISecureBootEnabled", 2);
             SecureBootStatus status;
             if (temp == null)
-                status = SecureBootStatus.NotSupported;
+                status = SecureBootStatus.NieWspierany;
             else
                 status = (SecureBootStatus)((int)temp);
             return status;
@@ -200,9 +224,9 @@ namespace Retriever4
 
         public Dictionary<string, dynamic>[] BatteriesData()
         {
-            var Data = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
+            var Data = GetDeviceData("SELECT Tag, DesignedCapacity FROM BatteryStaticData", new string[] { "Tag", "DesignedCapacity" }, @"root\wmi");
             var anwser = new Dictionary<string, dynamic>[0];
-            if (Data == null || Data.Count() == 0)
+            if (Data == null || !Data.Any())
             {
                 //Dictionary without battery instances
                 return anwser;
@@ -219,7 +243,7 @@ namespace Retriever4
                         $"nieoczekiwaną liczbę rekordów: {value}. Tag: {Data[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
                     throw new Exception(message);
                 }
-                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" });
+                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" , "BatteryStatus" });
                 if (fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
                     var value = currentChargeLevel == null ? "null" : currentChargeLevel.Count().ToString();
@@ -228,11 +252,14 @@ namespace Retriever4
                     throw new Exception(message);
                 }
                 anwser = anwser.Expand();
-                anwser[i] = new Dictionary<string, dynamic>();
-                anwser[i].Add("Tag", Data[i]["Tag"]);
-                anwser[i].Add("DesignedCapacity", Data[i]["DesignedCapacity"] / 1000);
-                anwser[i].Add("FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000);
-                anwser[i].Add("EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]);
+                anwser[i] = new Dictionary<string, dynamic>
+                {
+                    {"Tag", Data[i]["Tag"]},
+                    {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
+                    {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
+                    {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
+                    {"Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"]))}
+                };
                 anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
                 j++;
             }
@@ -249,5 +276,17 @@ namespace Retriever4
 
         public Dictionary<string, dynamic>[] OS()
             => GetDeviceData("SELECT Caption FROM Win32_OperatingSystem", new string[] { "Caption" });
+
+        //public void ActivateWindowsOnline()
+        //{
+        //    var productSearch = new ManagementObjectSearcher("SELECT * FROM Win32_WindowsProductActivation");
+
+        //    foreach (var o in productSearch.Get())
+        //    {
+        //        var product = (ManagementObject) o;
+        //        var inParams = product.GetMethodParameters("ActivateOnline");
+        //        var outParams = product.InvokeMethod("ActivateOnline", inParams, null);
+        //    }
+        //}
     }
 }

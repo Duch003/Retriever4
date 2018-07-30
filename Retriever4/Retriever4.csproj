@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Colorful.Console, Version=1.2.9.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Colorful.Console.1.2.9\lib\net40\Colorful.Console.dll</HintPath>
+    </Reference>
     <Reference Include="ExcelDataReader, Version=3.4.0.0, Culture=neutral, PublicKeyToken=93517dbe6a4012fa, processorArchitecture=MSIL">
       <HintPath>..\packages\ExcelDataReader.3.4.0\lib\net20\ExcelDataReader.dll</HintPath>
     </Reference>
@@ -39,6 +42,9 @@
     </Reference>
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
+      <HintPath>..\packages\32feet.NET.3.5.0.0\lib\net\InTheHand.Net.Personal.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,11 +58,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\BatteryStatucDescription.cs" />
     <Compile Include="Classes\DeviceManager.cs" />
     <Compile Include="Classes\Configuration.cs" />
+    <Compile Include="Classes\Interop.cs" />
+    <Compile Include="Classes\NTPClient.cs" />
+    <Compile Include="Classes\SystemTimeManagement.cs" />
+    <Compile Include="Classes\WlanApi.cs" />
     <Compile Include="DrawingAtConsole.cs" />
+    <Compile Include="Enums\BatteryStatus.cs" />
     <Compile Include="Enums\DeviceManager.cs" />
-    <Compile Include="Enums\OS.cs" />
     <Compile Include="Enums\SecureBoot.cs" />
     <Compile Include="Classes\Location.cs" />
     <Compile Include="FileManagement\ConfigFileManagement.cs" />
@@ -79,6 +90,7 @@
     <Compile Include="Utilities\ArrayExtension.cs" />
     <Compile Include="Utilities\StringExtension.cs" />
     <Compile Include="Utilities\DetectDeviceModel.cs" />
+    <Compile Include="Utilities\WirelessConnectionManager.cs" />
     <Compile Include="Validation\NumbersValidation.cs" />
     <Compile Include="Validation\ObjectsValidation.cs" />
     <Compile Include="Validation\ProgramValidation.cs" />

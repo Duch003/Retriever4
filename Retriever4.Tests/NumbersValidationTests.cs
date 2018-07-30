@@ -37,7 +37,7 @@ namespace Retriever4.Tests
         [TestCase("16 GB eMMC", 34359738368, false)]
         public void CompareStorages_VariousData(string db, double real, bool expected)
         {
-            var result = NumbersValidation.CompareStorages(db, real);
+            var result = NumbersValidation.CompareStorages(db, real, out var temp1, out var temp2);
             Assert.IsTrue(result == expected);
         }
 
@@ -48,7 +48,7 @@ namespace Retriever4.Tests
         [TestCase(null, -9)]
         public void CompareStorages_DatabaseArgumentIsNullOrRealValueIsNegative_ThrowsException(string db, double real)
         {
-            Assert.Throws<ArgumentException>(() => NumbersValidation.CompareStorages(db, real));
+            Assert.Throws<ArgumentException>(() => NumbersValidation.CompareStorages(db, real, out var temp1, out var temp2));
         }
 
         

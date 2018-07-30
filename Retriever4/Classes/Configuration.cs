@@ -20,6 +20,7 @@ namespace Retriever4
         public int? db_SWM;
         public int? db_CaseModel;
         public int? db_MainboardVendor;
+        public int? db_MainboardModel;
         public int? db_ShippingMode;
 
         public int? bios_CaseModel;
@@ -43,6 +44,7 @@ namespace Retriever4
         public static int DB_SWM;
         public static int DB_CaseModel;
         public static int DB_MainboardVendor;
+        public static int DB_MainboardModel;
         public static int DB_ShippingMode;
 
         public static int Bios_CaseModel;
@@ -78,6 +80,7 @@ namespace Retriever4
             DB_SWM = (int)db_SWM;
             DB_CaseModel = (int)db_CaseModel;
             DB_MainboardVendor = (int)db_MainboardVendor;
+            DB_MainboardModel = (int)db_MainboardModel;
             DB_ShippingMode = (int)db_ShippingMode;
             Bios_CaseModel = (int)bios_CaseModel;
             Bios_MainboardModel = (int)bios_MainboardModel;

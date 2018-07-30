@@ -14,6 +14,7 @@
   <db_SWM>11</db_SWM>
   <db_CaseModel>14</db_CaseModel>
   <db_MainboardVendor>16</db_MainboardVendor>
+  <db_MainboardModel>15</db_MainboardModel>
   <db_ShippingMode>17</db_ShippingMode>
   <bios_CaseModel>0</bios_CaseModel>
   <bios_MainboardModel>2</bios_MainboardModel>

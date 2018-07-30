@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
 using Retriever4.FileManagement;
@@ -9,7 +11,6 @@ namespace Retriever4.Validation
 {
     public class ProgramValidation
     {
-        private static IDatabaseManager dbMgmt;
         private static IConfigFileManager configMgmt;
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
@@ -30,15 +31,15 @@ namespace Retriever4.Validation
 
         
 
-        public static bool Initialization(ref IDrawingAtConsole engine, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
-            ConsoleColor pass, ConsoleColor fail, ConsoleColor warning)
+        public static bool Initialization(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
+            Color pass, Color fail, Color warning, Color defaultBackgroundColor)
         {
             //Preparation
             dbMgmt = new DatabaseFileManagement();
             configMgmt = new ConfigFileManagement();
             listMgmt = new ModelFile();
             shaMgmt = new SHA1FileManagement();
-            engine = new DrawingAtConsole();
+            engine = new DrawingAtConsole(defaultBackgroundColor);
             gatherer = new Retriever();
 
             //Console clearing
@@ -56,7 +57,7 @@ namespace Retriever4.Validation
                 engine.PrintInitializationStatus(lines, "Nie znaleziono pliku", fail);
                 lines++;
                 engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. " +
-                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
+                                                         "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 engine.Wait();
                 return false;
@@ -75,8 +76,8 @@ namespace Retriever4.Validation
                 engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
                 lines++;
                 engine.PrintInitializationComment(lines, $"Odczyt pliku Config.xml nie powiódł się. Prawdopodbnie jest źle wypełniony.\nTresć błędu: {e.Message}\n" +
-                    $"Błąd wewnątrzny: {e.InnerException?.Message}" +
-                    $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.White);
+                                                         $"Błąd wewnątrzny: {e.InnerException?.Message}" +
+                                                         $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 engine.Wait();
                 return false;
@@ -91,7 +92,7 @@ namespace Retriever4.Validation
                 engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
                 lines++;
                 engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
-                    "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", ConsoleColor.Gray);
+                                                         "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 engine.Wait();
                 return false;
@@ -105,7 +106,7 @@ namespace Retriever4.Validation
             {
                 engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
                 lines++;
-                engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename} w ścieżce {config.filepath}", ConsoleColor.Gray);
+                engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename} w ścieżce {config.filepath}", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 engine.Wait();
                 return false;
@@ -130,7 +131,7 @@ namespace Retriever4.Validation
                 {
                     lines++;
                     engine.PrintInitializationComment(lines, $"Błąd podczas tworzenia nowego pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                        $"Program nie moż zostać uruchomiony.", fail);
+                                                             $"Program nie moż zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                     engine.Wait();
                     return false;
@@ -148,7 +149,7 @@ namespace Retriever4.Validation
                 {
                     lines++;
                     engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                        $"Program nie moż zostać uruchomiony.", fail);
+                                                             $"Program nie moż zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                     engine.Wait();
                     return false;
@@ -194,8 +195,8 @@ namespace Retriever4.Validation
                 {
                     lines++;
                     engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml lub odczytu listy..\nTreść błędu: " +
-                        $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                        $"Program nie może zostać uruchomiony.", fail);
+                                                             $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
+                                                             $"Program nie może zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                     engine.Wait();
                     return false;
@@ -280,7 +281,7 @@ namespace Retriever4.Validation
             }
 
             lines += 3;
-            engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij ENTER aby kontynuować...", ConsoleColor.White);
+            engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij ENTER aby kontynuować...", Color.White);
             engine.Wait();
             return true;
         }
