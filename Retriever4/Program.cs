@@ -20,7 +20,7 @@ namespace Retriever4
 {
     public static class Program
     {
-        private static Location _model;
+        public static Location _model;
         private static List<Location> ModelList;
         private static IDrawingAtConsole _engine;
         public static Configuration Config;
@@ -506,9 +506,14 @@ namespace Retriever4
             //Get device data
             //Expected: not empty array of string
             var realSwm = gatherer.GetSwm();
-
+            if(realSwm == null)
+            {
+                line += _engine.PrintSection(line, sectionTitle, new[] { "Brak plików SWConf.dat na urządzeniu!" }, new string[] { dbRawSwm.ToString() }, _fail, _fail, _majorTitle);
+                return line - lines - 1;
+            }
+                
             //Making arrays equal (lengths)
-            if(realSwm.Length > dbSwm.Length)
+            if (realSwm.Length > dbSwm.Length)
                 for (var i = 0; i <= realSwm.Length - dbSwm.Length; i++)
                     dbSwm = dbSwm.Expand();
             else if(realSwm.Length < dbSwm.Length)
@@ -804,6 +809,8 @@ namespace Retriever4
                         }
                         else if (realRawStorages[real] != null && string.IsNullOrEmpty(dbStorages[db]))
                         {
+                            if (string.IsNullOrEmpty(realRawStorages[real]["Size"].ToString()))
+                                continue;
                             realValue = Math.Round((double)realRawStorages[real]["Size"] / gb, 0) + " GB";
                             dbValue =  "Nie wykryto dysku";
                         }
@@ -1039,6 +1046,8 @@ namespace Retriever4
                 var ping = new Ping();
                 for (var i = 0; i < 20; i++)
                 {
+
+
                     _engine.ClearLine(line);
                     _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Pingowanie serwera www.wp.pl" }, _minorTitle, _minorTitle, _majorTitle);
                     var reply = ping.Send(@"www.wp.pl");

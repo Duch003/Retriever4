@@ -276,6 +276,7 @@ namespace Retriever4.Validation
                     break;
                 //Found
                 case 1:
+                    Program._model = result;
                     engine.PrintInitializationStatus(lines, $"{result?.Model}", pass);
                     break;
             }

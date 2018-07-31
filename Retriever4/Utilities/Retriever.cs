@@ -45,7 +45,7 @@ namespace Retriever4
                         foreach (var x in z.Properties)
                         {
                             //Check if is property an array
-                            if (x.IsArray)
+                            if (x != null && x.IsArray)
                                 anwser[i].Add(x.Name, (dynamic) z[x.Name] == null ? "" : (dynamic) z[x.Name]);
                             else
                                 anwser[i].Add(x.Name, x.Value ?? "");
@@ -56,7 +56,7 @@ namespace Retriever4
                         for (var j = 0; j < properties.Length; j++)
                         {
                             //Check if is property an array
-                            if (z[properties[j]].GetType().IsArray)
+                            if (z[properties[j]] != null && z[properties[j]].GetType().IsArray)
                                 anwser[i].Add(properties[j], (dynamic) z[properties[j]] == null ? "" : (dynamic)z[properties[j]]);
                             else
                                 anwser[i].Add(properties[j], z[properties[j]] == null ? "" : z[properties[j]]);
