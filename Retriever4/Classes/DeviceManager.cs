@@ -4,6 +4,11 @@ namespace Retriever4.Classes
 {
     public static class ConfigManagerErrorDescription
     {
+        /// <summary>
+        /// Returns device error message depends on status number.
+        /// </summary>
+        /// <param name="code">Status number.</param>
+        /// <returns>Status message.</returns>
         public static string ReturnDescription(DeviceManagerErrorCode code)
         {
             switch ((int)code)
@@ -76,5 +81,41 @@ namespace Retriever4.Classes
                     return "The cake is a lie.";
             }
         }
+    }
+
+    public enum DeviceManagerErrorCode : byte
+    {
+        Err0,
+        Err1,
+        Err2,
+        Err3,
+        Err4,
+        Err5,
+        Err6,
+        Err7,
+        Err8,
+        Err9,
+        Err10,
+        Err11,
+        Err12,
+        Err13,
+        Err14,
+        Err15,
+        Err16,
+        Err17,
+        Err18,
+        Err19,
+        Err20,
+        Err21,
+        Err22,
+        Err23,
+        Err24,
+        Err25,
+        Err26,
+        Err27,
+        Err28,
+        Err29,
+        Err30,
+        Err31,
     }
 }

@@ -2,6 +2,7 @@
 using Retriever4.Validation;
 using System;
 using System.Collections.Generic;
+using Retriever4.Classes;
 
 namespace Retriever4.Tests
 {

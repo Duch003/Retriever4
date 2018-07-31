@@ -10,6 +10,4 @@ C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.csproj.
 C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.exe
 C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.pdb
 C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Debug\Retriever4.csprojAssemblyReference.cache
-C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\InTheHand.Net.Personal.dll
-C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\InTheHand.Net.Personal.xml
 C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Debug\Colorful.Console.dll

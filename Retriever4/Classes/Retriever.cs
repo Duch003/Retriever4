@@ -1,4 +1,4 @@
-﻿using System.Net.NetworkInformation;
+﻿
 using Microsoft.Win32;
 using System.Management;
 using System.IO;
@@ -7,8 +7,7 @@ using System.Collections.Generic;
 using Retriever4.Enums;
 using Retriever4.Utilities;
 using System.Linq;
-using System.Threading;
-using InTheHand.Net.Sockets;
+using System.Net.NetworkInformation;
 using Retriever4.Classes;
 using Retriever4.Interfaces;
 

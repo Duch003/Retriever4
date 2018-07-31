@@ -34,10 +34,11 @@ namespace Retriever4
         private static Color _warning = Color.Yellow;
         private static Color _majorTitle = Color.Gray;
         private static Color _minorTitle = Color.White;
-        private  static Color _defaultBackground = Color.Black;
+        private static Color _defaultBackground = Color.Black;
 
         private static void Main(string[] args)
         {
+            Exception e = new Exception("Test");
             //http://colorfulconsole.com/
             if (args != null || args.Length != 0)
             {
@@ -56,30 +57,27 @@ namespace Retriever4
                     }
                 }
             }
-            Maximize();
+
             //TODO Komenda -Config tworzy plik schematu do wypełnienia
             if (!Initialize())
                 return;
             if (!Menu() || _model == null)
                 FindModel();
             PrintSpecification();
-
-
             Console.ReadLine();
-
-            return;
         }
 
         private static bool Initialize()
         {
             try
             {
-                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, _pass, _fail, _warning, _defaultBackground);
+                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer,
+                    _pass, _fail, _warning, _defaultBackground);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
-                Console.WriteLine("Naciśnięcie dowolnegop rzycisku spowoduje zamknięcie programu.");
+                Console.WriteLine("Naciśnięcie dowolnego przycisku spowoduje zamknięcie programu.");
                 Console.ReadKey();
                 return false;
             }
@@ -235,200 +233,56 @@ namespace Retriever4
             line++;
             #endregion
 
-            try
+            Func<int, int>[] functions =
             {
-                line += Model(line);
-            }
-            catch (Exception e)
+                Model,
+                OS,
+                SWM,
+                Batteries,
+                Mainboard,
+                Memory,
+                Statuses,
+                WirelessConnections,
+                WiredConnections,
+                DeviceManager
+            };
+
+            foreach (var z in functions)
             {
-                line += _engine.PrintSection(line, 
-                    new string[]{"Błąd podczas drukowania sekcji: MODEL"}, 
-                    new string[]{$"Wyjątek: {e.Message}"},
-                    new string[]{$"Wewnętrzny wyjątek: {e.InnerException?.Message}"},
+                try
+                {
+                    line += z.Invoke(line);
+                    line++;
+                    line += _engine.PrintHorizontalLine(line);
+                    line++;
+                }
+                catch (Exception e)
+                {
+                    line += _engine.PrintSection(line,
+                        new[] { $"<<{z.Method.Name}>>" },
+                        new[] { $"Wyjątek: {e.Message}" },
+                        new[] { $"Wewnętrzny wyjątek: {e.Data}" },
                         Color.OrangeRed);
+                    Log.WriteLog($"Błąd podczas drukowania sekcji {z.Method.Name} : {DateTime.Now.ToLongDateString()}",
+                        "", e);
+                }
             }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            try
-            {
-                line += OS(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: OS" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            try
-            {
-                line += SWM(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: SWM" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            
-            try
-            {
-                line += Batteries(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: BATTERIES" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            try
-            {
-                line += Mainboard(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: MAINBOARD" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            try
-            {
-                line += Memory(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: MEMORY" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            
-            try
-            {
-                line += Statuses(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: STATUSES" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            
-            try
-            {
-                line += WirelessConnections(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: WIRELESS" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            try
-            {
-                 line += WiredConnections(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: WIRED" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-            
-            try
-            {
-                line += DeviceManager(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: DEVICE MANAGER" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
-
-
-            
-            try
-            {
-                Synchronize(line);
-            }
-            catch (Exception e)
-            {
-                line += _engine.PrintSection(line,
-                    new string[] { "Błąd podczas drukowania sekcji: SYNCHRONIZE" },
-                    new string[] { $"Wyjątek: {e.Message}" },
-                    new string[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
-                    Color.OrangeRed);
-            }
-            line++;
-            line += _engine.PrintHorizontalLine(line);
-            line++;
             Console.ReadLine();
-
         }
 
         private static int Model(int line)
         {
             var color = Color.Red;
             //Database data
-            var dbBasicModel = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Model);
-            var basicModel = string.IsNullOrEmpty(dbBasicModel.ToString()) ? "Brak w bazie danych" : dbBasicModel.ToString();
+            var dbBasicModel =
+                reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Model);
+            var basicModel = string.IsNullOrEmpty(dbBasicModel.ToString())
+                ? "Brak w bazie danych"
+                : dbBasicModel.ToString();
 
             //Converting dbData to string
-            var dbPeaqModel = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_PeaqModel);
+            var dbPeaqModel = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
+                Configuration.DB_PeaqModel);
             var peaqModel = dbPeaqModel.ToString() == "-" ? "" : dbPeaqModel.ToString();
 
             //Get device data
@@ -451,16 +305,18 @@ namespace Retriever4
                 else
                     color = _warning;
             }
-            return _engine.PrintSection(line, new[] { "Model urządzenia" }, new[] { realModel },
-                new[] { basicModel, peaqModel }, color, color, _majorTitle);
+
+            return _engine.PrintSection(line, new[] {"Model urządzenia"}, new[] {realModel},
+                new[] {basicModel, peaqModel}, color, color, _majorTitle);
         }
-  
+
         private static int OS(int line)
         {
             var color = Color.Red;
 
             //Get database data
-            var dbRawOs = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_OS);
+            var dbRawOs =
+                reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_OS);
             var dbOs = string.IsNullOrEmpty(dbRawOs.ToString()) ? "Brak w bazie danych" : dbRawOs.ToString();
 
             //Get device data
@@ -485,41 +341,48 @@ namespace Retriever4
                     if (!realOs.Contains(z))
                         isMatch = false;
                 }
+
                 color = isMatch ? _pass : _fail;
             }
+
             return _engine.PrintSection(line, new[] {"OS"}, new[] {realOs}, new[] {dbOs}, color, color, _majorTitle);
         }
 
         private static int SWM(int line)
         {
             var lines = _engine.Y;
-            var sectionTitle = new[] { "SWM" };
+            var sectionTitle = new[] {"SWM"};
             //Get database data
             var dbSwm = new string[0];
-            var dbRawSwm = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_SWM);
+            var dbRawSwm =
+                reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_SWM);
             //Checking and converting data
             if (string.IsNullOrEmpty(dbRawSwm.ToString()))
                 dbSwm = new string[0];
             else
-                dbSwm = dbRawSwm.ToString().Any(char.IsLetter) ? new[] { dbRawSwm.ToString() } : dbRawSwm.ToString().RemoveWhiteSpaces().Split('/');
+                dbSwm = dbRawSwm.ToString().Any(char.IsLetter)
+                    ? new[] {dbRawSwm.ToString()}
+                    : dbRawSwm.ToString().RemoveWhiteSpaces().Split('/');
 
             //Get device data
             //Expected: not empty array of string
             var realSwm = gatherer.GetSwm();
-            if(realSwm == null)
+            if (realSwm == null)
             {
-                line += _engine.PrintSection(line, sectionTitle, new[] { "Brak plików SWConf.dat na urządzeniu!" }, new string[] { dbRawSwm.ToString() }, _fail, _fail, _majorTitle);
+                line += _engine.PrintSection(line, sectionTitle, new[] {"Brak plików SWConf.dat na urządzeniu!"},
+                    new string[] {dbRawSwm.ToString()}, _fail, _fail, _majorTitle);
                 return line - lines - 1;
             }
-                
+
             //Making arrays equal (lengths)
             if (realSwm.Length > dbSwm.Length)
                 for (var i = 0; i <= realSwm.Length - dbSwm.Length; i++)
                     dbSwm = dbSwm.Expand();
-            else if(realSwm.Length < dbSwm.Length)
+            else if (realSwm.Length < dbSwm.Length)
                 for (var i = 0; i <= dbSwm.Length - realSwm.Length; i++)
                     realSwm = realSwm.Expand();
 
+            var checkedNumbers = "";
             //Printing matched values
             for (var real = 0; real < realSwm.Length; real++)
             {
@@ -529,15 +392,30 @@ namespace Retriever4
                 {
                     if (dbSwm[db] == null || !StringValidation.CompareStrings(realSwm[real], dbSwm[db]))
                         continue;
-                    _engine.PrintSection(line, sectionTitle, new[] {realSwm[real].Replace(";", " ")}, new[] {dbSwm[db]}, _pass, _pass, _majorTitle);
+                    _engine.PrintSection(line, sectionTitle, new[] {realSwm[real].Replace(";", " ")}, new[] {dbSwm[db]},
+                        _pass, _pass, _majorTitle);
                     line++;
                     sectionTitle = new string[0];
                     realSwm[real] = null;
-                    dbSwm[db] = null;
+                    checkedNumbers += dbSwm[db] + ";";
                     break;
                 }
             }
 
+            //Removing printed numbers
+            var temp = checkedNumbers.Split(';');
+            foreach (var z in temp)
+            {
+                if (string.IsNullOrEmpty(z))
+                    continue;
+                for(var j = 0; j < dbSwm.Length; j++)
+                {
+                    if(string.IsNullOrEmpty(dbSwm[j]))
+                        continue;
+                    if (dbSwm[j].Contains(z.RemoveSymbols().RemoveWhiteSpaces()))
+                        dbSwm[j] = null;
+                }
+            }
             //Printing reaminings
             for (var real = 0; real < realSwm.Length; real++)
             {
@@ -551,7 +429,8 @@ namespace Retriever4
                     else if (realSwm[real] != null && dbSwm[db] == null)
                         dbSwm[db] = "Brak SWM!";
 
-                    _engine.PrintSection(line, sectionTitle, new[] {realSwm[real].Replace(";", " ") }, new[] {dbSwm[db]}, _fail, _fail, _majorTitle);
+                    _engine.PrintSection(line, sectionTitle, new[] {realSwm[real].Replace(";", " ")}, new[] {dbSwm[db]},
+                        _fail, _fail, _majorTitle);
                     line++;
                     sectionTitle = new string[0];
                     realSwm[real] = null;
@@ -559,6 +438,7 @@ namespace Retriever4
                     break;
                 }
             }
+
             return line - lines - 2;
         }
 
@@ -581,7 +461,8 @@ namespace Retriever4
             var realRawBatteries = gatherer.BatteriesData();
             if (realRawBatteries == null || realRawBatteries.Length == 0)
             {
-                line += _engine.PrintSection(line, new[] {"Baterie"}, new[] {"Nie wykryto baterii!"}, new[] {maxLevel.ToString() + "%"}, _fail, _minorTitle, _majorTitle);
+                line += _engine.PrintSection(line, new[] {"Baterie"}, new[] {"Nie wykryto baterii!"},
+                    new[] {maxLevel.ToString() + "%"}, _fail, _minorTitle, _majorTitle);
                 return line - lines - 1;
             }
             else
@@ -589,32 +470,42 @@ namespace Retriever4
                 var batteryCounter = 1;
                 foreach (var batteryInstance in realRawBatteries)
                 {
-                    if(batteryInstance == null)
-                        line += _engine.PrintSection(line, new[] { $"Bateria [{batteryCounter}]" }, new[] { "Bateria uszkodzona!" }, new[] { maxLevel.ToString() + "%" }, _fail, _fail, _majorTitle);
+                    if (batteryInstance == null)
+                        line += _engine.PrintSection(line, new[] {$"Bateria [{batteryCounter}]"},
+                            new[] {"Bateria uszkodzona!"}, new[] {maxLevel.ToString() + "%"}, _fail, _fail,
+                            _majorTitle);
                     else
                     {
                         //WearLevel is double
                         var color = Color.Red;
-                        var wearLevel = (double)batteryInstance["Wearlevel"] * 100;
-                        if(wearLevel < ((double)maxLevel / 10))
+                        var wearLevel = (double) batteryInstance["Wearlevel"] * 100;
+                        if (wearLevel < ((double) maxLevel / 10))
                             color = _pass;
                         else if (wearLevel > ((double) maxLevel / 10) && wearLevel < maxLevel)
                             color = _warning;
                         else
                             color = _fail;
 
-                        line += _engine.PrintSection(line, new []{$"BATERIA [{batteryCounter}]"}, new string[0], new string[0], color, color, _majorTitle);
+                        line += _engine.PrintSection(line, new[] {$"BATERIA [{batteryCounter}]"}, new string[0],
+                            new string[0], color, color, _majorTitle);
                         line++;
-                        line += _engine.PrintSection(line, new[] { "Wearlevel" }, new []{ $"{batteryInstance["Wearlevel"] * 100}%", }, new []{ $"{maxLevel}%"}, color, color, _minorTitle);
+                        line += _engine.PrintSection(line, new[] {"Wearlevel"},
+                            new[] {$"{batteryInstance["Wearlevel"] * 100}%",}, new[] {$"{maxLevel}%"}, color, color,
+                            _minorTitle);
                         line++;
-                        line += _engine.PrintSection(line, new[] { "Poziom naładowania" }, new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorTitle);
+                        line += _engine.PrintSection(line, new[] {"Poziom naładowania"},
+                            new[] {$"{batteryInstance["EstimatedChargeRemaining"]}%"},
+                            new[] {$"{batteryInstance["EstimatedChargeRemaining"]}%"}, _minorTitle);
                         line++;
-                        line += _engine.PrintSection(line, new[] { "Status" }, new[] { $"{batteryInstance["Status"]}" }, new[] { $"{batteryInstance["Status"]}" }, _minorTitle);
+                        line += _engine.PrintSection(line, new[] {"Status"}, new[] {$"{batteryInstance["Status"]}"},
+                            new[] {$"{batteryInstance["Status"]}"}, _minorTitle);
                         line++;
                     }
+
                     batteryCounter++;
                 }
             }
+
             return line - lines - 2;
         }
 
@@ -622,7 +513,8 @@ namespace Retriever4
         private static int Mainboard(int line)
         {
             var lines = _engine.Y;
-            line += _engine.PrintSection(line, new[] {"PŁYTA GŁÓWNA"}, new string[0], new string[0], Color.Black, Color.Black, _majorTitle);
+            line += _engine.PrintSection(line, new[] {"PŁYTA GŁÓWNA"}, new string[0], new string[0], Color.Black,
+                Color.Black, _majorTitle);
             line++;
 
             #region Mainboard name
@@ -631,14 +523,18 @@ namespace Retriever4
             //Get database data
             if (_model.BiosRow == 0)
                 dbRawMainboardName = string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_MainboardModel).ToString())
+                    reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
+                        Configuration.DB_MainboardModel).ToString())
                     ? "Brak w bazie danych"
-                    : reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_MainboardModel).ToString();
+                    : reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
+                        Configuration.DB_MainboardModel).ToString();
             else
                 dbRawMainboardName = string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_MainboardModel).ToString())
+                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
+                        Configuration.Bios_MainboardModel).ToString())
                     ? "Brak w bazie danych"
-                    : reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_MainboardModel).ToString();
+                    : reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
+                        Configuration.Bios_MainboardModel).ToString();
 
             //Get device data
             //Property: Product, Type: string
@@ -647,7 +543,8 @@ namespace Retriever4
             //https://docs.microsoft.com/en-us/windows/desktop/cimwin32prov/win32-computersystem
             var realRawMaiboardName = gatherer.MainboardModel();
             if (realRawMaiboardName == null || realRawMaiboardName.Length == 0)
-                line += _engine.PrintSection(line, new[] { "Model" }, new[] { "Brak informacji w komputerze" }, new string[] { dbRawMainboardName}, _fail);
+                line += _engine.PrintSection(line, new[] {"Model"}, new[] {"Brak informacji w komputerze"},
+                    new string[] {dbRawMainboardName}, _fail);
             else
             {
                 //Product is string
@@ -657,8 +554,8 @@ namespace Retriever4
                 var isPrinted = false;
                 if (StringValidation.CompareMainboardModel(dbRawMainboardName, realRawMainboardProdut))
                 {
-                    line += _engine.PrintSection(line, new[] { "Model" }, new string[] { realRawMainboardProdut },
-                        new[] { dbRawMainboardName }, _pass);
+                    line += _engine.PrintSection(line, new[] {"Model"}, new string[] {realRawMainboardProdut},
+                        new[] {dbRawMainboardName}, _pass);
                     isPrinted = true;
                 }
                 else
@@ -666,42 +563,55 @@ namespace Retriever4
                     foreach (var z in realRawMainboardOEMString)
                     {
                         if (!StringValidation.CompareMainboardModel(dbRawMainboardName, z)) continue;
-                        line += _engine.PrintSection(line, new[] { "Model" }, new string[] { z }, new[] { dbRawMainboardName }, _pass);
+                        line += _engine.PrintSection(line, new[] {"Model"}, new string[] {z},
+                            new[] {dbRawMainboardName}, _pass);
                         isPrinted = true;
                         break;
                     }
                 }
+
                 if (!isPrinted)
-                    line += _engine.PrintSection(line, new[] { "Model" }, new string[] { realRawMainboardProdut }, new[] { dbRawMainboardName }, _fail);
+                    line += _engine.PrintSection(line, new[] {"Model"}, new string[] {realRawMainboardProdut},
+                        new[] {dbRawMainboardName}, _fail);
             }
+
             #endregion
 
             line++;
+
             #region CPU
+
             //Get database data
             var dbRawCpu =
                 string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Cpu).ToString()) 
-                    ? "Brak w bazie danych" 
-                    : reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Cpu).ToString();
+                    reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Cpu)
+                        .ToString())
+                    ? "Brak w bazie danych"
+                    : reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
+                        Configuration.DB_Cpu).ToString();
             //Get device data
             //Property: Name, type: string
             //https://docs.microsoft.com/en-us/windows/desktop/cimwin32prov/win32-processor
             var realRawCpu = gatherer.ProcessorID();
             if (realRawCpu == null || realRawCpu.Length == 0)
             {
-                line += _engine.PrintSection(line, new[] {"Procesor"}, new[] {"Brak informacji w komputerze"}, new[] {dbRawCpu}, _fail, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Procesor"}, new[] {"Brak informacji w komputerze"},
+                    new[] {dbRawCpu}, _fail, _minorTitle, _minorTitle);
             }
             else
             {
                 var realCpu = realRawCpu[0]["Name"].ToString();
                 var color = StringValidation.CompareCpu(dbRawCpu, realCpu) ? _pass : _fail;
-                line += _engine.PrintSection(line, new[] {"Procesor"}, new string[] { realCpu }, new[] {dbRawCpu}, color, color, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Procesor"}, new string[] {realCpu}, new[] {dbRawCpu}, color,
+                    color, _minorTitle);
             }
+
             #endregion
 
             line++;
+
             #region Bios
+
             //Get database data
             var dbRawBios = "";
             var dbRawRelease = DateTime.Now;
@@ -710,37 +620,47 @@ namespace Retriever4
             else
             {
                 dbRawBios = string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_Bios).ToString())
+                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_Bios)
+                        .ToString())
                     ? "Brak w bazie danych"
-                    : reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_Bios).ToString();
+                    : reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
+                        Configuration.Bios_Bios).ToString();
                 dbRawRelease = string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_BuildDate).ToString())
+                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
+                        Configuration.Bios_BuildDate).ToString())
                     ? DateTime.Now
-                    : DateTime.Parse(reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_BuildDate).ToString().Replace(".", "-"));
+                    : DateTime.Parse(reader
+                        .ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
+                            Configuration.Bios_BuildDate).ToString().Replace(".", "-"));
             }
 
             var dbRelease = dbRawRelease.Date;
-            
+
             //Get device data
             //Property: SMBIOSBIOSVersion, type: string
             //Property: ReleaseDate, type: datetime
             var realRawBios = gatherer.MainboardBiosData();
             if (realRawBios == null || realRawBios.Length == 0)
-                line += _engine.PrintSection(line, new[] { "Wersja BIOS" }, new[] { "Brak informacji w komputerze" }, new[] { dbRawCpu }, _fail, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Wersja BIOS"}, new[] {"Brak informacji w komputerze"},
+                    new[] {dbRawCpu}, _fail, _minorTitle, _minorTitle);
             else
             {
                 var realRawVersion = realRawBios[0]["SMBIOSBIOSVersion"];
                 var color = StringValidation.CompareStrings(realRawVersion, dbRawBios) ? _pass : _fail;
-                line += _engine.PrintSection(line, new[] {"Wersja BIOS"}, new string[] {realRawVersion}, new[] {dbRawBios}, color, color, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Wersja BIOS"}, new string[] {realRawVersion},
+                    new[] {dbRawBios}, color, color, _minorTitle);
                 line++;
                 //string sample: 20160429000000.000000+000
                 var realRawRelease = realRawBios[0]["ReleaseDate"].ToString();
                 var realRelease = Convert.ToDateTime(StringExtension.RetrieveDateTime(realRawRelease));
-                color = dbRelease.Subtract(realRelease) == new TimeSpan(0,0,0) ? _pass : _fail;
-                line += _engine.PrintSection(line, new[] { "Wydanie BIOS" }, new string[] { realRelease.ToShortDateString() }, new[] { dbRelease.ToShortDateString() }, color, color, _minorTitle);
+                color = dbRelease.Subtract(realRelease) == new TimeSpan(0, 0, 0) ? _pass : _fail;
+                line += _engine.PrintSection(line, new[] {"Wydanie BIOS"},
+                    new string[] {realRelease.ToShortDateString()}, new[] {dbRelease.ToShortDateString()}, color, color,
+                    _minorTitle);
             }
+
             #endregion
-            
+
             return line - lines - 1;
         }
 
@@ -749,30 +669,41 @@ namespace Retriever4
             var lines = _engine.Y;
             const long gb = 1000000000;
             const long tb = 1000000000000;
+
             #region RAM
-            line += _engine.PrintSection(line, new[] { "PAMIĘĆ" }, new[] { "" }, new[] { "" }, Color.Black, Color.Black, _majorTitle);
+
+            line += _engine.PrintSection(line, new[] {"PAMIĘĆ"}, new[] {""}, new[] {""}, Color.Black, Color.Black,
+                _majorTitle);
             line++;
-            var dbRawRam = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Ram);
+            var dbRawRam =
+                reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Ram);
             //Propery: MemoryChip[i], type: long
             //Property: Total, type: long
             var realRawRam = gatherer.RamData();
             if (realRawRam == null || realRawRam.Length == 0)
-                line += _engine.PrintSection(line, new[] {"Ram"}, new[] {"Nie wykryto kości RAM!"},  new[] {dbRawRam.ToString()}, _fail, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Ram"}, new[] {"Nie wykryto kości RAM!"},
+                    new[] {dbRawRam.ToString()}, _fail, _minorTitle, _minorTitle);
             else
             {
-                var realRam = Math.Round((double)(realRawRam[0]["Total"] * 0.95) / gb, 0);
-                var color = StringValidation.CompareStrings(realRam.ToString(), dbRawRam.ToString()) ?_pass : _fail;
-                line += _engine.PrintSection(line, new[] {"Ram" }, new[] {$"{realRam} GB" }, new[] { dbRawRam.ToString() }, color, color, _minorTitle);
+                var realRam = Math.Round((double) (realRawRam[0]["Total"] * 0.95) / gb, 0);
+                var color = StringValidation.CompareStrings(realRam.ToString(), dbRawRam.ToString()) ? _pass : _fail;
+                line += _engine.PrintSection(line, new[] {"Ram"}, new[] {$"{realRam} GB"}, new[] {dbRawRam.ToString()},
+                    color, color, _minorTitle);
             }
+
             #endregion
 
             line++;
+
             #region Storage
-            var dbRawStorages = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Storage);
+
+            var dbRawStorages = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
+                Configuration.DB_Storage);
             //Property: Size, type: long
             var realRawStorages = gatherer.StorageData();
             if (realRawStorages == null || realRawStorages.Length == 0)
-                line += _engine.PrintSection(line, new[] {"Dyski"}, new[] {"Nie wykryto dysków!"}, new[] {dbRawStorages.ToString()}, _fail, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Dyski"}, new[] {"Nie wykryto dysków!"},
+                    new[] {dbRawStorages.ToString()}, _fail, _minorTitle, _minorTitle);
             else
             {
                 var dbStorages = dbRawStorages.ToString().RemoveSymbols(new[] {';'}).RemoveWhiteSpaces().Split(';');
@@ -782,10 +713,12 @@ namespace Retriever4
                     if (realRawStorages[real] == null)
                         continue;
                     for (var db = 0; db < dbStorages.Length; db++)
-                    { 
-                        if (string.IsNullOrEmpty(dbStorages[db]) || !NumbersValidation.CompareStorages(dbStorages[db], (double)realRawStorages[real]["Size"], out var dbStorage, out var realStorage))
+                    {
+                        if (string.IsNullOrEmpty(dbStorages[db]) || !NumbersValidation.CompareStorages(dbStorages[db],
+                                (double) realRawStorages[real]["Size"], out var dbStorage, out var realStorage))
                             continue;
-                        _engine.PrintSection(line, new [] {$"Dysk [{real}]"}, new[] { realStorage + " GB" }, new[] { dbStorage + " GB" }, _pass, _pass, _minorTitle);
+                        _engine.PrintSection(line, new[] {$"Dysk [{real}]"}, new[] {realStorage + " GB"},
+                            new[] {dbStorage + " GB"}, _pass, _pass, _minorTitle);
                         line++;
                         realRawStorages[real] = null;
                         dbStorages[db] = null;
@@ -811,86 +744,116 @@ namespace Retriever4
                         {
                             if (string.IsNullOrEmpty(realRawStorages[real]["Size"].ToString()))
                                 continue;
-                            realValue = Math.Round((double)realRawStorages[real]["Size"] / gb, 0) + " GB";
-                            dbValue =  "Nie wykryto dysku";
+                            realValue = Math.Round((double) realRawStorages[real]["Size"] / gb, 0) + " GB";
+                            dbValue = "Nie wykryto dysku";
                         }
                         else
                         {
-                            realValue = Math.Round((double)realRawStorages[real]["Size"] / gb, 0) + " GB";
+                            realValue = Math.Round((double) realRawStorages[real]["Size"] / gb, 0) + " GB";
                             dbValue = dbStorages[db];
                         }
 
-                        _engine.PrintSection(line, new []{"Nieznany dysk"}, new[] { realValue }, new[] { dbValue }, _fail, _fail, _minorTitle);
+                        _engine.PrintSection(line, new[] {"Nieznany dysk"}, new[] {realValue}, new[] {dbValue}, _fail,
+                            _fail, _minorTitle);
                         line++;
                         realRawStorages[real] = null;
                         dbStorages[db] = null;
                         break;
                     }
                 }
-                
+
             }
+
             #endregion
+
             return line - lines - 2;
         }
 
         private static int Statuses(int line)
         {
             var lines = _engine.Y;
-            line += _engine.PrintSection(line, new[] {"STATUSY"}, new []{"STATUS"}, new []{"DODATKOWE INFORMACJE"}, _majorTitle, _majorTitle, _majorTitle);
+            line += _engine.PrintSection(line, new[] {"STATUSY"}, new[] {"STATUS"}, new[] {"DODATKOWE INFORMACJE"},
+                _majorTitle, _majorTitle, _majorTitle);
             line++;
+
             #region Windows product key
+
             //OA3xOriginalProductKey, type: string
             var windowsKey = gatherer.GetWindowsProductKey();
-            if(windowsKey == null || windowsKey.Length == 0)
-                line += _engine.PrintSection(line, new[] { "Klucz Windows" }, new [] {"--Brak klucza--"}, new[] { "Nie wykryto! DPK" }, _fail, _minorTitle, _minorTitle);
+            if (windowsKey == null || windowsKey.Length == 0)
+                line += _engine.PrintSection(line, new[] {"Klucz Windows"}, new[] {"--Brak klucza--"},
+                    new[] {"Nie wykryto! DPK"}, _fail, _minorTitle, _minorTitle);
             else
             {
                 string productKey = windowsKey[0]["OA3xOriginalProductKey"].ToString();
                 var color = string.IsNullOrEmpty(productKey) ? _fail : _pass;
-                var info = string.IsNullOrEmpty(productKey) ? "Brak klucza w SoftwareLicensingService" : "Klucz z klasy SoftwareLicensingService";
+                var info = string.IsNullOrEmpty(productKey)
+                    ? "Brak klucza w SoftwareLicensingService"
+                    : "Klucz z klasy SoftwareLicensingService";
                 if (string.IsNullOrEmpty(productKey))
                     productKey = "DPK";
-                line += _engine.PrintSection(line, new[] { "Klucz Windows" }, new[] { productKey }, new[] { info }, color, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Klucz Windows"}, new[] {productKey}, new[] {info}, color,
+                    _minorTitle, _minorTitle);
             }
-            #endregion
-            line++;
-            #region Activation status
-            //Property: LicenseStatus, type: WindowsActivationStatus
-            var activationStatus = gatherer.CheckWindowsActivationStatus();
-            if(activationStatus == null || activationStatus.Length == 0)
-                line += _engine.PrintSection(line, new[] { "Status aktywacji" }, new[] { "--Brak danych--" }, new[] { "System nie ma informacji na temat statusu aktywacji" }, _fail, _minorTitle, _minorTitle);
-            else
-            {
-                var status = (WindowsActivationStatus) activationStatus[0]["LicenseStatus"];
-                var color = (int)status == 1 ? _pass : _warning;
-                line += _engine.PrintSection(line, new[] { "Status aktywacji" }, new[] { status.ToString() }, new[] { $"Nr statusu: {(int)status}" }, color, _minorTitle, _minorTitle);
-            }
+
             #endregion
 
             line++;
+
+            #region Activation status
+
+            //Property: LicenseStatus, type: WindowsActivationStatus
+            var activationStatus = gatherer.CheckWindowsActivationStatus();
+            if (activationStatus == null || activationStatus.Length == 0)
+                line += _engine.PrintSection(line, new[] {"Status aktywacji"}, new[] {"--Brak danych--"},
+                    new[] {"System nie ma informacji na temat statusu aktywacji"}, _fail, _minorTitle, _minorTitle);
+            else
+            {
+                var status = (WindowsActivationStatus) activationStatus[0]["LicenseStatus"];
+                var color = (int) status == 1 ? _pass : _warning;
+                line += _engine.PrintSection(line, new[] {"Status aktywacji"}, new[] {status.ToString()},
+                    new[] {$"Nr statusu: {(int) status}"}, color, _minorTitle, _minorTitle);
+            }
+
+            #endregion
+
+            line++;
+
             #region SecureBoot
+
             var secureStatus = gatherer.CheckSecureBootStatus();
             switch ((int) secureStatus)
             {
                 case 0:
-                    line += _engine.PrintSection(line, new[] { "Secure Boot" }, new[] { secureStatus.ToString() }, new[] { $"Nr statusu: {(int)secureStatus}" }, _fail, _minorTitle, _minorTitle);
+                    line += _engine.PrintSection(line, new[] {"Secure Boot"}, new[] {secureStatus.ToString()},
+                        new[] {$"Nr statusu: {(int) secureStatus}"}, _fail, _minorTitle, _minorTitle);
                     break;
                 case 1:
-                    line += _engine.PrintSection(line, new[] { "Secure Boot" }, new[] { secureStatus.ToString() }, new[] { $"Nr statusu: {(int)secureStatus}" }, _pass, _minorTitle, _minorTitle);
+                    line += _engine.PrintSection(line, new[] {"Secure Boot"}, new[] {secureStatus.ToString()},
+                        new[] {$"Nr statusu: {(int) secureStatus}"}, _pass, _minorTitle, _minorTitle);
                     break;
                 default:
-                    line += _engine.PrintSection(line, new[] { "Secure Boot" }, new[] { "Nie wspierany" }, new[] { $"Nr statusu: {(int)secureStatus}" }, _pass, _minorTitle, _minorTitle);
+                    line += _engine.PrintSection(line, new[] {"Secure Boot"}, new[] {"Nie wspierany"},
+                        new[] {$"Nr statusu: {(int) secureStatus}"}, _pass, _minorTitle, _minorTitle);
                     break;
             }
+
             #endregion
 
             line++;
+
             #region Shipping
-            var shippingStatus = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_ShippingMode).ToString();
-            if(shippingStatus.ToLower() == "tak")
-                line += _engine.PrintSection(line, new[] { "Shipping Mode" }, new[] { "Należy włączyć" }, new[] { true.ToString() }, _warning, _minorTitle, _minorTitle);
+
+            var shippingStatus = reader
+                .ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_ShippingMode)
+                .ToString();
+            if (shippingStatus.ToLower() == "tak")
+                line += _engine.PrintSection(line, new[] {"Shipping Mode"}, new[] {"Należy włączyć"},
+                    new[] {true.ToString()}, _warning, _minorTitle, _minorTitle);
             else
-                line += _engine.PrintSection(line, new[] { "Shipping Mode" }, new[] { "Nie wspierany" }, new[] { false.ToString() }, _pass, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new[] {"Shipping Mode"}, new[] {"Nie wspierany"},
+                    new[] {false.ToString()}, _pass, _minorTitle, _minorTitle);
+
             #endregion
 
             return line - lines - 1;
@@ -899,14 +862,15 @@ namespace Retriever4
         private static int WirelessConnections(int line)
         {
             var lines = _engine.Y;
-            
+
             //Property: Description
             //Property: OperationalStatus
             //Property: BytesSent
             //Property: BytesReceived
             var wirelessDevices = gatherer.CheckWirelessConnection();
-            if(wirelessDevices == null || wirelessDevices.Length == 0)
-                line += _engine.PrintSection(line, new string[0], new[] { "Brak" }, new[] { "Nie wykryto urządzeń bezprzewodowych"}, _fail);
+            if (wirelessDevices == null || wirelessDevices.Length == 0)
+                line += _engine.PrintSection(line, new string[0], new[] {"Brak"},
+                    new[] {"Nie wykryto urządzeń bezprzewodowych"}, _fail);
             else
             {
                 var i = 1;
@@ -957,47 +921,53 @@ namespace Retriever4
                             status = "Nieznany";
                             break;
                     }
-                    line += _engine.PrintSection(line, 
-                        new [] { $"KARTA BEZPRZEWODOWA [{i}]" },
-                        new string[] { z["Description"] },
-                        new [] {status},
-                        _minorTitle, color,  _majorTitle);
+
+                    line += _engine.PrintSection(line,
+                        new[] {$"KARTA BEZPRZEWODOWA [{i}]"},
+                        new string[] {z["Description"]},
+                        new[] {status},
+                        _minorTitle, color, _majorTitle);
                     line++;
-                    color =  z["BytesSent"] > 0 && z["BytesReceived"] > 0 ? _pass : _warning;
+                    color = z["BytesSent"] > 0 && z["BytesReceived"] > 0 ? _pass : _warning;
                     var rawsSentBytes = z["BytesSent"];
                     var sentBytes = rawsSentBytes > 0 ? rawsSentBytes / 1024 : rawsSentBytes;
                     var rawsReceivedBytes = z["BytesReceived"];
                     var receivedBytes = rawsReceivedBytes > 0 ? rawsReceivedBytes / 1024 : rawsReceivedBytes;
-                    line += _engine.PrintSection(line, 
-                        new[] {"Bilans pakietów"}, 
-                        new[] {$"Wysłano bajtów: {sentBytes} kB"}, 
-                        new[] {$"Odebrano bajtów: {receivedBytes} kB"}, 
+                    line += _engine.PrintSection(line,
+                        new[] {"Bilans pakietów"},
+                        new[] {$"Wysłano bajtów: {sentBytes} kB"},
+                        new[] {$"Odebrano bajtów: {receivedBytes} kB"},
                         color, color, _minorTitle);
                     line++;
-                    line += _engine.PrintSection(line, new[] {""}, new[] { "" }, new[] { "" }, Color.Black);
+                    line += _engine.PrintSection(line, new[] {""}, new[] {""}, new[] {""}, Color.Black);
                     line++;
                     i++;
                 }
             }
+
             return line - lines - 2;
         }
 
         private static int WiredConnections(int line)
         {
             var lines = _engine.Y;
-            line += _engine.PrintSection(line, new[] { "Karty ethernet" }, new[] { "NAZWA KARTY ETHERNET" }, new[] { "ADRES MAC" }, _majorTitle, _majorTitle, _majorTitle);
+            line += _engine.PrintSection(line, new[] {"Karty ethernet"}, new[] {"NAZWA KARTY ETHERNET"},
+                new[] {"ADRES MAC"}, _majorTitle, _majorTitle, _majorTitle);
             line++;
             var mac = gatherer.CheckEthernetInterfaceMAC();
             if (mac == null || mac.Count == 0)
-                line += _engine.PrintSection(line, new string[0], new[] { "Nie wykryto karty Ethernet" }, new[] { "-" }, _warning, _minorTitle, _minorTitle);
+                line += _engine.PrintSection(line, new string[0], new[] {"Nie wykryto karty Ethernet"}, new[] {"-"},
+                    _warning, _minorTitle, _minorTitle);
             else
             {
                 foreach (var z in mac)
                 {
-                    line += _engine.PrintSection(line, new string[0], new[] { z.Key }, new[] { z.Value }, _pass, _minorTitle, _minorTitle);
+                    line += _engine.PrintSection(line, new string[0], new[] {z.Key}, new[] {z.Value}, _pass,
+                        _minorTitle, _minorTitle);
                     line++;
                 }
             }
+
             return line - lines - 2;
         }
 
@@ -1010,86 +980,25 @@ namespace Retriever4
                     new[] {"Wykryte komponenty działają poprawnie"}, _pass, _minorTitle, _majorTitle);
             else
             {
-                line += _engine.PrintSection(line, new[] { "Menedżer urządzeń" }, new[] { "Nazwa urządzenia" }, new[] { "Opis" }, _majorTitle, _majorTitle, _majorTitle);
+                line += _engine.PrintSection(line, new[] {"Menedżer urządzeń"}, new[] {"Nazwa urządzenia"},
+                    new[] {"Opis"}, _majorTitle, _majorTitle, _majorTitle);
                 line++;
                 //Caption, ConfigManagerErrorCode
                 foreach (var z in deviceManagerErrors)
                 {
-                    line += _engine.PrintSection(line, new string[0], new string[] { z["Caption"]  }, 
-                        new string[] { ConfigManagerErrorDescription.ReturnDescription((DeviceManagerErrorCode)z["ConfigManagerErrorCode"]) }, _fail, _minorTitle, _minorTitle);
+                    line += _engine.PrintSection(line, new string[0], new string[] {z["Caption"]},
+                        new string[]
+                        {
+                            ConfigManagerErrorDescription.ReturnDescription(
+                                (DeviceManagerErrorCode) z["ConfigManagerErrorCode"])
+                        }, _fail, _minorTitle, _minorTitle);
                     line++;
                 }
+
                 line--;
             }
 
             return line - lines - 1;
         }
-
-        private static void Synchronize(int line)
-        {
-            var break0 = false;
-            do
-            {
-                _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new string[0], Color.Black, Color.Black, _majorTitle);
-                Thread.Sleep(500);
-                _engine.ClearLine(line);
-
-                _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Połączenie z siecią WindowsActivation" }, _minorTitle, _minorTitle, _majorTitle);
-                WirelessConnectionManager.Connect();
-                Thread.Sleep(1000);
-                _engine.ClearLine(line);
-
-                _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Połączono z siecią WindowsActivation" }, _pass, _pass, _majorTitle);
-                Thread.Sleep(500);
-                _engine.ClearLine(line);
-
-                var ping = new Ping();
-                for (var i = 0; i < 20; i++)
-                {
-
-
-                    _engine.ClearLine(line);
-                    _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Pingowanie serwera www.wp.pl" }, _minorTitle, _minorTitle, _majorTitle);
-                    var reply = ping.Send(@"www.wp.pl");
-                    Thread.Sleep(500);
-                    if (reply.Status == IPStatus.Success)
-                    {
-                        break0 = true;
-                        break;
-                    }
-                    _engine.ClearLine(line);
-                    _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Niepowodzenie" }, _fail, _fail, _majorTitle);
-                    Thread.Sleep(500);
-                }
-                //reply.Status != IPStatus.Success
-            } while (!break0);
-
-            _engine.ClearLine(line);
-            _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Powodzenie" }, _pass, _pass, _majorTitle);
-            Thread.Sleep(500);
-
-            _engine.ClearLine(line);
-            _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Pobieranie czasu UTC+1" }, _minorTitle, _minorTitle, _majorTitle);
-            var time = NTPClient.GetNetworkTime();
-            Thread.Sleep(500);
-
-            _engine.ClearLine(line);
-            _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Przestawianie zegara systemowego" }, _pass, _pass, _majorTitle);
-            SystemTimeManagement.SetSystemDateTime(time);
-            Thread.Sleep(500);
-
-            _engine.PrintSection(line, new[] { "Synchronizacja czasu z serwerem" }, new[] { DateTime.Now.ToString() }, new[] { "Zsynchronizowano czas ze strefą UTC+1" }, _pass, _minorTitle, _majorTitle);
-        }
-
-    [DllImport("user32.dll")]
-        public static extern bool ShowWindow(System.IntPtr hWnd, int cmdShow);
-
-        private static void Maximize()
-        {
-            Process p = Process.GetCurrentProcess();
-            ShowWindow(p.MainWindowHandle, 3); //SW_MAXIMIZE = 3
-        }
     }
-
-
 }

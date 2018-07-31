@@ -11,11 +11,7 @@ namespace Retriever4.FileManagement
         /// Checks if file exists. Depends on config file.
         /// </summary>
         /// <returns>True if file exists.</returns>
-        public bool DoesDatabaseFileExists {
-            get {
-                return File.Exists(Configuration.Filepath + Configuration.Filename);
-            }
-        }
+        public bool DoesDatabaseFileExists => File.Exists(Configuration.Filepath + Configuration.Filename);
 
 
         public DatabaseFileManagement() { }

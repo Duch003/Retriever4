@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Retriever4.Enums;
-
-namespace Retriever4.Classes
+﻿namespace Retriever4.Classes
 {
     public static class BatteryStatucDescription
     {
+        /// <summary>
+        /// Return battery status depends on status number.
+        /// </summary>
+        /// <param name="status">Status number.</param>
+        /// <returns>Status message.</returns>
         public static string BatteryStatus(BatteryStatus status)
         {
             switch ((int) status)
@@ -38,5 +37,20 @@ namespace Retriever4.Classes
                     return $"Nieznany stan: {(int) status}";
             }
         }
+    }
+
+    public enum BatteryStatus
+    {
+        Discharging = 1,
+        Unknown = 2,
+        FullyCharged = 3,
+        Low = 4,
+        Critical = 5,
+        Charging = 6,
+        ChargingAndHigh = 7,
+        ChargingAndLow = 8,
+        ChargingAndCritical = 9,
+        Undefined = 10,
+        PartiallyCharged = 11
     }
 }

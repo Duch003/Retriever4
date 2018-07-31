@@ -43,13 +43,14 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="InTheHand.Net.Personal, Version=3.5.605.0, Culture=neutral, PublicKeyToken=ea38caa273134499, processorArchitecture=MSIL">
-      <HintPath>..\packages\32feet.NET.3.5.0.0\lib\net\InTheHand.Net.Personal.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Management" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -58,23 +59,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\BatteryStatucDescription.cs" />
+    <Compile Include="Classes\BatteryStatus.cs" />
     <Compile Include="Classes\DeviceManager.cs" />
     <Compile Include="Classes\Configuration.cs" />
-    <Compile Include="Classes\Interop.cs" />
-    <Compile Include="Classes\NTPClient.cs" />
-    <Compile Include="Classes\SystemTimeManagement.cs" />
-    <Compile Include="Classes\WlanApi.cs" />
     <Compile Include="DrawingAtConsole.cs" />
-    <Compile Include="Enums\BatteryStatus.cs" />
-    <Compile Include="Enums\DeviceManager.cs" />
     <Compile Include="Enums\SecureBoot.cs" />
     <Compile Include="Classes\Location.cs" />
-    <Compile Include="FileManagement\ConfigFileManagement.cs" />
-    <Compile Include="FileManagement\DatabaseFileManagement.cs" />
-    <Compile Include="FileManagement\Log.cs" />
-    <Compile Include="FileManagement\ModelFileManagement.cs" />
-    <Compile Include="FileManagement\SHA1FileManagement.cs" />
+    <Compile Include="Classes\ConfigFileManager.cs" />
+    <Compile Include="Classes\DatabaseFileManager.cs" />
+    <Compile Include="Classes\Log.cs" />
+    <Compile Include="Classes\ModelFileManager.cs" />
+    <Compile Include="Classes\HashFileManager.cs" />
     <Compile Include="Interfaces\IConfigFileManager.cs" />
     <Compile Include="Interfaces\IDatabaseManager.cs" />
     <Compile Include="Interfaces\IDrawingAtConsole.cs" />
@@ -85,12 +80,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="UnmeasurableTests\DrawingAtConsole.Tests.cs" />
     <Compile Include="UnmeasurableTests\RetrieverMethodsTests.cs" />
-    <Compile Include="Utilities\Retriever.cs" />
+    <Compile Include="Classes\Retriever.cs" />
     <Compile Include="Enums\WindowsActivation.cs" />
-    <Compile Include="Utilities\ArrayExtension.cs" />
-    <Compile Include="Utilities\StringExtension.cs" />
-    <Compile Include="Utilities\DetectDeviceModel.cs" />
-    <Compile Include="Utilities\WirelessConnectionManager.cs" />
+    <Compile Include="Extensions\ArrayExtension.cs" />
+    <Compile Include="Extensions\StringExtension.cs" />
+    <Compile Include="Classes\DetectDeviceModel.cs" />
     <Compile Include="Validation\NumbersValidation.cs" />
     <Compile Include="Validation\ObjectsValidation.cs" />
     <Compile Include="Validation\ProgramValidation.cs" />
@@ -99,6 +93,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Retriever4.cmd" />
+    <None Include="RunRetriever.ps1" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

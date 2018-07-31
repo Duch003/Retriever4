@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Retriever4.Validation
+namespace Retriever4.Classes
 {
     public static class DetectDeviceModel
     {
-        private static string[] _patterns =
+        private static readonly string[] Patterns =
         {
             @"\d{5}",
             @"[A-Za-z]\d{4}\W[A-Za-z]\d[A-Za-z][A-Za-z]\s[A-Za-z]",
@@ -27,38 +26,32 @@ namespace Retriever4.Validation
 
         public static string DetectModel(string raw)
         {
-            for(int i = 0, j = 0; i < _patterns.Length; i++)
-            {
-                var match = Regex.Match(raw, _patterns[i]);
-                if (match.Success)
-                {
-                    return match.Value;
-                }
-            }
-            return null;
+            return (from z in Patterns select Regex.Match(raw, z) into match where match.Success select match.Value).FirstOrDefault();
         }
 
         /// <summary>
         /// Checks string for model pattern.
         /// </summary>
         /// <param name="raw">Raw text to being looked for.</param>
+        /// <param name="devices">Model list to be searched.</param>
         /// <param name="result">In case if model has been found, there will be its model. Null in any other case.</param>
         /// <returns>-1 if model not found in list, 0 if model not found or 1 if model found.</returns>
         public static int FindModel(string raw, List<Location> devices, out Location result)
         {
+            //Check inputs
             if (string.IsNullOrEmpty(raw))
             {
-                string message = $"Argument wejściowy jest pusty lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
+                var message = $"Argument wejściowy jest pusty lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
                 throw new ArgumentException(message, nameof(raw));
             }
 
-            if (devices == null || devices?.Count == 0)
+            if (devices == null || devices.Count == 0)
             {
-                string message = $"Lista wejściowa jest pusta lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
+                var message = $"Lista wejściowa jest pusta lub null. Metoda: {nameof(FindModel)}, klasa: DetectDeviceModel.cs.";
                 throw new ArgumentException(message, nameof(devices));
             }
 
-            var returnState = 0;
+            int returnState;
             result = null;
             var model = DetectModel(raw);
             if(model == null)

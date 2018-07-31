@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Windows.Forms;
+using Retriever4.Classes;
 using Retriever4.FileManagement;
 using Retriever4.Interfaces;
 
@@ -14,22 +15,6 @@ namespace Retriever4.Validation
         private static IConfigFileManager configMgmt;
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
-
-        //public bool PrepareObjects(ref IDrawingAtConsole engine)
-        //{
-        //    try
-        //    {
-                
-        //    }
-        //    catch(Exception e)
-        //    {
-        //        string message = $"Błąd podczas preinicjalizacji. Treść błędu: {e.Message}.\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: {nameof(PrepareObjects)}, klasa: ProgramValidation.cs.";
-        //        throw new Exception(message);
-        //    }
-        //    return true;
-        //}
-
-        
 
         public static bool Initialization(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
             Color pass, Color fail, Color warning, Color defaultBackgroundColor)
@@ -237,7 +222,7 @@ namespace Retriever4.Validation
             engine.PrintInitializationDescription(lines, $"Próba wykrycia modelu urządzenia: ");
             Dictionary<string, dynamic>[] model = null;
             Location result = null;
-            int state = 0;
+            var state = 0;
             try
             {
                 model = gatherer.GetModelString();
@@ -254,27 +239,20 @@ namespace Retriever4.Validation
                 {
                     foreach (var x in z.Values)
                     {
-                        if (x == null)
-                            continue;
-                        else
-                        {
+                        if (x != null)
                             state = DetectDeviceModel.FindModel(x.ToString(), modelList, out result);
-                        }
                     }
                 }
             }
 
             switch (state)
             {
-                //Not found in database
                 case -1:
                     engine.PrintInitializationStatus(lines, "Brak modelu w bazie.", fail);
                     break;
-                //Not found
                 case 0:
                     engine.PrintInitializationStatus(lines, "Nie wykryto.", warning);
                     break;
-                //Found
                 case 1:
                     Program._model = result;
                     engine.PrintInitializationStatus(lines, $"{result?.Model}", pass);
