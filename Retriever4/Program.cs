@@ -38,7 +38,18 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            Exception e = new Exception("Test");
+            try
+            {
+                Console.SetBufferSize(Console.BufferWidth, 255);
+            }
+            catch(Exception e)
+            {
+                string message = $"Nieprawidlowa wielkosc okna konsoli. Prosze odpalic program ze zmaksymalizowanym oknem konsoli lub poprzez skrypt Retriever4.cmd.\n{e.Message}" +
+                    $"\nBufWid = {Console.BufferWidth}, BufHei = {Console.BufferHeight}, WinWid = {Console.WindowWidth}, WinHei = {Console.WindowHeight}";
+                Console.WriteLine(message);
+                Console.ReadKey();
+                return;
+            }
             //http://colorfulconsole.com/
             if (args != null || args.Length != 0)
             {
@@ -265,6 +276,9 @@ namespace Retriever4
                         Color.OrangeRed);
                     Log.WriteLog($"Błąd podczas drukowania sekcji {z.Method.Name} : {DateTime.Now.ToLongDateString()}",
                         "", e);
+                    line++;
+                    line += _engine.PrintHorizontalLine(line);
+                    line++;
                 }
             }
             Console.ReadLine();
@@ -467,43 +481,48 @@ namespace Retriever4
             }
             else
             {
-                var batteryCounter = 1;
-                foreach (var batteryInstance in realRawBatteries)
-                {
-                    if (batteryInstance == null)
-                        line += _engine.PrintSection(line, new[] {$"Bateria [{batteryCounter}]"},
-                            new[] {"Bateria uszkodzona!"}, new[] {maxLevel.ToString() + "%"}, _fail, _fail,
-                            _majorTitle);
-                    else
+                var temp = new Dictionary<string, dynamic>();
+              
+                    var batteryCounter = 1;
+                    foreach (var batteryInstance in realRawBatteries)
                     {
-                        //WearLevel is double
-                        var color = Color.Red;
-                        var wearLevel = (double) batteryInstance["Wearlevel"] * 100;
-                        if (wearLevel < ((double) maxLevel / 10))
-                            color = _pass;
-                        else if (wearLevel > ((double) maxLevel / 10) && wearLevel < maxLevel)
-                            color = _warning;
+                        if (batteryInstance == null)
+                            line += _engine.PrintSection(line, new[] { $"Bateria [{batteryCounter}]" },
+                                new[] { "Bateria uszkodzona!" }, new[] { maxLevel.ToString() + "%" }, _fail, _fail,
+                                _majorTitle);
                         else
-                            color = _fail;
+                        {
+                            temp = batteryInstance;
+                            //WearLevel is double
+                            var color = Color.Red;
+                            var wearLevel = (double)batteryInstance["Wearlevel"] * 100;
+                            if (wearLevel < ((double)maxLevel / 10))
+                                color = _pass;
+                            else if (wearLevel > ((double)maxLevel / 10) && wearLevel < maxLevel)
+                                color = _warning;
+                            else
+                                color = _fail;
 
-                        line += _engine.PrintSection(line, new[] {$"BATERIA [{batteryCounter}]"}, new string[0],
-                            new string[0], color, color, _majorTitle);
-                        line++;
-                        line += _engine.PrintSection(line, new[] {"Wearlevel"},
-                            new[] {$"{batteryInstance["Wearlevel"] * 100}%",}, new[] {$"{maxLevel}%"}, color, color,
-                            _minorTitle);
-                        line++;
-                        line += _engine.PrintSection(line, new[] {"Poziom naładowania"},
-                            new[] {$"{batteryInstance["EstimatedChargeRemaining"]}%"},
-                            new[] {$"{batteryInstance["EstimatedChargeRemaining"]}%"}, _minorTitle);
-                        line++;
-                        line += _engine.PrintSection(line, new[] {"Status"}, new[] {$"{batteryInstance["Status"]}"},
-                            new[] {$"{batteryInstance["Status"]}"}, _minorTitle);
-                        line++;
+                            line += _engine.PrintSection(line, new[] { $"BATERIA [{batteryCounter}]" }, new string[0],
+                                new string[0], color, color, _majorTitle);
+                            line++;
+                            line += _engine.PrintSection(line, new[] { "Wearlevel" },
+                                new[] { $"{batteryInstance["Wearlevel"] * 100}%", }, new[] { $"{maxLevel}%" }, color, color,
+                                _minorTitle);
+                            line++;
+                            line += _engine.PrintSection(line, new[] { "Poziom naładowania" },
+                                new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" },
+                                new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorTitle);
+                            line++;
+                            line += _engine.PrintSection(line, new[] { "Status" }, new[] { $"{batteryInstance["Status"]}" },
+                                new[] { $"{batteryInstance["Status"]}" }, _minorTitle);
+                            line++;
+                        }
+
+                        batteryCounter++;
                     }
-
-                    batteryCounter++;
-                }
+                
+                
             }
 
             return line - lines - 2;

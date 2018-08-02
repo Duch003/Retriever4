@@ -94,7 +94,6 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="Retriever4.cmd" />
-    <None Include="RunRetriever.ps1" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

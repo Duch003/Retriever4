@@ -251,15 +251,23 @@ namespace Retriever4
                     throw new Exception(message);
                 }
                 anwser = anwser.Expand();
-                anwser[i] = new Dictionary<string, dynamic>
+                try
                 {
-                    {"Tag", Data[i]["Tag"]},
-                    {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
-                    {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
-                    {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
-                    {"Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"]))}
-                };
-                anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
+                    anwser[i] = new Dictionary<string, dynamic>
+                    {
+                        {"Tag", Data[i]["Tag"]},
+                        {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
+                        {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
+                        {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
+                        {"Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"]))}
+                    };
+                    anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
+                }
+                catch(Exception e)
+                {
+                    string message = e.Message + $" DesignedCapacity: {Data[i]["DesignedCapacity"]}, FullChargeCapacity: {fullChargeCapacity[0]["FullChargedCapacity"]}, CurrentChargeLevel: {currentChargeLevel[0]["EstimatedChargeRemaining"]}, BatteryStatus: {currentChargeLevel[0]["BatteryStatus"]}";
+                    throw new Exception(message);
+                }
                 j++;
             }
             return anwser;
