@@ -21,4 +21,11 @@
   <bios_Bios>3</bios_Bios>
   <bios_EC>4</bios_EC>
   <bios_BuildDate>5</bios_BuildDate>
+  <passColor>Green</passColor>
+  <failColor>Red</failColor>
+  <warningColor>Yellow</warningColor>
+  <backgroundColor>Black</backgroundColor>
+  <headersColor>Blue</headersColor>
+  <minorInformationColor>White</minorInformationColor>
+  <majorInformationColor>Gray</majorInformationColor>
 </Configuration>

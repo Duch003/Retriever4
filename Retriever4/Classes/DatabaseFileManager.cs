@@ -13,6 +13,8 @@ namespace Retriever4.FileManagement
         /// <returns>True if file exists.</returns>
         public bool DoesDatabaseFileExists => File.Exists(Configuration.Filepath + Configuration.Filename);
 
+        public string LastValue { get; private set; }
+        public string LastColumnName { get; private set; }
 
         public DatabaseFileManagement() { }
         /// <summary>
@@ -53,6 +55,8 @@ namespace Retriever4.FileManagement
 
                     var table = result.Tables[tableName];
                     anwser = table.Rows[row][column];
+                    LastValue = anwser.ToString();
+                    LastColumnName = table.Rows[0][column].ToString();
                 }
             }
             catch (Exception e)

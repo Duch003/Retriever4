@@ -12,8 +12,14 @@ namespace Retriever4
         /// </summary>
         /// <param name="info">Information that will be writed to document.</param>
         /// <returns>Log file name.</returns>
-        public static string WriteLog(string header, string userInfo, Exception e)
+        public static bool WriteLog(string header, string userInfo, Exception e)
         {
+            if (e == null)
+                return false;
+            if (string.IsNullOrEmpty(header))
+                header = "";
+            if (string.IsNullOrEmpty(header))
+                header = "";
             //Create title
             var title = $"Log {DateTime.Now}.txt";
             //Replace forbidden chars
@@ -25,18 +31,12 @@ namespace Retriever4
             {
                 sw.WriteLine(header);
                 sw.WriteLine(userInfo);
-                sw.WriteLine($"Wyjątek: {e.Message}");
-                sw.WriteLine($"Stos wywołań: {e.StackTrace}");
-                sw.WriteLine($"Wewnętrzny wyjątek: {e.InnerException?.Message}");
-                if(e.Data != null && e.Data.Count != 0)
-                    foreach (KeyValuePair<string, string> z in e.Data.Keys)
-                    {
-                        sw.WriteLine($"Zebrane dane:");
-                        sw.WriteLine($"{z.Key}: {z.Value.PadLeft(40)}");
-                    }
+                sw.WriteLine($"Wyjątek: {e?.Message}");
+                sw.WriteLine($"Stos wywołań: {e?.StackTrace}");
+                sw.WriteLine($"Wewnętrzny wyjątek: {e?.InnerException?.Message}");
             }
             //Return name
-            return title;
+            return false;
         }
     }
 }

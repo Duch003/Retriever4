@@ -18,6 +18,7 @@ namespace Retriever4
         //Construcor for tests
         public Retriever() { }
 
+        public Dictionary<string, dynamic>[] lastDictionaries { get; private set; }
         /// <summary>
         /// Retrieve data from wmi instaces and save them into dictionaries.
         /// </summary>

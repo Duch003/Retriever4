@@ -8,6 +8,7 @@ namespace Retriever4.Interfaces
 {
     public interface IWmiReader
     {
+
         Dictionary<string, dynamic>[] CheckDeviceManager();
         Dictionary<string, dynamic>[] CheckWirelessConnection();
         Dictionary<string, string> CheckEthernetInterfaceMAC();

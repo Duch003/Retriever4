@@ -1,16 +1,20 @@
 ﻿using Retriever4.Validation;
 using System;
+using System.Drawing;
+using System.Linq;
 
 namespace Retriever4
 {
     public class Configuration
     {
+        //Raw data which neet to be checked
+        //File info
         public string filepath;
         public string filename;
         public string databaseTableName;
         public string biosTableName;
         public int? wearLevel;
-
+        //Model table info
         public int? db_Model;
         public int? db_PeaqModel;
         public int? db_Storage;
@@ -22,19 +26,26 @@ namespace Retriever4
         public int? db_MainboardVendor;
         public int? db_MainboardModel;
         public int? db_ShippingMode;
-
+        //Bios table info
         public int? bios_CaseModel;
         public int? bios_MainboardModel;
         public int? bios_Bios;
-        public int? bios_EC;
         public int? bios_BuildDate;
-
+        //Console colors info
+        public Color? passColor;
+        public Color? failColor;
+        public Color? warningColor;
+        public Color? backgroundColor;
+        public Color? headersColor;
+        public Color? minorInformationColor;
+        public Color? majorInformationColor;
+        //Checked file info
         public static string Filepath;
         public static string Filename;
         public static string DatabaseTableName;
         public static string BiosTableName;
         public static int WearLevel;
-
+        //Checked model table info
         public static int DB_Model;
         public static int DB_PeaqModel;
         public static int DB_Storage;
@@ -46,12 +57,19 @@ namespace Retriever4
         public static int DB_MainboardVendor;
         public static int DB_MainboardModel;
         public static int DB_ShippingMode;
-
+        //Checked bios table info
         public static int Bios_CaseModel;
         public static int Bios_MainboardModel;
         public static int Bios_Bios;
-        public static int Bios_EC;
         public static int Bios_BuildDate;
+        //Checked colors info
+        public static Color PassColor;
+        public static Color FailColor;
+        public static Color WarningColor;
+        public static Color BackgroundColor;
+        public static Color HeadersColor;
+        public static Color MinorInformationColor;
+        public static Color MajorInformationColor;
 
         public Configuration() { }
 
@@ -62,10 +80,20 @@ namespace Retriever4
         public bool MakeDataStatic()
         {
             if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, 
-                new[] {nameof(filepath), nameof(filename), nameof(databaseTableName), nameof(biosTableName)}))
-            {
+                GetType().GetFields().Where(z => !z.IsNumericType()).Select(z => z.Name).ToArray()))
+                //new[] {
+                //    nameof(filepath),
+                //    nameof(filename),
+                //    nameof(databaseTableName),
+                //    nameof(biosTableName),
+                //    nameof(passColor),
+                //    nameof(failColor),
+                //    nameof(warningColor),
+                //    nameof(backgroundColor),
+                //    nameof(headersColor),
+                //    nameof(minorInformationColor),
+                //    nameof(majorInformationColor) }))
                 return false;
-            }
             Filepath = filepath;
             Filename = filename;
             DatabaseTableName = databaseTableName;
@@ -85,7 +113,6 @@ namespace Retriever4
             Bios_CaseModel = (int)bios_CaseModel;
             Bios_MainboardModel = (int)bios_MainboardModel;
             Bios_Bios = (int)bios_Bios;
-            Bios_EC = (int)bios_EC;
             Bios_BuildDate = (int)bios_BuildDate;
             return true;
         }

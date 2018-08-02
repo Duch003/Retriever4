@@ -16,8 +16,55 @@ namespace Retriever4.Validation
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
 
+        /// <summary>
+        /// Initialize necessary objects for initialization
+        /// </summary>
+        /// <param name="dbMgmt"></param>
+        /// <param name="gatherer"></param>
+        /// <returns></returns>
+        private static bool InitializeObjects(ref IDatabaseManager dbMgmt, ref IWmiReader gatherer)
+        {
+            try
+            {
+                gatherer = new Retriever();
+                dbMgmt = new DatabaseFileManagement();
+                configMgmt = new ConfigFileManagement();
+                listMgmt = new ModelFile();
+                shaMgmt = new SHA1FileManagement();
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        //
+        private static bool InitializeObjects(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, 
+            ref IWmiReader gatherer, ISHA1FileManager shaFakeMgmt, IModelListManager listFakeMgmt, IConfigFileManager configFakeMgmt)
+        {
+            try
+            {
+                gatherer = new Retriever();
+                dbMgmt = new DatabaseFileManagement();
+                configMgmt = configFakeMgmt;
+                listMgmt = listFakeMgmt;
+                shaMgmt = shaFakeMgmt;
+            }
+            catch(Exception e)
+            {
+                return false;
+            }
+            return true;
+        }
+
+        private static void InitializeDrawingAtConsoleEngine(ref IDrawingAtConsole engine, Color pass, Color warning, Color fail, Color background, Color headers, Color minorInfo, Color majorInfo)
+        {
+
+        }
+
         public static bool Initialization(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
-            Color pass, Color fail, Color warning, Color defaultBackgroundColor)
+            Color pass, Color fail, Color warning, Color defaultBackgroundColor, bool InitializationComments)
         {
             //Preparation
             dbMgmt = new DatabaseFileManagement();

@@ -38,36 +38,50 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            try
-            {
-                Console.SetBufferSize(Console.BufferWidth, 255);
-            }
-            catch(Exception e)
-            {
-                string message = $"Nieprawidlowa wielkosc okna konsoli. Prosze odpalic program ze zmaksymalizowanym oknem konsoli lub poprzez skrypt Retriever4.cmd.\n{e.Message}" +
-                    $"\nBufWid = {Console.BufferWidth}, BufHei = {Console.BufferHeight}, WinWid = {Console.WindowWidth}, WinHei = {Console.WindowHeight}";
-                Console.WriteLine(message);
-                Console.ReadKey();
-                return;
-            }
-            //http://colorfulconsole.com/
+
             if (args != null || args.Length != 0)
             {
                 foreach (var z in args)
                 {
                     switch (z)
                     {
-                        case "-SzymonMode":
-                            _fail = Color.DeepPink;
-                            _pass = Color.DeepSkyBlue;
-                            _warning = Color.MediumPurple;
-                            _defaultBackground = Console.BackgroundColor = Color.LightPink;
+                        //Zmiana kolorow
+                        case "-sw33t mode":
                             break;
-                        case "-Config":
+                        //Utworzenie pliku config do uzupelnienia
+                        case "-config":
                             break;
+                        //Normalny paramter do odpalenia aplikacji ze zdefiniowana rozdzielczoscia
+                        case "-size":
+                            break;
+                        //Pobiera wszystkie parametry WMI i zapisuje w pliku
+                        case "-save computer parameters":
+                            break;
+                        //Sprawdzenie poprawnosci zapisu pliku config z wyswietleniem bledu
+                        case "-check config":
+                            break;
+                        //Test klasy DrawingAtConsole
+                        case "screen test":
+                            break;
+
                     }
                 }
             }
+
+            try
+            {
+                Console.SetBufferSize(Console.BufferWidth, 255);
+            }
+            catch(Exception e)
+            {
+                string message = $"Nieprawidlowa wielkosc okna konsoli. Prosze odpalic program poprzez skrypt Retriever4.cmd.\n{e.Message}" +
+                    $"\nBufferWidth = {Console.BufferWidth}\nBufferHeight = {Console.BufferHeight}\n WindowWidth = {Console.WindowWidth}\n WindowHeight = {Console.WindowHeight}";
+                Console.WriteLine(message);
+                Console.ReadKey();
+                return;
+            }
+            //http://colorfulconsole.com/
+            
 
             //TODO Komenda -Config tworzy plik schematu do wypełnienia
             if (!Initialize())
@@ -82,8 +96,8 @@ namespace Retriever4
         {
             try
             {
-                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer,
-                    _pass, _fail, _warning, _defaultBackground);
+                //ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer,
+                //    _pass, _fail, _warning, _defaultBackground);
             }
             catch (Exception e)
             {
@@ -272,10 +286,9 @@ namespace Retriever4
                     line += _engine.PrintSection(line,
                         new[] { $"<<{z.Method.Name}>>" },
                         new[] { $"Wyjątek: {e.Message}" },
-                        new[] { $"Wewnętrzny wyjątek: {e.Data}" },
+                        new[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
                         Color.OrangeRed);
-                    Log.WriteLog($"Błąd podczas drukowania sekcji {z.Method.Name} : {DateTime.Now.ToLongDateString()}",
-                        "", e);
+                    //Log.WriteLog($"{_model.Model} : {DateTime.Now.ToLongDateString()}", "Meotda: " + e.TargetSite.Name, e, new Type[] {reader.GetType()});
                     line++;
                     line += _engine.PrintHorizontalLine(line);
                     line++;
@@ -736,7 +749,7 @@ namespace Retriever4
                         if (string.IsNullOrEmpty(dbStorages[db]) || !NumbersValidation.CompareStorages(dbStorages[db],
                                 (double) realRawStorages[real]["Size"], out var dbStorage, out var realStorage))
                             continue;
-                        _engine.PrintSection(line, new[] {$"Dysk [{real}]"}, new[] {realStorage + " GB"},
+                        _engine.PrintSection(line, new[] {$"Dysk [{real+1}]"}, new[] {realStorage + " GB"},
                             new[] {dbStorage + " GB"}, _pass, _pass, _minorTitle);
                         line++;
                         realRawStorages[real] = null;
