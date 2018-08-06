@@ -260,6 +260,7 @@ namespace Retriever4
                         {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
                         {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
                         {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
+                        //Poniższe może wypluć pusty string/null
                         {"Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"]))}
                     };
                     anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
