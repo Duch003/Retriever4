@@ -38,36 +38,6 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-
-            if (args != null || args.Length != 0)
-            {
-                foreach (var z in args)
-                {
-                    switch (z)
-                    {
-                        //Zmiana kolorow
-                        case "-sw33t mode":
-                            break;
-                        //Utworzenie pliku config do uzupelnienia
-                        case "-config":
-                            break;
-                        //Normalny paramter do odpalenia aplikacji ze zdefiniowana rozdzielczoscia
-                        case "-size":
-                            break;
-                        //Pobiera wszystkie parametry WMI i zapisuje w pliku
-                        case "-save computer parameters":
-                            break;
-                        //Sprawdzenie poprawnosci zapisu pliku config z wyswietleniem bledu
-                        case "-check config":
-                            break;
-                        //Test klasy DrawingAtConsole
-                        case "screen test":
-                            break;
-
-                    }
-                }
-            }
-
             try
             {
                 Console.SetBufferSize(Console.BufferWidth, 255);

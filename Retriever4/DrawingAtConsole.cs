@@ -103,10 +103,17 @@ namespace Retriever4
         private string _modelTablePeaqHeader { get; set; } = "PEAQ MODEL";
 
         private readonly string _clearLine;
-        private Color _defaultBackground = Color.Black;
+        private Color _pass;
+        private Color _warning;
+        private Color _fail;
+        private Color _background;
+        private Color _headers;
+        private Color _minorInfo;
+        private Color _majorInfo;
 
 
-        public DrawingAtConsole(Color defaultBackground)
+
+        public DrawingAtConsole(Color background, Color headers, Color minorInfo, Color majorInfo)
         {
             if (Console.BufferWidth < 80)
                 return;

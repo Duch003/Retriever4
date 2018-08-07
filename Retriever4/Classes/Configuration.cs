@@ -39,6 +39,8 @@ namespace Retriever4
         public Color? headersColor;
         public Color? minorInformationColor;
         public Color? majorInformationColor;
+        public Color? defaultBackgroundColor;
+        public Color? defauldForegroundColor;
         //Checked file info
         public static string Filepath;
         public static string Filename;
@@ -70,6 +72,8 @@ namespace Retriever4
         public static Color HeadersColor;
         public static Color MinorInformationColor;
         public static Color MajorInformationColor;
+        public static Color DefaultBackgroundColor;
+        public static Color DefauldForegroundColor;
 
         public Configuration() { }
 
@@ -114,6 +118,15 @@ namespace Retriever4
             Bios_MainboardModel = (int)bios_MainboardModel;
             Bios_Bios = (int)bios_Bios;
             Bios_BuildDate = (int)bios_BuildDate;
+            PassColor = (Color)passColor;
+            FailColor = (Color)failColor;
+            WarningColor = (Color)warningColor;
+            PassColor = (Color)passColor;
+            PassColor = (Color)passColor;
+            PassColor = (Color)passColor;
+            PassColor = (Color)passColor;
+            PassColor = (Color)passColor;
+            PassColor = (Color)passColor;
             return true;
         }
     }

@@ -28,4 +28,6 @@
   <headersColor>Blue</headersColor>
   <minorInformationColor>White</minorInformationColor>
   <majorInformationColor>Gray</majorInformationColor>
+  <defaultBackgroundColor>Black</defaultBackgroundColor>
+  <defaultForegroundColor>White</defaultForegroundColor>
 </Configuration>
