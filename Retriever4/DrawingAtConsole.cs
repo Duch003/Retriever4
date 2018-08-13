@@ -103,18 +103,21 @@ namespace Retriever4
         private string _modelTablePeaqHeader { get; set; } = "PEAQ MODEL";
 
         private readonly string _clearLine;
-        private Color _pass;
-        private Color _warning;
-        private Color _fail;
-        private Color _background;
-        private Color _headers;
-        private Color _minorInfo;
-        private Color _majorInfo;
+        private Color _defaultBackground;
+        private Color _defaultForeground;
+        private Color _headerBackground;
+        private Color _headerForeground;
+        private Color _separator;
 
 
-
-        public DrawingAtConsole(Color background, Color headers, Color minorInfo, Color majorInfo)
+        public DrawingAtConsole(Color defaultBackground, Color defaultForeground, Color headerForeground, Color headerBackground, Color separator)
         {
+            _defaultBackground = defaultBackground;
+            _defaultForeground = defaultForeground;
+            _headerBackground = headerBackground;
+            _headerForeground = headerForeground;
+            _separator = separator;
+
             if (Console.BufferWidth < 80)
                 return;
 
@@ -898,19 +901,19 @@ namespace Retriever4
 
         private void RestoreColors()
         {
-            SetConsoleForeground(Color.White);
+            SetConsoleForeground(_defaultForeground);
             SetConsoleBackground(_defaultBackground);
         }
 
         private void MainHeaderColor()
         {
-            SetConsoleForeground(Color.White);
-            SetConsoleBackground(Color.DarkBlue);
+            SetConsoleForeground(_headerForeground);
+            SetConsoleBackground(_headerBackground);
         }
 
         private void LineColor()
         {
-            SetConsoleForeground(Color.DarkGoldenrod);
+            SetConsoleForeground(_separator);
         }
         #endregion
     }

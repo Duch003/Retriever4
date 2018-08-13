@@ -36,7 +36,9 @@ namespace Retriever4
         public Color? failColor;
         public Color? warningColor;
         public Color? backgroundColor;
-        public Color? headersColor;
+        public Color? headersForegroundColor;
+        public Color? headersBackgroundColor;
+        public Color? separatorColor;
         public Color? minorInformationColor;
         public Color? majorInformationColor;
         public Color? defaultBackgroundColor;
@@ -68,8 +70,9 @@ namespace Retriever4
         public static Color PassColor;
         public static Color FailColor;
         public static Color WarningColor;
-        public static Color BackgroundColor;
-        public static Color HeadersColor;
+        public static Color HeaderBackgroundColor;
+        public static Color HeaderForegroundColor;
+        public static Color SeparatorColor;
         public static Color MinorInformationColor;
         public static Color MajorInformationColor;
         public static Color DefaultBackgroundColor;
@@ -121,12 +124,13 @@ namespace Retriever4
             PassColor = (Color)passColor;
             FailColor = (Color)failColor;
             WarningColor = (Color)warningColor;
-            PassColor = (Color)passColor;
-            PassColor = (Color)passColor;
-            PassColor = (Color)passColor;
-            PassColor = (Color)passColor;
-            PassColor = (Color)passColor;
-            PassColor = (Color)passColor;
+            HeaderBackgroundColor = (Color)headersBackgroundColor;
+            HeaderForegroundColor = (Color)headersForegroundColor;
+            SeparatorColor = (Color)separatorColor;
+            MinorInformationColor = (Color)minorInformationColor;
+            MajorInformationColor = (Color)majorInformationColor;
+            DefaultBackgroundColor = (Color)defaultBackgroundColor;
+            DefauldForegroundColor = (Color)defauldForegroundColor;
             return true;
         }
     }

@@ -29,12 +29,12 @@ namespace Retriever4
 
         private static readonly string _success = "Zrobione";
         private static readonly string _failed = "Niepowodzenie";
-        private static Color _fail = Color.Red;
-        private static Color _pass = Color.ForestGreen;
-        private static Color _warning = Color.Yellow;
-        private static Color _majorTitle = Color.Gray;
-        private static Color _minorTitle = Color.White;
-        private static Color _defaultBackground = Color.Black;
+
+        private static Color _pass;
+        private static Color _warning;
+        private static Color _fail;
+        private static Color _minorInfo;
+        private static Color _majorInfo;
 
         private static void Main(string[] args)
         {
@@ -66,8 +66,7 @@ namespace Retriever4
         {
             try
             {
-                //ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer,
-                //    _pass, _fail, _warning, _defaultBackground);
+                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, ref _pass, ref _warning, ref _fail, ref _majorInfo, ref _minorInfo);
             }
             catch (Exception e)
             {

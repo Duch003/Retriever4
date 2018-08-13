@@ -24,8 +24,9 @@
   <passColor>Green</passColor>
   <failColor>Red</failColor>
   <warningColor>Yellow</warningColor>
-  <backgroundColor>Black</backgroundColor>
-  <headersColor>Blue</headersColor>
+  <separatorColor>DarkGoldenrod</separatorColor>
+  <headerBackgroundColor>Blue</headerBackgroundColor>
+  <headerForegroundColor>White</headerForegroundColor>
   <minorInformationColor>White</minorInformationColor>
   <majorInformationColor>Gray</majorInformationColor>
   <defaultBackgroundColor>Black</defaultBackgroundColor>
