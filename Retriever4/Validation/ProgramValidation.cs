@@ -25,7 +25,7 @@ namespace Retriever4.Validation
             configMgmt = new ConfigFileManagement();
             listMgmt = new ModelFile();
             shaMgmt = new SHA1FileManagement();
-            engine = new DrawingAtConsole(Color.White, Color.Black, Color.White, Color.Blue, Color.White, Color.Gray, Color.Goldenrod);
+            engine = new DrawingAtConsole(Color.White, Color.Black, Color.White, Color.Blue, Color.White, Color.Gray, Color.Goldenrod, );
             //Console clearing
             Console.Clear();
             engine.RestoreCursorX();
