@@ -26,7 +26,6 @@ namespace Retriever4.Tests.Factories
                 bios_Bios = 1,
                 bios_BuildDate = 2,
                 bios_CaseModel = 3,
-                bios_EC = 4,
                 bios_MainboardModel = 5
 
             };
@@ -55,7 +54,6 @@ namespace Retriever4.Tests.Factories
                 bios_Bios = 1,
                 bios_BuildDate = 2,
                 bios_CaseModel = 3,
-                bios_EC = 4,
                 bios_MainboardModel = 5
             };
             return config;
@@ -83,7 +81,6 @@ namespace Retriever4.Tests.Factories
                 bios_Bios = 1,
                 bios_BuildDate = 2,
                 bios_CaseModel = 3,
-                bios_EC = 4,
                 bios_MainboardModel = 5
             };
             return config;

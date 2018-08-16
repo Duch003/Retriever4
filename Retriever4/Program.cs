@@ -38,41 +38,37 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            try
-            {
-                Console.SetBufferSize(Console.BufferWidth, 255);
-            }
-            catch(Exception e)
-            {
-                string message = $"Nieprawidlowa wielkosc okna konsoli. Prosze odpalic program poprzez skrypt Retriever4.cmd.\n{e.Message}" +
-                    $"\nBufferWidth = {Console.BufferWidth}\nBufferHeight = {Console.BufferHeight}\n WindowWidth = {Console.WindowWidth}\n WindowHeight = {Console.WindowHeight}";
-                Console.WriteLine(message);
-                Console.ReadKey();
-                return;
-            }
+            Console.SetBufferSize(Console.BufferWidth, 120);
+
             //http://colorfulconsole.com/
             
 
             //TODO Komenda -Config tworzy plik schematu do wypełnienia
-            if (!Initialize())
+            if (!Initialize(out var key))
                 return;
-            if (!Menu() || _model == null)
-                FindModel();
+            if(!(key.Key == ConsoleKey.Enter && _model != null && ModelList.Contains(_model)))
+                if(!Menu() || _model == null)
+                    FindModel();
             PrintSpecification();
             Console.ReadLine();
         }
 
-        private static bool Initialize()
+        private static bool Initialize(out ConsoleKeyInfo key)
         {
             try
             {
-                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, _pass, _warning, _fail, _majorInfo, _minorInfo);
+                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White, out key);
+                _pass = Configuration.PassColor;
+                _warning = Configuration.WarningColor;
+                _fail = Configuration.FailColor;
+                _majorInfo = Configuration.MajorInformationColor;
+                _minorInfo = Configuration.MinorInformationColor;
             }
             catch (Exception e)
             {
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku spowoduje zamknięcie programu.");
-                Console.ReadKey();
+                key = Console.ReadKey();
                 return false;
             }
             return true;
@@ -238,7 +234,8 @@ namespace Retriever4
                 Statuses,
                 WirelessConnections,
                 WiredConnections,
-                DeviceManager
+                DeviceManager,
+                Tip
             };
 
             foreach (var z in functions)
@@ -478,9 +475,9 @@ namespace Retriever4
                             //WearLevel is double
                             var color = Color.Red;
                             var wearLevel = (double)batteryInstance["Wearlevel"] * 100;
-                            if (wearLevel < ((double)maxLevel / 10))
+                            if (wearLevel < 11)
                                 color = _pass;
-                            else if (wearLevel > ((double)maxLevel / 10) && wearLevel < maxLevel)
+                            else if (wearLevel > 11 && wearLevel < maxLevel)
                                 color = _warning;
                             else
                                 color = _fail;
@@ -998,6 +995,26 @@ namespace Retriever4
 
                 line--;
             }
+
+            return line - lines - 1;
+        }
+
+        private static int Tip(int line)
+        {
+            var lines = _engine.Y;
+            var tip = "";
+       
+            tip = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Tip)?.ToString();
+            var color = Color.Red;
+            if (string.IsNullOrEmpty(tip))
+            {
+                tip = "Brak wskazówek dla tego urządzenia";
+                color = _pass;
+            }
+            else
+                color = _warning;
+                
+            line += _engine.PrintSection(line, new[] { "Wskazówki" }, new string[] { }, new[] { tip }, _minorInfo, color,_majorInfo);
 
             return line - lines - 1;
         }

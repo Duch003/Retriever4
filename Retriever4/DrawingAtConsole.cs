@@ -853,7 +853,11 @@ namespace Retriever4
         /// <summary>
         /// Useless method, but needed for unit tests.
         /// </summary>
-        public void Wait() => Console.ReadKey();
+        public ConsoleKeyInfo Wait()
+        {
+            return Console.ReadKey();
+        }
+
 
         public void ClearLine(int Y)
         {

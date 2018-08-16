@@ -26,23 +26,24 @@ namespace Retriever4
         public int? db_MainboardVendor;
         public int? db_MainboardModel;
         public int? db_ShippingMode;
+        public int? db_Tip;
         //Bios table info
         public int? bios_CaseModel;
         public int? bios_MainboardModel;
         public int? bios_Bios;
         public int? bios_BuildDate;
+        
         //Console colors info
-        public Color? passColor;
-        public Color? failColor;
-        public Color? warningColor;
-        public Color? backgroundColor;
-        public Color? headersForegroundColor;
-        public Color? headersBackgroundColor;
-        public Color? separatorColor;
-        public Color? minorInformationColor;
-        public Color? majorInformationColor;
-        public Color? defaultBackgroundColor;
-        public Color? defauldForegroundColor;
+        public string passColor;
+        public string failColor;
+        public string warningColor;
+        public string headerForegroundColor;
+        public string headerBackgroundColor;
+        public string separatorColor;
+        public string minorInformationColor;
+        public string majorInformationColor;
+        public string defaultBackgroundColor;
+        public string defaultForegroundColor;
         //Checked file info
         public static string Filepath;
         public static string Filename;
@@ -61,6 +62,7 @@ namespace Retriever4
         public static int DB_MainboardVendor;
         public static int DB_MainboardModel;
         public static int DB_ShippingMode;
+        public static int DB_Tip;
         //Checked bios table info
         public static int Bios_CaseModel;
         public static int Bios_MainboardModel;
@@ -76,7 +78,7 @@ namespace Retriever4
         public static Color MinorInformationColor;
         public static Color MajorInformationColor;
         public static Color DefaultBackgroundColor;
-        public static Color DefauldForegroundColor;
+        public static Color DefaultForegroundColor;
 
         public Configuration() { }
 
@@ -88,18 +90,6 @@ namespace Retriever4
         {
             if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, 
                 GetType().GetFields().Where(z => !z.IsNumericType()).Select(z => z.Name).ToArray()))
-                //new[] {
-                //    nameof(filepath),
-                //    nameof(filename),
-                //    nameof(databaseTableName),
-                //    nameof(biosTableName),
-                //    nameof(passColor),
-                //    nameof(failColor),
-                //    nameof(warningColor),
-                //    nameof(backgroundColor),
-                //    nameof(headersColor),
-                //    nameof(minorInformationColor),
-                //    nameof(majorInformationColor) }))
                 return false;
             Filepath = filepath;
             Filename = filename;
@@ -117,20 +107,22 @@ namespace Retriever4
             DB_MainboardVendor = (int)db_MainboardVendor;
             DB_MainboardModel = (int)db_MainboardModel;
             DB_ShippingMode = (int)db_ShippingMode;
+            DB_Tip = (int)db_Tip;
             Bios_CaseModel = (int)bios_CaseModel;
             Bios_MainboardModel = (int)bios_MainboardModel;
             Bios_Bios = (int)bios_Bios;
             Bios_BuildDate = (int)bios_BuildDate;
-            PassColor = (Color)passColor;
-            FailColor = (Color)failColor;
-            WarningColor = (Color)warningColor;
-            HeaderBackgroundColor = (Color)headersBackgroundColor;
-            HeaderForegroundColor = (Color)headersForegroundColor;
-            SeparatorColor = (Color)separatorColor;
-            MinorInformationColor = (Color)minorInformationColor;
-            MajorInformationColor = (Color)majorInformationColor;
-            DefaultBackgroundColor = (Color)defaultBackgroundColor;
-            DefauldForegroundColor = (Color)defauldForegroundColor;
+            PassColor = Color.FromName(passColor);
+            FailColor = Color.FromName(failColor);
+            WarningColor = Color.FromName(warningColor);
+            HeaderBackgroundColor = Color.FromName(headerBackgroundColor);
+            HeaderForegroundColor = Color.FromName(headerForegroundColor);
+            SeparatorColor = Color.FromName(separatorColor);
+            MinorInformationColor = Color.FromName(minorInformationColor);
+            MajorInformationColor = Color.FromName(majorInformationColor);
+            DefaultBackgroundColor = Color.FromName(defaultBackgroundColor);
+            DefaultForegroundColor = Color.FromName(defaultForegroundColor);
+            
             return true;
         }
     }

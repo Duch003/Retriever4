@@ -33,6 +33,6 @@ namespace Retriever4.Interfaces
             Color leftColumnColor, Color rightColumnColor, Color descriptionColumnColor);
         int PrintHorizontalLine(int startY);
         void PrintModelTable(int startY, List<Location> locations);
-        void Wait();
+        ConsoleKeyInfo Wait();
     }
 }

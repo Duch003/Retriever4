@@ -16,6 +16,7 @@
   <db_MainboardVendor>16</db_MainboardVendor>
   <db_MainboardModel>15</db_MainboardModel>
   <db_ShippingMode>17</db_ShippingMode>
+  <db_Tip>13</db_Tip>
   <bios_CaseModel>0</bios_CaseModel>
   <bios_MainboardModel>2</bios_MainboardModel>
   <bios_Bios>3</bios_Bios>
