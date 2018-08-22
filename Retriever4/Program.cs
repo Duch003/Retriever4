@@ -6,6 +6,7 @@ using System.Linq;
 using Retriever4.Interfaces;
 using Retriever4.Classes;
 using System.Drawing;
+using Retriever4.FileManagement;
 using Console = Colorful.Console;
 
 namespace Retriever4
@@ -27,6 +28,9 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
+            var ret = new DatabaseFileManagement();
+            ret.FindDatabaseFile("");
+            return;
             Console.SetBufferSize(Console.BufferWidth, 120);
 
             //http://colorfulconsole.com/

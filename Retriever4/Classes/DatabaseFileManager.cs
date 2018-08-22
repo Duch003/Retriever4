@@ -2,6 +2,7 @@
 using Retriever4.Interfaces;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Retriever4.FileManagement
 {
@@ -72,12 +73,25 @@ namespace Retriever4.FileManagement
             return anwser;
         }
 
-        //public string FindDatabaseFile(string name)
-        //{
-        //    foreach(var drive in DriveInfo.GetDrives())
-        //    {
+        public string FindDatabaseFile(string name)
+        {
+            name = name.Replace(@"\", "").Replace(@"/", "");
+            foreach (var drive in DriveInfo.GetDrives())
+            {
+                var fi = new DirectoryInfo(drive.RootDirectory.FullName);
+                var ans = fi.GetFiles(name).FirstOrDefault()?.FullName;
 
-        //    }
-        //}
+                if (!string.IsNullOrEmpty(ans))
+                    return ans;
+                var di = fi.GetDirectories();
+                foreach (var directory in di)
+                {
+                    ans = directory.GetFiles(name).FirstOrDefault()?.FullName;
+                    if (!string.IsNullOrEmpty(ans))
+                        return ans;
+                }
+            }
+            return "";
+        }
     }
 }

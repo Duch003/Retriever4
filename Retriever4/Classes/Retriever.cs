@@ -221,7 +221,7 @@ namespace Retriever4
         public Dictionary<string, dynamic>[] RamData()
         {
             var result = GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
-            const long gb = 1000000000;
+            const long gb = 1073741824;
             var anwser = new Dictionary<string, dynamic>[1];
             anwser[0] = new Dictionary<string, dynamic>();
             int total = 0;
@@ -253,7 +253,7 @@ namespace Retriever4
             for (var i = 0; i < Data.Length; i++)
             {
                 
-                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {Data[i]["Tag"]}", new string[] { "FullChargedCapacity" }, @"root\wmi");
+                var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {Data[i]["Tag"]}", new [] { "FullChargedCapacity" }, @"root\wmi");
                 if(fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
                 {
                     var value = fullChargeCapacity == null ? "null" : fullChargeCapacity.Count().ToString();
@@ -261,8 +261,8 @@ namespace Retriever4
                         $"nieoczekiwaną liczbę rekordów: {value}. Tag: {Data[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
                     throw new Exception(message);
                 }
-                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery", new string[] { "EstimatedChargeRemaining" , "BatteryStatus" });
-                if (fullChargeCapacity == null || fullChargeCapacity.Count() != 1)
+                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery", new [] { "EstimatedChargeRemaining" , "BatteryStatus" });
+                if (currentChargeLevel == null || currentChargeLevel.Count() != 1)
                 {
                     var value = currentChargeLevel == null ? "null" : currentChargeLevel.Count().ToString();
                     var message = "Bląd podczas pobierania EstimatedChargeRemaining z Win32_Battery. Zapytanie zwróciło" +
