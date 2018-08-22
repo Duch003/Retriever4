@@ -19,6 +19,12 @@
     <DBRow>3</DBRow>
   </Location>
   <Location>
+    <Model>60013</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>29</BiosRow>
+    <DBRow>597</DBRow>
+  </Location>
+  <Location>
     <Model>60014</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>35</BiosRow>
@@ -77,6 +83,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>97</BiosRow>
     <DBRow>13</DBRow>
+  </Location>
+  <Location>
+    <Model>60037</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>29</BiosRow>
+    <DBRow>599</DBRow>
   </Location>
   <Location>
     <Model>60058</Model>
@@ -161,6 +173,12 @@
     <PeaqModel>PMM C1010-I0N2</PeaqModel>
     <BiosRow>100</BiosRow>
     <DBRow>23</DBRow>
+  </Location>
+  <Location>
+    <Model>60099</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>35</BiosRow>
+    <DBRow>601</DBRow>
   </Location>
   <Location>
     <Model>60100</Model>
@@ -257,6 +275,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>104</BiosRow>
     <DBRow>578</DBRow>
+  </Location>
+  <Location>
+    <Model>60123</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>29</BiosRow>
+    <DBRow>596</DBRow>
   </Location>
   <Location>
     <Model>60126</Model>
@@ -607,6 +631,12 @@
     <DBRow>85</DBRow>
   </Location>
   <Location>
+    <Model>60292</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>107</BiosRow>
+    <DBRow>608</DBRow>
+  </Location>
+  <Location>
     <Model>60294</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>0</BiosRow>
@@ -805,6 +835,12 @@
     <DBRow>498</DBRow>
   </Location>
   <Location>
+    <Model>60416</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>39</BiosRow>
+    <DBRow>603</DBRow>
+  </Location>
+  <Location>
     <Model>60417</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>39</BiosRow>
@@ -949,6 +985,12 @@
     <DBRow>546</DBRow>
   </Location>
   <Location>
+    <Model>60453</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>35</BiosRow>
+    <DBRow>602</DBRow>
+  </Location>
+  <Location>
     <Model>60460</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>98</BiosRow>
@@ -959,6 +1001,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>98</BiosRow>
     <DBRow>549</DBRow>
+  </Location>
+  <Location>
+    <Model>60463</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>98</BiosRow>
+    <DBRow>605</DBRow>
   </Location>
   <Location>
     <Model>60469</Model>
@@ -1039,6 +1087,12 @@
     <DBRow>594</DBRow>
   </Location>
   <Location>
+    <Model>60516</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>0</BiosRow>
+    <DBRow>606</DBRow>
+  </Location>
+  <Location>
     <Model>60546</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>28</BiosRow>
@@ -1055,6 +1109,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>36</BiosRow>
     <DBRow>132</DBRow>
+  </Location>
+  <Location>
+    <Model>60552</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>107</BiosRow>
+    <DBRow>612</DBRow>
   </Location>
   <Location>
     <Model>60554</Model>
@@ -1135,6 +1195,12 @@
     <DBRow>135</DBRow>
   </Location>
   <Location>
+    <Model>60596</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>37</BiosRow>
+    <DBRow>611</DBRow>
+  </Location>
+  <Location>
     <Model>60597</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>37</BiosRow>
@@ -1163,6 +1229,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>107</BiosRow>
     <DBRow>562</DBRow>
+  </Location>
+  <Location>
+    <Model>60605</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>107</BiosRow>
+    <DBRow>598</DBRow>
   </Location>
   <Location>
     <Model>60607</Model>
@@ -1375,6 +1447,12 @@
     <DBRow>151</DBRow>
   </Location>
   <Location>
+    <Model>60716</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>30</BiosRow>
+    <DBRow>614</DBRow>
+  </Location>
+  <Location>
     <Model>60723</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>114</BiosRow>
@@ -1463,6 +1541,24 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>97</BiosRow>
     <DBRow>466</DBRow>
+  </Location>
+  <Location>
+    <Model>60779</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>30</BiosRow>
+    <DBRow>613</DBRow>
+  </Location>
+  <Location>
+    <Model>60788</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>39</BiosRow>
+    <DBRow>604</DBRow>
+  </Location>
+  <Location>
+    <Model>60789</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>0</BiosRow>
+    <DBRow>607</DBRow>
   </Location>
   <Location>
     <Model>60790</Model>
@@ -1619,6 +1715,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>116</BiosRow>
     <DBRow>165</DBRow>
+  </Location>
+  <Location>
+    <Model>60907</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>37</BiosRow>
+    <DBRow>609</DBRow>
   </Location>
   <Location>
     <Model>60933</Model>
@@ -2665,6 +2767,12 @@
     <DBRow>314</DBRow>
   </Location>
   <Location>
+    <Model>99489</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>35</BiosRow>
+    <DBRow>600</DBRow>
+  </Location>
+  <Location>
     <Model>99490</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>29</BiosRow>
@@ -3413,6 +3521,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>28</BiosRow>
     <DBRow>496</DBRow>
+  </Location>
+  <Location>
+    <Model>99948</Model>
+    <PeaqModel>-</PeaqModel>
+    <BiosRow>28</BiosRow>
+    <DBRow>610</DBRow>
   </Location>
   <Location>
     <Model>99949</Model>

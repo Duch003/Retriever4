@@ -26,6 +26,8 @@ namespace Retriever4.Validation
                 var message = $"Parametr jest null lub jest pusty. Metoda: {nameof(CompareStrings)}, klasa: StringValidation.cs.";
                 throw new ArgumentException(message, nameof(right));
             }
+            left = left.RemoveSymbols().RemoveWhiteSpaces().ToLower().Replace("Win7", "").Replace("Win8.1", "").Replace("Win8.0", "").Replace("Win8", "").Replace("Win10", "");
+            right = right.RemoveSymbols().RemoveWhiteSpaces().ToLower().Replace("Win7", "").Replace("Win8.1", "").Replace("Win8.0", "").Replace("Win8", "").Replace("Win10", "");
             return left.Contains(right) || right.Contains(left);
         }
 

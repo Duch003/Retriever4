@@ -126,7 +126,21 @@ namespace Retriever4
         }
 
         public Dictionary<string, dynamic>[] GetWindowsProductKey()
-            => GetDeviceData("SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null", new string[] { "OA3xOriginalProductKey" }, @"root/cimv2");
+        {
+            Dictionary<string, dynamic>[] ans = new Dictionary<string, dynamic>[0];
+            try
+            {
+                ans = GetDeviceData("SELECT * FROM SoftwareLicensingService Where OA3xOriginalProductKey != null", new string[] { "OA3xOriginalProductKey" }, @"root/cimv2");
+            }
+            catch(Exception)
+            {
+                ans = ArrayExtension.Expand(ans);
+                ans[0] = new Dictionary<string, dynamic>();
+                ans[0].Add("OA3xOriginalProductKey", "");
+            }
+            return ans;
+        }
+            
 
         public string[] GetSwm()
         {
@@ -207,13 +221,17 @@ namespace Retriever4
         public Dictionary<string, dynamic>[] RamData()
         {
             var result = GetDeviceData("SELECT Capacity FROM Win32_PhysicalMemory", new string[] { "Capacity" });
+            const long gb = 1000000000;
             var anwser = new Dictionary<string, dynamic>[1];
             anwser[0] = new Dictionary<string, dynamic>();
-            long total = 0;
+            int total = 0;
             for (var i = 0; i < result.Length; i++)
             {
-                total += (long)result[i]["Capacity"];
-                anwser[0].Add($"MemoryChip{i}", result[i]["Capacity"]);
+                var temp = (long)result[i]["Capacity"];
+                var rounded = Math.Round((double)temp / gb, 0, MidpointRounding.ToEven);
+                total += (int)rounded;
+
+                anwser[0].Add($"MemoryChip{i}", (int)rounded);
             }
             anwser[0].Add("Total", total);
             return anwser;
@@ -252,28 +270,37 @@ namespace Retriever4
                     throw new Exception(message);
                 }
                 anwser = anwser.Expand();
+                anwser[i] = new Dictionary<string, dynamic>
+                {
+                    {"Tag", Data[i]["Tag"]},
+                    {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
+                    {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
+                    {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
+                };
+                //Troublesome properties
+                //This can throw InvalidOperationException due to possibility of returning empty string
                 try
                 {
-                    anwser[i] = new Dictionary<string, dynamic>
-                    {
-                        {"Tag", Data[i]["Tag"]},
-                        {"DesignedCapacity", Data[i]["DesignedCapacity"] / 1000},
-                        {"FullChargedCapacity", fullChargeCapacity[0]["FullChargedCapacity"] / 1000},
-                        {"EstimatedChargeRemaining", currentChargeLevel[0]["EstimatedChargeRemaining"]},
-                        //Poniższe może wypluć pusty string/null
-                        {"Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"]))}
-                    };
                     anwser[i].Add("Wearlevel", CalculateVearLevel(anwser[i]["FullChargedCapacity"], anwser[i]["DesignedCapacity"]));
                 }
-                catch(Exception e)
+                catch(Exception)
                 {
-                    string message = e.Message + $" DesignedCapacity: {Data[i]["DesignedCapacity"]}, FullChargeCapacity: {fullChargeCapacity[0]["FullChargedCapacity"]}, CurrentChargeLevel: {currentChargeLevel[0]["EstimatedChargeRemaining"]}, BatteryStatus: {currentChargeLevel[0]["BatteryStatus"]}";
-                    throw new Exception(message);
+                    anwser[i].Add("Wearlevel", 999);
                 }
+
+                //This can retrun empty string (status without number) / 99820, 99720
+                try
+                {
+                    anwser[i].Add("Status", BatteryStatucDescription.BatteryStatus((BatteryStatus)((int)currentChargeLevel[0]["BatteryStatus"])));
+                }
+                catch (Exception)
+                {
+                    anwser[i].Add("Status", "Nieznany / brak");
+                }
+
                 j++;
             }
             return anwser;
-
         }
 
         private double CalculateVearLevel(double fullChargeCapacity, double designedCapacity)
@@ -285,17 +312,5 @@ namespace Retriever4
 
         public Dictionary<string, dynamic>[] OS()
             => GetDeviceData("SELECT Caption FROM Win32_OperatingSystem", new string[] { "Caption" });
-
-        //public void ActivateWindowsOnline()
-        //{
-        //    var productSearch = new ManagementObjectSearcher("SELECT * FROM Win32_WindowsProductActivation");
-
-        //    foreach (var o in productSearch.Get())
-        //    {
-        //        var product = (ManagementObject) o;
-        //        var inParams = product.GetMethodParameters("ActivateOnline");
-        //        var outParams = product.InvokeMethod("ActivateOnline", inParams, null);
-        //    }
-        //}
     }
 }

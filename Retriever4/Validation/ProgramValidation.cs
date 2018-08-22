@@ -197,7 +197,7 @@ namespace Retriever4.Validation
                 {
                     modelList = listMgmt.DeserializeModelList();
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     lines++;
                     engine.PrintInitializationComment(lines, $"Uszkodzony plik Model.xml. Tworzenie nowego...", warning);
@@ -230,7 +230,7 @@ namespace Retriever4.Validation
             {
                 model = gatherer.GetModelString();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 engine.PrintInitializationStatus(lines, "Nie można uzyskać danych.", fail);
             }
@@ -263,11 +263,7 @@ namespace Retriever4.Validation
             }
 
             lines += 3;
-            lines += engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana.", Color.White);
-            lines++;
-            lines += engine.PrintInitializationComment(lines, "Kliknij ENTER aby pominąć opcjonalne wybieranie modelu i odrazu załadować dane dla obecnie znalezionego.", Color.White);
-            lines++;
-            lines += engine.PrintInitializationComment(lines, "W innym przypadku wciśniej cokolwiek innego.", Color.White);
+            lines += engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij cokolwiek aby kontynuować.", Color.White);
             key = engine.Wait();
             return true;
         }

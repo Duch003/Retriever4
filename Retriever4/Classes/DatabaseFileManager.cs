@@ -71,5 +71,13 @@ namespace Retriever4.FileManagement
             //Return anwser as object
             return anwser;
         }
+
+        //public string FindDatabaseFile(string name)
+        //{
+        //    foreach(var drive in DriveInfo.GetDrives())
+        //    {
+
+        //    }
+        //}
     }
 }

@@ -3,16 +3,8 @@ using Retriever4.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Retriever4.Utilities;
 using Retriever4.Interfaces;
-using System.Diagnostics;
-using System.Drawing.Drawing2D;
-using System.Net.NetworkInformation;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Retriever4.Classes;
-using Retriever4.Enums;
 using System.Drawing;
 using Console = Colorful.Console;
 
@@ -27,9 +19,6 @@ namespace Retriever4
         private static IWmiReader gatherer;
         private static IDatabaseManager reader;
 
-        private static readonly string _success = "Zrobione";
-        private static readonly string _failed = "Niepowodzenie";
-
         private static Color _pass;
         private static Color _warning;
         private static Color _fail;
@@ -41,16 +30,38 @@ namespace Retriever4
             Console.SetBufferSize(Console.BufferWidth, 120);
 
             //http://colorfulconsole.com/
-            
-
-            //TODO Komenda -Config tworzy plik schematu do wypełnienia
             if (!Initialize(out var key))
                 return;
-            if(!(key.Key == ConsoleKey.Enter && _model != null && ModelList.Contains(_model)))
-                if(!Menu() || _model == null)
+            var resetApp = false;
+            do
+            {
+                if (!Menu() || _model == null)
                     FindModel();
-            PrintSpecification();
-            Console.ReadLine();
+                var refresh = false;
+                do
+                {
+                    PrintSpecification();
+                    Console.WriteLine("\nAby zamknąć aplikację wciśij ESC");
+                    Console.WriteLine("Aby przeładować dane, wciśnij ENTER");
+                    Console.WriteLine("Aby wrócić do wyboru modelu, wciśnij BACKSPACE");
+
+                    var userKey = Console.ReadKey();
+                    switch (userKey.Key)
+                    {
+                        case ConsoleKey.Enter:
+                            refresh = true;
+                            break;
+                        case ConsoleKey.Escape:
+                            refresh = false;
+                            resetApp = false;
+                            break;
+                        case ConsoleKey.Backspace:
+                            resetApp = true;
+                            refresh = false;
+                            break;
+                    }
+                } while (refresh);
+            } while (resetApp);
         }
 
         private static bool Initialize(out ConsoleKeyInfo key)
@@ -81,11 +92,12 @@ namespace Retriever4
             do
             {
                 Console.WriteLine(_model.Model);
-                Console.WriteLine("Czy model urządzenia jest poprawny? (Y/N): ");
+                Console.WriteLine("Czy model urządzenia jest poprawny? (Y/n): ");
                 var z = Console.ReadKey();
                 switch (z.Key)
                 {
                     case ConsoleKey.Y:
+                    case ConsoleKey.Enter:
                         return true;
                     case ConsoleKey.N:
                         return false;
@@ -223,6 +235,7 @@ namespace Retriever4
             line++;
             #endregion
 
+            //Method array, every method will be executed in given order
             Func<int, int>[] functions =
             {
                 Model,
@@ -238,8 +251,10 @@ namespace Retriever4
                 Tip
             };
 
+            //Executing methods
             foreach (var z in functions)
             {
+                //Try executing
                 try
                 {
                     line += z.Invoke(line);
@@ -247,6 +262,7 @@ namespace Retriever4
                     line += _engine.PrintHorizontalLine(line);
                     line++;
                 }
+                //If faild, print error message
                 catch (Exception e)
                 {
                     line += _engine.PrintSection(line,
@@ -260,7 +276,6 @@ namespace Retriever4
                     line++;
                 }
             }
-            Console.ReadLine();
         }
 
         private static int Model(int line)
@@ -293,7 +308,7 @@ namespace Retriever4
             else
             {
                 realModel = dictData[0]["Model"];
-                if ((realModel.Contains(peaqModel) && peaqModel != "") || realModel.Contains(basicModel))
+                if ((realModel.RemoveSymbols().Contains(peaqModel.RemoveSymbols()) && peaqModel != "") || realModel.RemoveSymbols().Contains(basicModel.RemoveSymbols()))
                     color = _pass;
                 else
                     color = _warning;
@@ -452,6 +467,8 @@ namespace Retriever4
             //Property: Wearlevel                   type: double
             //Expected: 0 if battery damaged/not plugged in, 1 or more
             var realRawBatteries = gatherer.BatteriesData();
+
+            //Batteries simple checking
             if (realRawBatteries == null || realRawBatteries.Length == 0)
             {
                 line += _engine.PrintSection(line, new[] {"Baterie"}, new[] {"Nie wykryto baterii!"},
@@ -461,49 +478,55 @@ namespace Retriever4
             else
             {
                 var temp = new Dictionary<string, dynamic>();
-              
-                    var batteryCounter = 1;
-                    foreach (var batteryInstance in realRawBatteries)
+
+                var batteryCounter = 1;
+                foreach (var batteryInstance in realRawBatteries)
+                {
+                    if (batteryInstance == null)
+                        line += _engine.PrintSection(line, new[] { $"Bateria [{batteryCounter}]" },
+                            new[] { "Bateria uszkodzona!" }, new[] { maxLevel.ToString() + "%" }, _fail, _fail,
+                            _majorInfo);
+                    else
                     {
-                        if (batteryInstance == null)
-                            line += _engine.PrintSection(line, new[] { $"Bateria [{batteryCounter}]" },
-                                new[] { "Bateria uszkodzona!" }, new[] { maxLevel.ToString() + "%" }, _fail, _fail,
-                                _majorInfo);
-                        else
+                        var color = Color.Red;
+                        string message = "";
+                        double wearLevel = 0;
+                        try
                         {
-                            temp = batteryInstance;
-                            //WearLevel is double
-                            var color = Color.Red;
-                            var wearLevel = (double)batteryInstance["Wearlevel"] * 100;
-                            if (wearLevel < 11)
-                                color = _pass;
-                            else if (wearLevel > 11 && wearLevel < maxLevel)
-                                color = _warning;
-                            else
-                                color = _fail;
-
-                            line += _engine.PrintSection(line, new[] { $"BATERIA [{batteryCounter}]" }, new string[0],
-                                new string[0], color, color, _majorInfo);
-                            line++;
-                            line += _engine.PrintSection(line, new[] { "Wearlevel" },
-                                new[] { $"{batteryInstance["Wearlevel"] * 100}%", }, new[] { $"{maxLevel}%" }, color, color,
-                                _minorInfo);
-                            line++;
-                            line += _engine.PrintSection(line, new[] { "Poziom naładowania" },
-                                new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" },
-                                new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorInfo);
-                            line++;
-                            line += _engine.PrintSection(line, new[] { "Status" }, new[] { $"{batteryInstance["Status"]}" },
-                                new[] { $"{batteryInstance["Status"]}" }, _minorInfo);
-                            line++;
+                            wearLevel = (double)batteryInstance["Wearlevel"] * 100;
                         }
+                        catch (Exception)
+                        {
+                            wearLevel = 999;
+                        }
+                        if(wearLevel == 999)
+                            message = "Nie można określić poziomu wearlevel";
+                        if (wearLevel < maxLevel - 1)
+                            color = _pass;
+                        else if (wearLevel > maxLevel - 1 && wearLevel < maxLevel)
+                            color = _warning;
+                        else
+                            color = _fail;
 
-                        batteryCounter++;
+                        line += _engine.PrintSection(line, new[] { $"BATERIA [{batteryCounter}]" }, new string[0],
+                            new string[0], color, color, _majorInfo);
+                        line++;
+                        line += _engine.PrintSection(line, new[] { "Wearlevel" },
+                            new[] { $"{wearLevel}%", message }, new[] { $"{maxLevel}%" }, color, color,
+                            _minorInfo);
+                        line++;
+                        line += _engine.PrintSection(line, new[] { "Poziom naładowania" },
+                            new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" },
+                            new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorInfo);
+                        line++;
+                        line += _engine.PrintSection(line, new[] { "Status" }, new[] { $"{batteryInstance["Status"]}" },
+                            new[] { $"{batteryInstance["Status"]}" }, _minorInfo);
+                        line++;
                     }
-                
-                
-            }
 
+                    batteryCounter++;
+                }
+            }
             return line - lines - 2;
         }
 
@@ -666,7 +689,6 @@ namespace Retriever4
         {
             var lines = _engine.Y;
             const long gb = 1000000000;
-            const long tb = 1000000000000;
 
             #region RAM
 
@@ -675,15 +697,15 @@ namespace Retriever4
             line++;
             var dbRawRam =
                 reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Ram);
-            //Propery: MemoryChip[i], type: long
-            //Property: Total, type: long
+            //Propery: MemoryChip[i], type: int
+            //Property: Total, type: int
             var realRawRam = gatherer.RamData();
             if (realRawRam == null || realRawRam.Length == 0)
                 line += _engine.PrintSection(line, new[] {"Ram"}, new[] {"Nie wykryto kości RAM!"},
                     new[] {dbRawRam.ToString()}, _fail, _minorInfo, _minorInfo);
             else
             {
-                var realRam = Math.Round((double) (realRawRam[0]["Total"] * 0.95) / gb, 0);
+                var realRam = realRawRam[0]["Total"];
                 var color = StringValidation.CompareStrings(realRam.ToString(), dbRawRam.ToString()) ? _pass : _fail;
                 line += _engine.PrintSection(line, new[] {"Ram"}, new[] {$"{realRam} GB"}, new[] {dbRawRam.ToString()},
                     color, color, _minorInfo);
@@ -704,7 +726,7 @@ namespace Retriever4
                     new[] {dbRawStorages.ToString()}, _fail, _minorInfo, _minorInfo);
             else
             {
-                var dbStorages = dbRawStorages.ToString().RemoveSymbols(new[] {';'}).RemoveWhiteSpaces().Split(';');
+                var dbStorages = dbRawStorages.ToString().Replace("+", ";").RemoveSymbols(new[] {';'}).RemoveWhiteSpaces().Split(';');
                 //Printing matched values
                 for (var real = 0; real < realRawStorages.Length; real++)
                 {
