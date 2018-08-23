@@ -19,7 +19,7 @@ namespace Retriever4.FileManagement
         /// <returns>Hashcode of database file.</returns>
         public string ComputeSHA1()
         {
-            var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var stream = new FileStream(Configuration.Filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using (var sha1 = new SHA1Managed())
             {
                 var hash = sha1.ComputeHash(stream);

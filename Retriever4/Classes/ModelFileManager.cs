@@ -77,7 +77,7 @@ namespace Retriever4.FileManagement
             //Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
             //Open connection
-            var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var stream = new FileStream(Configuration.Filepath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
             var result = excelReader.AsDataSet();
 

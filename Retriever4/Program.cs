@@ -28,9 +28,6 @@ namespace Retriever4
 
         private static void Main(string[] args)
         {
-            var ret = new DatabaseFileManagement();
-            ret.FindDatabaseFile("");
-            return;
             Console.SetBufferSize(Console.BufferWidth, 120);
 
             //http://colorfulconsole.com/
@@ -46,6 +43,8 @@ namespace Retriever4
                 {
                     PrintSpecification();
                     Console.WriteLine("\nAby zamknąć aplikację wciśij ESC");
+                    Console.WriteLine("Aby odpalić skrypt testów i przeładować dane, wciśnij 1");
+                    Console.WriteLine("Aby odpalić skrypt testów i zamknąć aplikację, wciśnij 2");
                     Console.WriteLine("Aby przeładować dane, wciśnij ENTER");
                     Console.WriteLine("Aby wrócić do wyboru modelu, wciśnij BACKSPACE");
 
@@ -63,6 +62,36 @@ namespace Retriever4
                             resetApp = true;
                             refresh = false;
                             break;
+                        case ConsoleKey.D1:
+                        case ConsoleKey.NumPad1:
+                        case ConsoleKey.Oem1:
+                            refresh = true;
+                            var searcher = new DatabaseFileManagement();
+                            if (searcher.DoesTestFileExists)
+                                System.Diagnostics.Process.Start(searcher.FilepathToTests);
+                            else
+                            {
+                                Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
+                                Console.ReadKey();
+                            }
+                            break;
+
+                        case ConsoleKey.D2:
+                        case ConsoleKey.NumPad2:
+                        case ConsoleKey.Oem2:
+                            refresh = false;
+                            resetApp = false;
+                            searcher = new DatabaseFileManagement();
+                            if (searcher.DoesTestFileExists)
+                                System.Diagnostics.Process.Start(searcher.FilepathToTests);
+                            else
+                            {
+                                Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
+                                Console.ReadKey();
+                                refresh = true;
+                            }
+                            break;
+
                     }
                 } while (refresh);
             } while (resetApp);

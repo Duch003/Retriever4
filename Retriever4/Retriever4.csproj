@@ -92,6 +92,7 @@
     <Compile Include="Validation\TypeValidation.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
     <None Include="Retriever4.cmd" />
   </ItemGroup>

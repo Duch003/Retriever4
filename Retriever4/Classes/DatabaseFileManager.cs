@@ -12,12 +12,19 @@ namespace Retriever4.FileManagement
         /// Checks if file exists. Depends on config file.
         /// </summary>
         /// <returns>True if file exists.</returns>
-        public bool DoesDatabaseFileExists => File.Exists(Configuration.Filepath + Configuration.Filename);
+        public bool DoesDatabaseFileExists => File.Exists(Filepath);
+        public bool DoesTestFileExists => File.Exists(FilepathToTests);
+        public string Filepath;
+        public string FilepathToTests;
 
-        public string LastValue { get; private set; }
-        public string LastColumnName { get; private set; }
-
-        public DatabaseFileManagement() { }
+        public DatabaseFileManagement(string name)
+        {
+            Configuration.Filepath = Filepath = FindFile(name);
+        }
+        public DatabaseFileManagement()
+        {
+            FilepathToTests = FindFile(Configuration.TestFileName);
+        }
         /// <summary>
         /// Reads specific cell in excel file.
         /// </summary>
@@ -49,15 +56,13 @@ namespace Retriever4.FileManagement
             //An attempt to extract cell value
             try
             {
-                using (var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (var stream = new FileStream(Configuration.Filepath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
                     var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
                     var result = excelReader.AsDataSet();
 
                     var table = result.Tables[tableName];
                     anwser = table.Rows[row][column];
-                    LastValue = anwser.ToString();
-                    LastColumnName = table.Rows[0][column].ToString();
                 }
             }
             catch (Exception e)
@@ -73,24 +78,31 @@ namespace Retriever4.FileManagement
             return anwser;
         }
 
-        public string FindDatabaseFile(string name)
+        public string FindFile(string name)
         {
             name = name.Replace(@"\", "").Replace(@"/", "");
+
             foreach (var drive in DriveInfo.GetDrives())
             {
-                var fi = new DirectoryInfo(drive.RootDirectory.FullName);
-                var ans = fi.GetFiles(name).FirstOrDefault()?.FullName;
-
-                if (!string.IsNullOrEmpty(ans))
-                    return ans;
-                var di = fi.GetDirectories();
-                foreach (var directory in di)
+                try
                 {
-                    ans = directory.GetFiles(name).FirstOrDefault()?.FullName;
+                    var fi = new DirectoryInfo(drive.RootDirectory.FullName);
+                    var ans = fi.GetFiles(name).FirstOrDefault()?.FullName;
+
                     if (!string.IsNullOrEmpty(ans))
                         return ans;
+                    var di = fi.GetDirectories();
+
+                    foreach (var directory in di)
+                    {
+                        ans = directory.GetFiles(name).FirstOrDefault()?.FullName;
+                        if (!string.IsNullOrEmpty(ans))
+                            return ans;
+                    }
                 }
+                catch (Exception) { }
             }
+            
             return "";
         }
     }

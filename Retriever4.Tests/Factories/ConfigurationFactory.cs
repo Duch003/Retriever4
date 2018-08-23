@@ -8,7 +8,7 @@ namespace Retriever4.Tests.Factories
         {
             var config = new Configuration
             {
-                filepath = Environment.CurrentDirectory,
+                //filepath = Environment.CurrentDirectory,
                 filename = "TestBase.xlsx",
                 databaseTableName = "DB",
                 biosTableName = "BIOS",
@@ -36,7 +36,7 @@ namespace Retriever4.Tests.Factories
         {
             var config = new Configuration
             {
-                filepath = Environment.CurrentDirectory,
+                //filepath = Environment.CurrentDirectory,
                 filename = "TestBase.xlsx",
                 databaseTableName = null,
                 biosTableName = "BIOS",
@@ -63,7 +63,7 @@ namespace Retriever4.Tests.Factories
         {
             var config = new Configuration
             {
-                filepath = Environment.CurrentDirectory,
+                //filepath = Environment.CurrentDirectory,
                 filename = "TestBase.xlsx",
                 databaseTableName = "Test",
                 biosTableName = "BIOS",

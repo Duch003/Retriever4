@@ -31,9 +31,6 @@ namespace Retriever4.FileManagement
             var config = xs.Deserialize(sr) as Configuration;
             //Close stream
             sr.Close();
-            //If path is empty, fill it with default path
-            if (string.IsNullOrEmpty(config.filepath))
-                config.filepath = Environment.CurrentDirectory;
 
             return config;
         }

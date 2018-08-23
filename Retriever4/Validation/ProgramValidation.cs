@@ -21,7 +21,7 @@ namespace Retriever4.Validation
         {
             //Preparation
             gatherer = new Retriever();
-            dbMgmt = new DatabaseFileManagement();
+            
             configMgmt = new ConfigFileManagement();
             listMgmt = new ModelFile();
             shaMgmt = new SHA1FileManagement();
@@ -86,6 +86,7 @@ namespace Retriever4.Validation
             
             engine = new DrawingAtConsole(Configuration.DefaultBackgroundColor, Configuration.DefaultForegroundColor, Configuration.HeaderForegroundColor,
                 Configuration.HeaderBackgroundColor, Configuration.SeparatorColor);
+            dbMgmt = new DatabaseFileManagement(Configuration.Filename);
 
             //#2. Existance of database
             lines++;
@@ -94,7 +95,7 @@ namespace Retriever4.Validation
             {
                 engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
                 lines++;
-                engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename} w ścieżce {config.filepath}", Color.White);
+                engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename}.\n", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 key = engine.Wait();
                 return false;
