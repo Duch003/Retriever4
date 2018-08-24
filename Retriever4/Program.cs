@@ -13,13 +13,20 @@ namespace Retriever4
 {
     public static class Program
     {
+        //W tej zmiennej trzymam aktualnie wybrany model
         public static Location _model;
+        //Do tej listy wczytuje dane z pliku Model.xml - jest to lista modeli z bazy danych
         private static List<Location> ModelList;
+        //Ten obiekt sluzy do pisania w konsooli - ma predefiniowane metody dla rozrysowywania tabel itd.
         private static IDrawingAtConsole _engine;
+        //Tutaj jest przechowywana konfiguracja z pliku Config.xml
         public static Configuration Config;
+        //To jest obiekt sluzacy do wydobywania danych z komputera
         private static IWmiReader gatherer;
+        //To jest obiekt sluzacy do wydobywania danych z bazy danych + wyszukiwanie plikow
         private static IDatabaseManager reader;
 
+        //Tutaj sa wczytywane kolory z konfiguracji
         private static Color _pass;
         private static Color _warning;
         private static Color _fail;
@@ -29,79 +36,86 @@ namespace Retriever4
         private static void Main(string[] args)
         {
             Console.SetBufferSize(Console.BufferWidth, 120);
-
             //http://colorfulconsole.com/
-            if (!Initialize(out var key))
+            
+            //Wywolywana jest moetoda Initialize, ktora zwroci obiekty do wszystkich zmiennych powyzej
+            //Dodatkowo podczas inicjalizacji jest podejmowana proba wykrycia modelu urzadzenia
+            //Jezeli nie uda sie zainicjalizowac poprawnie programu, zostanie zostanie on zakonczony (obsluga bledu w metodzie)
+            if (!Initialize())
                 return;
-            var resetApp = false;
+            //Po inicjalizacji sprawdzane jest czy model zostal wykryty
+            //Jezeli tak to wyswietli sie menu z zapytaniem czy jest to model poprawny
+            //Jezeli nie, automatycznie zostanie odpalona metoda przeszukiwania listy FindModel()
+            if (_model == null || !Menu())
+                FindModel();
+            var refresh = false;
             do
             {
-                if (!Menu() || _model == null)
-                    FindModel();
-                var refresh = false;
-                do
+                PrintSpecification();
+                Console.WriteLine("\nAby zamknąć aplikację wciśij ESC");
+                Console.WriteLine("Aby odpalić skrypt testów i przeładować dane, wciśnij 1");
+                Console.WriteLine("Aby odpalić skrypt testów i zamknąć aplikację, wciśnij 2");
+                Console.WriteLine("Aby przeładować dane, wciśnij ENTER");
+                Console.WriteLine("Aby wrócić do wyboru modelu, wciśnij BACKSPACE");
+
+                var userKey = Console.ReadKey();
+                switch (userKey.Key)
                 {
-                    PrintSpecification();
-                    Console.WriteLine("\nAby zamknąć aplikację wciśij ESC");
-                    Console.WriteLine("Aby odpalić skrypt testów i przeładować dane, wciśnij 1");
-                    Console.WriteLine("Aby odpalić skrypt testów i zamknąć aplikację, wciśnij 2");
-                    Console.WriteLine("Aby przeładować dane, wciśnij ENTER");
-                    Console.WriteLine("Aby wrócić do wyboru modelu, wciśnij BACKSPACE");
+                    default:
+                    case ConsoleKey.Enter:
+                        refresh = true;
+                        break;
+                    case ConsoleKey.Escape:
+                        refresh = false;
+                        break;
+                    case ConsoleKey.Backspace:
+                        FindModel();
+                        refresh = true;
+                        break;
+                    case ConsoleKey.D1:
+                    case ConsoleKey.NumPad1:
+                        refresh = true;
+                        var searcher = new DatabaseFileManagement();
+                        if (searcher.DoesTestFileExists)
+                            System.Diagnostics.Process.Start(searcher.FilepathToTests);
+                        else
+                        {
+                            Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
+                            Console.ReadKey();
+                        }
+                        break;
 
-                    var userKey = Console.ReadKey();
-                    switch (userKey.Key)
-                    {
-                        case ConsoleKey.Enter:
+                    case ConsoleKey.D2:
+                    case ConsoleKey.NumPad2:
+                        refresh = false;
+                        searcher = new DatabaseFileManagement();
+                        if (searcher.DoesTestFileExists)
+                            System.Diagnostics.Process.Start(searcher.FilepathToTests);
+                        else
+                        {
+                            Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
+                            Console.ReadKey();
                             refresh = true;
-                            break;
-                        case ConsoleKey.Escape:
-                            refresh = false;
-                            resetApp = false;
-                            break;
-                        case ConsoleKey.Backspace:
-                            resetApp = true;
-                            refresh = false;
-                            break;
-                        case ConsoleKey.D1:
-                        case ConsoleKey.NumPad1:
-                        case ConsoleKey.Oem1:
-                            refresh = true;
-                            var searcher = new DatabaseFileManagement();
-                            if (searcher.DoesTestFileExists)
-                                System.Diagnostics.Process.Start(searcher.FilepathToTests);
-                            else
-                            {
-                                Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
-                                Console.ReadKey();
-                            }
-                            break;
-
-                        case ConsoleKey.D2:
-                        case ConsoleKey.NumPad2:
-                        case ConsoleKey.Oem2:
-                            refresh = false;
-                            resetApp = false;
-                            searcher = new DatabaseFileManagement();
-                            if (searcher.DoesTestFileExists)
-                                System.Diagnostics.Process.Start(searcher.FilepathToTests);
-                            else
-                            {
-                                Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
-                                Console.ReadKey();
-                                refresh = true;
-                            }
-                            break;
-
-                    }
-                } while (refresh);
-            } while (resetApp);
+                        }
+                        break;
+                }
+            } while (refresh);
         }
 
-        private static bool Initialize(out ConsoleKeyInfo key)
+        /// <summary>
+        /// Initialization, fill all variables with objects if initialized correctly. If not - informs about error and close application
+        /// </summary>
+        /// <returns>False if failed</returns>
+        private static bool Initialize()
         {
             try
             {
-                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White, out key);
+                //Klasa znajduje sie w pliku ProgramValidation.cs. Jest to osobno dlatego ze chcialem probowac robic na tym testy jednostkowe
+                //i ogolnie za duzo miejsca to tutaj zajmowalo. Niestety nieprzemyslalem tego wczesniej jak robic na tym testy, dlatego nie ma ich do tej metody
+
+                //Jako argumenty metody podawane sa wszystkie niezbedne do dzialania zmienne (zadeklarowane na poczatku klasy)
+                //Kolory tutaj podane sa tylko dlatego, ze to kolejna rzecz ktorej nie przemyslalem, ale o tym wiecej informacji znajdziesz w tej klasie
+                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White);
                 _pass = Configuration.PassColor;
                 _warning = Configuration.WarningColor;
                 _fail = Configuration.FailColor;
@@ -110,24 +124,25 @@ namespace Retriever4
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.Message);
+                Console.WriteLine("\n" + e.Message);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku spowoduje zamknięcie programu.");
-                key = Console.ReadKey();
                 return false;
             }
             return true;
         }
 
+        /// <summary>
+        /// Ask user about detected model, in case it's wrong.
+        /// </summary>
+        /// <returns>True if selected model is correct, false if not.</returns>
         private static bool Menu()
         {
-            Console.Clear();
-            if (_model == null) return false;
             do
             {
+                Console.Clear();
                 Console.WriteLine(_model.Model);
                 Console.WriteLine("Czy model urządzenia jest poprawny? (Y/n): ");
-                var z = Console.ReadKey();
-                switch (z.Key)
+                switch (Console.ReadKey().Key)
                 {
                     case ConsoleKey.Y:
                     case ConsoleKey.Enter:
@@ -139,40 +154,44 @@ namespace Retriever4
         }
 
         /// <summary>
-        /// Menu section: manage model choice
+        /// Menu section: manage model choice. Prints list of models that matches pattern. Model must be chosen.
         /// </summary>
         private static void FindModel()
         {
-            //Container for pattern writed by user
+            //Kontener na wzorzec wpisywany przez uzytkownika
             var pattern = "";
-            //Container for strained out list of models
+            //Kontener na liste modeli spelniajacych dany wzorzec
             List<Location> ans = null;
-            //First loop, which print basic informations
             do
             {
-                //Clearing console and restoring cursor position
+                //Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
                 Console.Clear();
                 _engine.RestoreCursorY();
                 _engine.RestoreCursorX();
-                //Mechanism description
+                //Opis mechanizmu
                 const string message =
                     "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
                     "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
-                //Counting how many lines will cover message. Value round with celinig function
+                //Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
+                //pozycje kursora w konsoli. 
+                //Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
                 var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
-                //Printing informations with actual pattern
                 Console.WriteLine(message);
                 Console.Write(pattern);
-                //Restore X position and make distance between pattern and table
+
+                //Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
                 _engine.RestoreCursorX();
+                //Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
                 lines += 2;
+                //Ustawiam pozycje kursora w osi Y (na wysokosc)
                 _engine.CursorY(lines);
-                //If pattern is enough long, print matched models
+                //Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
                 if (pattern.Length >= 3)
                 {
-                    var pattern1 = pattern;
-                    ans = new List<Location>(ModelList.Where(x =>
-                        x.Model.Contains(pattern1) || x.PeaqModel.Contains(pattern1)));
+                    //Za pomoca LINQ przeszukuje liste modeli
+                    //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
+                    ans = new List<Location>(ModelList
+                        .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
                     _engine.PrintModelTable(lines, ans);
                     lines += 2;
                     _engine.PrintRowSelection(lines);
@@ -222,13 +241,12 @@ namespace Retriever4
                             //If selected model is first one, dont go any further
                             if (_engine.Y <= lines)
                                 _engine.RestoreCursorX();
-                            //Remove actual arrows ant print new ones
+                            //Remove actual arrows and print new ones
                             else
                             {
                                 _engine.ClearRowSelection(_engine.Y);
                                 _engine.CursorY(_engine.Y - 2);
                                 _engine.PrintRowSelection(_engine.Y);
-
                             }
 
                             break;
@@ -536,7 +554,7 @@ namespace Retriever4
                             message = "Nie można określić poziomu wearlevel";
                         if (wearLevel < maxLevel - 1)
                             color = _pass;
-                        else if (wearLevel > maxLevel - 1 && wearLevel < maxLevel)
+                        else if (wearLevel >= maxLevel - 1 && wearLevel < maxLevel)
                             color = _warning;
                         else
                             color = _fail;
@@ -759,7 +777,7 @@ namespace Retriever4
                     new[] {dbRawStorages.ToString()}, _fail, _minorInfo, _minorInfo);
             else
             {
-                var dbStorages = dbRawStorages.ToString().Replace("+", ";").RemoveSymbols(new[] {';'}).RemoveWhiteSpaces().Split(';');
+                var dbStorages = dbRawStorages.ToString().Replace("+", ";").Replace(",", ".").RemoveSymbols(new[] {';', '.'}).RemoveWhiteSpaces().Split(';');
                 //Printing matched values
                 for (var real = 0; real < realRawStorages.Length; real++)
                 {

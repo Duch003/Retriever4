@@ -17,7 +17,7 @@ namespace Retriever4.Validation
         private static ISHA1FileManager shaMgmt;
 
         public static bool Initialization(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
-            Color pass, Color fail, Color warning, Color majorInfo, Color minorInfo, out ConsoleKeyInfo key)
+            Color pass, Color fail, Color warning, Color majorInfo, Color minorInfo)
         {
             //Preparation
             gatherer = new Retriever();
@@ -43,7 +43,6 @@ namespace Retriever4.Validation
                 engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. " +
                                                          "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                key = engine.Wait();
                 return false;
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
@@ -63,7 +62,6 @@ namespace Retriever4.Validation
                                                          $"Błąd wewnątrzny: {e.InnerException?.Message}" +
                                                          $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                key = engine.Wait();
                 return false;
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
@@ -78,7 +76,6 @@ namespace Retriever4.Validation
                 engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
                                                          "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                key = engine.Wait();
                 return false;
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
@@ -97,7 +94,6 @@ namespace Retriever4.Validation
                 lines++;
                 engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename}.\n", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                key = engine.Wait();
                 return false;
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
@@ -122,7 +118,6 @@ namespace Retriever4.Validation
                     engine.PrintInitializationComment(lines, $"Błąd podczas tworzenia nowego pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
                                                              $"Program nie moż zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    key = engine.Wait();
                     return false;
                 }
             }
@@ -140,7 +135,6 @@ namespace Retriever4.Validation
                     engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
                                                              $"Program nie moż zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    key = engine.Wait();
                     return false;
                 }
             }
@@ -161,7 +155,6 @@ namespace Retriever4.Validation
                                                          $"{config.filename.Replace(@"/", "")}.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
                                                          "Program nie moż zostać uruchomiony.", fail);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                key = engine.Wait();
                 return false;
             }
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
@@ -187,7 +180,6 @@ namespace Retriever4.Validation
                                                              $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
                                                              $"Program nie może zostać uruchomiony.", fail);
                     Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    key = engine.Wait();
                     return false;
                 }
             }
@@ -214,7 +206,6 @@ namespace Retriever4.Validation
                                                                  $"{ex.Message}\nWewnętrzny wyjątek: {ex.InnerException?.Message}" +
                                                                  $"Program nie może zostać uruchomiony.", fail);
                         Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                        key = engine.Wait();
                         return false;
                     }
                 }
@@ -265,7 +256,7 @@ namespace Retriever4.Validation
 
             lines += 3;
             lines += engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij cokolwiek aby kontynuować.", Color.White);
-            key = engine.Wait();
+            engine.Wait();
             return true;
         }
     }

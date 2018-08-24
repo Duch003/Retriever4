@@ -103,6 +103,12 @@
     <DBRow>465</DBRow>
   </Location>
   <Location>
+    <Model>60073</Model>
+    <PeaqModel>PEAQ T2011-I0A1</PeaqModel>
+    <BiosRow>113</BiosRow>
+    <DBRow>615</DBRow>
+  </Location>
+  <Location>
     <Model>60075</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>120</BiosRow>
@@ -337,16 +343,58 @@
     <DBRow>41</DBRow>
   </Location>
   <Location>
+    <Model>60153</Model>
+    <PeaqModel>NB PEAQ P6663 PNB P2015 </PeaqModel>
+    <BiosRow>49</BiosRow>
+    <DBRow>616</DBRow>
+  </Location>
+  <Location>
+    <Model>60153</Model>
+    <PeaqModel>NB PEAQ P6663 PNB P2015</PeaqModel>
+    <BiosRow>49</BiosRow>
+    <DBRow>617</DBRow>
+  </Location>
+  <Location>
     <Model>60154</Model>
     <PeaqModel>PNB P2015-I7B1</PeaqModel>
     <BiosRow>49</BiosRow>
     <DBRow>42</DBRow>
   </Location>
   <Location>
+    <Model>60157</Model>
+    <PeaqModel>NB PEAQ P6665 G2015 I5B1 </PeaqModel>
+    <BiosRow>49</BiosRow>
+    <DBRow>618</DBRow>
+  </Location>
+  <Location>
+    <Model>60157</Model>
+    <PeaqModel>NB PEAQ P6665 G2015 I5L1 </PeaqModel>
+    <BiosRow>49</BiosRow>
+    <DBRow>619</DBRow>
+  </Location>
+  <Location>
     <Model>60163</Model>
     <PeaqModel>NB PEAQ S4219 PNB S1414- MD60163 BE </PeaqModel>
     <BiosRow>97</BiosRow>
     <DBRow>43</DBRow>
+  </Location>
+  <Location>
+    <Model>60165</Model>
+    <PeaqModel>NB PEAQ S6219 PNB S1415 </PeaqModel>
+    <BiosRow>97</BiosRow>
+    <DBRow>620</DBRow>
+  </Location>
+  <Location>
+    <Model>60165</Model>
+    <PeaqModel>NB PEAQ S6219 PNB S1415 </PeaqModel>
+    <BiosRow>97</BiosRow>
+    <DBRow>621</DBRow>
+  </Location>
+  <Location>
+    <Model>60166</Model>
+    <PeaqModel>NB PEAQ S6219 PNB S1415 </PeaqModel>
+    <BiosRow>97</BiosRow>
+    <DBRow>622</DBRow>
   </Location>
   <Location>
     <Model>60167</Model>
@@ -449,6 +497,18 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>39</BiosRow>
     <DBRow>59</DBRow>
+  </Location>
+  <Location>
+    <Model>60221</Model>
+    <PeaqModel>NB PEAQ E2215T PNB T2011 </PeaqModel>
+    <BiosRow>113</BiosRow>
+    <DBRow>623</DBRow>
+  </Location>
+  <Location>
+    <Model>60222</Model>
+    <PeaqModel>NB PEAQ E2215T PNB T2011 </PeaqModel>
+    <BiosRow>113</BiosRow>
+    <DBRow>624</DBRow>
   </Location>
   <Location>
     <Model>60223</Model>
@@ -1129,6 +1189,12 @@
     <DBRow>133</DBRow>
   </Location>
   <Location>
+    <Model>60557</Model>
+    <PeaqModel>CNB E1239T  C2010 - I02N1</PeaqModel>
+    <BiosRow>120</BiosRow>
+    <DBRow>625</DBRow>
+  </Location>
+  <Location>
     <Model>60558</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>114</BiosRow>
@@ -1363,6 +1429,18 @@
     <DBRow>147</DBRow>
   </Location>
   <Location>
+    <Model>60641</Model>
+    <PeaqModel>NB S6219 PEAQ </PeaqModel>
+    <BiosRow>97</BiosRow>
+    <DBRow>626</DBRow>
+  </Location>
+  <Location>
+    <Model>60642</Model>
+    <PeaqModel>CNB E2221T PEAQ </PeaqModel>
+    <BiosRow>114</BiosRow>
+    <DBRow>627</DBRow>
+  </Location>
+  <Location>
     <Model>60650</Model>
     <PeaqModel>-</PeaqModel>
     <BiosRow>30</BiosRow>
@@ -1541,6 +1619,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>97</BiosRow>
     <DBRow>466</DBRow>
+  </Location>
+  <Location>
+    <Model>60776</Model>
+    <PeaqModel>CNB E2221T T2011-I0N3 360</PeaqModel>
+    <BiosRow>114</BiosRow>
+    <DBRow>628</DBRow>
   </Location>
   <Location>
     <Model>60779</Model>
@@ -1751,6 +1835,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>114</BiosRow>
     <DBRow>166</DBRow>
+  </Location>
+  <Location>
+    <Model>60966</Model>
+    <PeaqModel>CNB E3215 T3013-I2N1 360 </PeaqModel>
+    <BiosRow>0</BiosRow>
+    <DBRow>629</DBRow>
   </Location>
   <Location>
     <Model>60984</Model>
@@ -2903,6 +2993,12 @@
     <PeaqModel>-</PeaqModel>
     <BiosRow>28</BiosRow>
     <DBRow>332</DBRow>
+  </Location>
+  <Location>
+    <Model>99582</Model>
+    <PeaqModel>WTAB PEAQ AT E2211T </PeaqModel>
+    <BiosRow>99</BiosRow>
+    <DBRow>630</DBRow>
   </Location>
   <Location>
     <Model>99585</Model>
