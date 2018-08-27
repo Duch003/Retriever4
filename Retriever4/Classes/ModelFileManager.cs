@@ -32,7 +32,11 @@ namespace Retriever4.FileManagement
                 //Create serializer
                 var xs = new XmlSerializer(typeof(ObservableCollection<Location>));
                 if (!DoestModelListFileExists)
-                    File.Create(Environment.CurrentDirectory + @"\Model.xml");
+                {
+                    StreamReader reader = new StreamReader(File.Create(Environment.CurrentDirectory + @"\Model.xml"));
+                    reader.Close();
+                }
+                    
                 //Open stream
                 var sw = new StreamWriter(Environment.CurrentDirectory + @"\Model.xml");
                 //Serialze data
@@ -42,7 +46,7 @@ namespace Retriever4.FileManagement
             }
             catch (Exception e)
             {
-                string message = $"Nie można utworzyć pliku Model.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: SerializeModelList, klasa: ModelFileManagement.cs.";
+                string message = $"\nNie można utworzyć pliku Model.xml.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}.\nMetoda: SerializeModelList, klasa: ModelFileManagement.cs.";
                 throw new Exception(message);
             }
             return true;
@@ -99,7 +103,8 @@ namespace Retriever4.FileManagement
                 for (var j = 0; j < biosTable.Rows.Count; j++)
                 {
                     //Searching for matching for case model
-                    if (biosTable.Rows[j][Configuration.Bios_CaseModel].ToString().Contains(caseModel))
+                    var bios = biosTable.Rows[j][Configuration.Bios_CaseModel].ToString().ToUpper();
+                    if (bios.Contains(caseModel.ToUpper()))
                     {
                         //If found, save line number
                         biosRow = j;

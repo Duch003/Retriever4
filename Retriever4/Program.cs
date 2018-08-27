@@ -162,45 +162,77 @@ namespace Retriever4
             var pattern = "";
             //Kontener na liste modeli spelniajacych dany wzorzec
             List<Location> ans = null;
-            do
-            {
-                //Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
-                Console.Clear();
-                _engine.RestoreCursorY();
-                _engine.RestoreCursorX();
-                //Opis mechanizmu
-                const string message =
-                    "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
-                    "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
-                //Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
-                //pozycje kursora w konsoli. 
-                //Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
-                var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
-                Console.WriteLine(message);
-                Console.Write(pattern);
+            //do
+            //{
+                ////Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
+                //Console.Clear();
+                //_engine.RestoreCursorY();
+                //_engine.RestoreCursorX();
+                ////Opis mechanizmu
+                //const string message =
+                //    "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
+                //    "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
+                ////Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
+                ////pozycje kursora w konsoli. 
+                ////Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
+                //var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
+                //Console.WriteLine(message);
+                //Console.Write(pattern);
 
-                //Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
-                _engine.RestoreCursorX();
-                //Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
-                lines += 2;
-                //Ustawiam pozycje kursora w osi Y (na wysokosc)
-                _engine.CursorY(lines);
-                //Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
-                if (pattern.Length >= 3)
-                {
-                    //Za pomoca LINQ przeszukuje liste modeli
-                    //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
-                    ans = new List<Location>(ModelList
-                        .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
-                    _engine.PrintModelTable(lines, ans);
-                    lines += 2;
-                    _engine.PrintRowSelection(lines);
-                }
+                ////Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
+                //_engine.RestoreCursorX();
+                ////Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
+                //lines += 2;
+                ////Ustawiam pozycje kursora w osi Y (na wysokosc)
+                //_engine.CursorY(lines);
+                ////Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
+                //if (pattern.Length >= 3)
+                //{
+                //    //Za pomoca LINQ przeszukuje liste modeli
+                //    //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
+                //    ans = new List<Location>(ModelList
+                //        .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
+                //    _engine.PrintModelTable(lines, ans);
+                //    lines += 2;
+                //    _engine.PrintRowSelection(lines);
+                //}
 
-                //Second loop for managing model selection
+                //Druga petla dla obslugi samego pisania
                 bool break1;
                 do
                 {
+                    //Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
+                    Console.Clear();
+                    _engine.RestoreCursorY();
+                    _engine.RestoreCursorX();
+                    //Opis mechanizmu
+                    const string message =
+                        "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
+                        "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
+                    //Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
+                    //pozycje kursora w konsoli. 
+                    //Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
+                    var lines = (int)Math.Ceiling((double)message.Length / _engine.MaxX);
+                    Console.WriteLine(message);
+                    Console.Write(pattern);
+
+                    //Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
+                    _engine.RestoreCursorX();
+                    //Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
+                    lines += 2;
+                    //Ustawiam pozycje kursora w osi Y (na wysokosc)
+                    _engine.CursorY(lines);
+                    //Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
+                    if (pattern.Length >= 3)
+                    {
+                        //Za pomoca LINQ przeszukuje liste modeli
+                        //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
+                        ans = new List<Location>(ModelList
+                            .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
+                        _engine.PrintModelTable(lines, ans);
+                        lines += 2;
+                        _engine.PrintRowSelection(lines);
+                    }
                     //Restore (close loop)
                     break1 = false;
                     //Read user key
@@ -220,6 +252,9 @@ namespace Retriever4
                         case ConsoleKey.Enter:
                             if (ans == null)
                                 break;
+                            if (string.IsNullOrEmpty(pattern) || (ans.Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)).Count() < 1))
+                                break;
+                            break1 = true;
                             _model = ans[(_engine.Y - lines) / 2];
                             return;
                         //Navigating table - down
@@ -258,13 +293,11 @@ namespace Retriever4
                             //Do nothing
                             else
                                 _engine.RestoreCursorX();
-                            //Cheking pattern length. If have 3 or more - brak loop and print matched models
-                            break1 = pattern.Length >= 3;
                             break;
                     }
                 } while (!break1);
 
-            } while (true);
+            //} while (true);
 
 
         }
@@ -686,7 +719,7 @@ namespace Retriever4
 
             //Get database data
             var dbRawBios = "";
-            var dbRawRelease = DateTime.Now;
+            var dbRawRelease = "";
             if (_model.BiosRow == 0)
                 dbRawBios = "Brak informacji w bazie danych";
             else
@@ -697,16 +730,8 @@ namespace Retriever4
                     ? "Brak w bazie danych"
                     : reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
                         Configuration.Bios_Bios).ToString();
-                dbRawRelease = string.IsNullOrEmpty(
-                    reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
-                        Configuration.Bios_BuildDate).ToString())
-                    ? DateTime.Now
-                    : DateTime.Parse(reader
-                        .ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow,
-                            Configuration.Bios_BuildDate).ToString().Replace(".", "-"));
+                dbRawRelease = reader.ReadDetailsFromDatabase(Configuration.BiosTableName, _model.BiosRow, Configuration.Bios_BuildDate).ToString();
             }
-
-            var dbRelease = dbRawRelease.Date;
 
             //Get device data
             //Property: SMBIOSBIOSVersion, type: string
@@ -724,10 +749,11 @@ namespace Retriever4
                 line++;
                 //string sample: 20160429000000.000000+000
                 var realRawRelease = realRawBios[0]["ReleaseDate"].ToString();
-                var realRelease = Convert.ToDateTime(StringExtension.RetrieveDateTime(realRawRelease));
-                color = dbRelease.Subtract(realRelease) == new TimeSpan(0, 0, 0) ? _pass : _fail;
+                DateTime realRelease = Convert.ToDateTime(StringExtension.RetrieveDateTime(realRawRelease));
+                color = dbRawRelease.RemoveWhiteSpaces().RemoveSymbols().Contains(realRelease.ToString().RemoveWhiteSpaces().RemoveSymbols()) ? _pass : _fail;
+                
                 line += _engine.PrintSection(line, new[] {"Wydanie BIOS"},
-                    new string[] {realRelease.ToShortDateString()}, new[] {dbRelease.ToShortDateString()}, color, color,
+                    new string[] {realRelease.ToShortDateString()}, new[] {dbRawRelease.ToString()}, color, color,
                     _minorInfo);
             }
 
