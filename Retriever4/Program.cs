@@ -240,11 +240,11 @@ namespace Retriever4
                     switch (z.Key)
                     {
                         //Remove letter from pattern and reprint whole window
+                        //TODO Sprawdzić zachowanie przy wciskaniu backspace
                         case ConsoleKey.Backspace:
                             if (pattern.Length > 0)
                             {
                                 pattern = pattern.Remove(pattern.Length - 1);
-                                break1 = true;
                             }
 
                             break;

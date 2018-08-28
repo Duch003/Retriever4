@@ -147,6 +147,8 @@ namespace Retriever4.Validation
             engine.PrintInitializationStatus(lines, "Zrobione", pass);
 
             //$6 Computing current hash
+            //TODO Może sie zdarzyc ze nie bedzie w stanie odswiezyc listy modeli (z karty pamieci), przez jakis problem z odczytem. Wtedy przechodzi do wyboru modelu mimo to
+            //Problem tez sie pojawia w malych modelach typu 99860, gdzie sterownik opdczytu karty nie jest zaladowany poprawnie
             lines++;
             engine.PrintInitializationDescription(lines, $"Odczyt aktualnego hasza pliku {config.filename.Replace(@"/", "")}.");
             string currentHash;
