@@ -1,0 +1,14 @@
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\Retriever4.exe.config
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\Retriever4.exe
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\Retriever4.pdb
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\Colorful.Console.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\ExcelDataReader.DataSet.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\ExcelDataReader.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\ICSharpCode.SharpZipLib.dll
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\ExcelDataReader.xml
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\bin\Release\ExcelDataReader.DataSet.xml
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Release\Retriever4.csprojAssemblyReference.cache
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Release\Retriever4.csproj.CoreCompileInputs.cache
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Release\Retriever4.csproj.CopyComplete
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Release\Retriever4.exe
+C:\Users\Duch003\source\repos\Retriever4\Retriever4\obj\Release\Retriever4.pdb

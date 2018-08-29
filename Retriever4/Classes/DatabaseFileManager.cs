@@ -12,19 +12,7 @@ namespace Retriever4.FileManagement
         /// Checks if file exists. Depends on config file.
         /// </summary>
         /// <returns>True if file exists.</returns>
-        public bool DoesDatabaseFileExists => File.Exists(Filepath);
-        public bool DoesTestFileExists => File.Exists(FilepathToTests);
-        public string Filepath;
-        public string FilepathToTests;
-
-        public DatabaseFileManagement(string name)
-        {
-            Configuration.Filepath = Filepath = FindFile(name);
-        }
-        public DatabaseFileManagement()
-        {
-            FilepathToTests = FindFile(Configuration.TestFileName);
-        }
+        public bool DoesDatabaseFileExists => File.Exists(Configuration.Filepath + Configuration.Filename);
         /// <summary>
         /// Reads specific cell in excel file.
         /// </summary>
@@ -56,11 +44,10 @@ namespace Retriever4.FileManagement
             //An attempt to extract cell value
             try
             {
-                using (var stream = new FileStream(Configuration.Filepath, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
+                using (var stream = new FileStream(Configuration.Filepath + Configuration.Filename, FileMode.Open, FileAccess.ReadWrite, FileShare.ReadWrite))
                 {
                     var excelReader = ExcelReaderFactory.CreateOpenXmlReader(stream);
                     var result = excelReader.AsDataSet();
-
                     var table = result.Tables[tableName];
                     anwser = table.Rows[row][column];
                 }

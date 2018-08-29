@@ -1,10 +1,34 @@
+<!--==========ZASADY WYPEŁNIANIA PLIKU CONFIG==========-->
+<!--1. Żadne pole nie może być puste, chyba że jest nad polem napisane inaczej-->
+<!--2. Kolumny w excelu liczone są od 0. Kolumna A = 0, B = 1, itd.-->
+<!--3. Cała specyfikacja musi być podana w jednej zakładce (oprócz wersji BIOS, która jest
+		obsługiwana osobno). Specyfikacja jest wyszukiwana w zakładce podanej w databaseTableName
+		a wersja BIOS w zakładce podanej w biosTableName.-->
+<!--4. Kolory można podawać tylko z predefiniowanej listy podanej na końcu dokumentu-->
+
+
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <testFileName>odpal.exe</testFileName>
+  <!--=====Nazwa pliku bazy danych=====-->
+  <!--UWAGA! Koniecznie ze znakiem '\' na początku.-->
   <filename>\NoteBookiRef_v3.xlsm</filename>
+  
+  <!--=====Ścieżka dostępu do pliku=====-->
+  <!--Jeżeli pusta - to domyślnie wybiera katalog odplenia programu-->
+  <filepath></filepath>
+  
+  <!--=====Nazwa zakładki z modelami=====-->
   <databaseTableName>MD</databaseTableName>
+  
+  <!--=====Nazwa zakładki z wersjami BIOS=====-->
   <biosTableName>BIOS</biosTableName>
+  
+  <!--Wearlevel-->
+  <!--Jest traktowany jako stała liczba, nie numer kolumny.-->
   <wearLevel>12</wearLevel>
+  
+  <!--=====Numery kolumn poszczególnych danych======-->
+  <!--Zakładka z modelami-->
   <db_Model>0</db_Model>
   <db_PeaqModel>1</db_PeaqModel>
   <db_Storage>6</db_Storage>
@@ -17,19 +41,171 @@
   <db_MainboardModel>15</db_MainboardModel>
   <db_ShippingMode>17</db_ShippingMode>
   <db_Tip>13</db_Tip>
+  <!--Zakładka z wersjami BIOS-->
   <bios_CaseModel>0</bios_CaseModel>
   <bios_MainboardModel>2</bios_MainboardModel>
   <bios_Bios>3</bios_Bios>
   <bios_EC>4</bios_EC>
   <bios_BuildDate>5</bios_BuildDate>
+  
+  <!--=====Ustawienia kolorów=====-->
+  <!--Poprawne dane-->
   <passColor>Green</passColor>
+  <!--Niepoprawne dane-->
   <failColor>Red</failColor>
+  <!--Dane na które trzeba zwrócić uwagę-->
   <warningColor>Yellow</warningColor>
+  <!--Kolor linii w tabelach-->
   <separatorColor>DarkGoldenrod</separatorColor>
+  <!--Nagłówek tabeli specyfikacji-->
   <headerBackgroundColor>Blue</headerBackgroundColor>
   <headerForegroundColor>White</headerForegroundColor>
+  <!--Kolory opisów w tabeli specyfikacji-->
   <minorInformationColor>White</minorInformationColor>
   <majorInformationColor>Gray</majorInformationColor>
+  <!--Domyślne kolory-->
   <defaultBackgroundColor>Black</defaultBackgroundColor>
   <defaultForegroundColor>White</defaultForegroundColor>
+  
+  <!--Lista dostępnych kolorów-->
+  <!--AliceBlue
+		AntiqueWhite
+		Aqua
+		Aquamarine
+		Azure
+		Beige
+		Bisque
+		Black
+		BlanchedAlmond
+		Blue
+		BlueViolet
+		Brown
+		BurlyWood
+		CadetBlue
+		Chartreuse
+		Chocolate
+		Coral
+		CornflowerBlue
+		Cornsilk
+		Crimson
+		Cyan
+		DarkBlue
+		DarkCyan
+		DarkGoldenrod
+		DarkGray
+		DarkGreen
+		DarkKhaki
+		DarkMagenta
+		DarkOliveGreen
+		DarkOrange
+		DarkOrchid
+		DarkRed
+		DarkSalmon
+		DarkSeaGreen
+		DarkSlateBlue
+		DarkSlateGray
+		DarkTurquoise
+		DarkViolet
+		DeepPink
+		DeepSkyBlue
+		DimGray
+		DodgerBlue
+		Firebrick
+		FloralWhite
+		ForestGreen
+		Fuchsia
+		Gainsboro
+		GhostWhite
+		Gold
+		Goldenrod
+		Gray
+		Green
+		GreenYellow
+		Honeydew
+		HotPink
+		IndianRed
+		Indigo
+		Ivory
+		Khaki
+		Lavender
+		LavenderBlush
+		LawnGreen
+		LemonChiffon
+		LightBlue
+		LightCoral
+		LightCyan
+		LightGoldenrodYellow
+		LightGray
+		LightGreen
+		LightPink
+		LightSalmon
+		LightSeaGreen
+		LightSkyBlue
+		LightSlateGray
+		LightSteelBlue
+		LightYellow
+		Lime
+		LimeGreen
+		Linen
+		Magenta
+		Maroon
+		MediumAquamarine
+		MediumBlue
+		MediumOrchid
+		MediumPurple
+		MediumSeaGreen
+		MediumSlateBlue
+		MediumSpringGreen
+		MediumTurquoise
+		MediumVioletRed
+		MidnightBlue
+		MintCream
+		MistyRose
+		Moccasin
+		NavajoWhite
+		Navy
+		OldLace
+		Olive
+		OliveDrab
+		Orange
+		OrangeRed
+		Orchid
+		PaleGoldenrod
+		PaleGreen
+		PaleTurquoise
+		PaleVioletRed
+		PapayaWhip
+		PeachPuff
+		Peru
+		Pink
+		Plum
+		PowderBlue
+		Purple
+		Red
+		RosyBrown
+		RoyalBlue
+		SaddleBrown
+		Salmon
+		SandyBrown
+		SeaGreen
+		SeaShell
+		Sienna
+		Silver
+		SkyBlue
+		SlateBlue
+		SlateGray
+		Snow
+		SpringGreen
+		SteelBlue
+		Tan
+		Teal
+		Thistle
+		Tomato
+		Turquoise
+		Violet
+		Wheat
+		White
+		WhiteSmoke
+		Yellow
+		YellowGreen-->
 </Configuration>

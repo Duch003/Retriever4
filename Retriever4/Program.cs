@@ -13,6 +13,7 @@ namespace Retriever4
 {
     public static class Program
     {
+        
         //W tej zmiennej trzymam aktualnie wybrany model
         public static Location _model;
         //Do tej listy wczytuje dane z pliku Model.xml - jest to lista modeli z bazy danych
@@ -52,51 +53,23 @@ namespace Retriever4
             do
             {
                 PrintSpecification();
-                Console.WriteLine("\nAby zamknąć aplikację wciśij ESC");
-                Console.WriteLine("Aby odpalić skrypt testów i przeładować dane, wciśnij 1");
-                Console.WriteLine("Aby odpalić skrypt testów i zamknąć aplikację, wciśnij 2");
-                Console.WriteLine("Aby przeładować dane, wciśnij ENTER");
-                Console.WriteLine("Aby wrócić do wyboru modelu, wciśnij BACKSPACE");
+                Console.WriteLine("\nR - przeładowanie danych");
+                Console.WriteLine("ENTER - wyjście z aplikacji");
+                Console.WriteLine("BACKSPACE - powrót do wyboru modelu");
 
                 var userKey = Console.ReadKey();
                 switch (userKey.Key)
                 {
                     default:
                     case ConsoleKey.Enter:
-                        refresh = true;
-                        break;
-                    case ConsoleKey.Escape:
                         refresh = false;
+                        break;
+                    case ConsoleKey.R:
+                        refresh = true;
                         break;
                     case ConsoleKey.Backspace:
                         FindModel();
                         refresh = true;
-                        break;
-                    case ConsoleKey.D1:
-                    case ConsoleKey.NumPad1:
-                        refresh = true;
-                        var searcher = new DatabaseFileManagement();
-                        if (searcher.DoesTestFileExists)
-                            System.Diagnostics.Process.Start(searcher.FilepathToTests);
-                        else
-                        {
-                            Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
-                            Console.ReadKey();
-                        }
-                        break;
-
-                    case ConsoleKey.D2:
-                    case ConsoleKey.NumPad2:
-                        refresh = false;
-                        searcher = new DatabaseFileManagement();
-                        if (searcher.DoesTestFileExists)
-                            System.Diagnostics.Process.Start(searcher.FilepathToTests);
-                        else
-                        {
-                            Console.WriteLine($"\nNie znalziono pliku {Configuration.TestFileName}. Aplikacja zostanie przeładowana, ale nie zostanie otwarty nowy proces.", _fail);
-                            Console.ReadKey();
-                            refresh = true;
-                        }
                         break;
                 }
             } while (refresh);
@@ -108,6 +81,7 @@ namespace Retriever4
         /// <returns>False if failed</returns>
         private static bool Initialize()
         {
+            var result = true;
             try
             {
                 //Klasa znajduje sie w pliku ProgramValidation.cs. Jest to osobno dlatego ze chcialem probowac robic na tym testy jednostkowe
@@ -115,7 +89,7 @@ namespace Retriever4
 
                 //Jako argumenty metody podawane sa wszystkie niezbedne do dzialania zmienne (zadeklarowane na poczatku klasy)
                 //Kolory tutaj podane sa tylko dlatego, ze to kolejna rzecz ktorej nie przemyslalem, ale o tym wiecej informacji znajdziesz w tej klasie
-                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White);
+                result = ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White);
                 _pass = Configuration.PassColor;
                 _warning = Configuration.WarningColor;
                 _fail = Configuration.FailColor;
@@ -128,7 +102,7 @@ namespace Retriever4
                 Console.WriteLine("Naciśnięcie dowolnego przycisku spowoduje zamknięcie programu.");
                 return false;
             }
-            return true;
+            return result;
         }
 
         /// <summary>
@@ -161,108 +135,90 @@ namespace Retriever4
             //Kontener na wzorzec wpisywany przez uzytkownika
             var pattern = "";
             //Kontener na liste modeli spelniajacych dany wzorzec
+            //Zmienna ta przechowuje podzbiór modeli wyselekcjonowany za pomocą wzorca
             List<Location> ans = null;
-            //do
-            //{
-                ////Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
-                //Console.Clear();
-                //_engine.RestoreCursorY();
-                //_engine.RestoreCursorX();
-                ////Opis mechanizmu
-                //const string message =
-                //    "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
-                //    "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
-                ////Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
-                ////pozycje kursora w konsoli. 
-                ////Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
-                //var lines = (int) Math.Ceiling((double) message.Length / _engine.MaxX);
-                //Console.WriteLine(message);
-                //Console.Write(pattern);
 
-                ////Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
-                //_engine.RestoreCursorX();
-                ////Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
-                //lines += 2;
-                ////Ustawiam pozycje kursora w osi Y (na wysokosc)
-                //_engine.CursorY(lines);
-                ////Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
-                //if (pattern.Length >= 3)
-                //{
-                //    //Za pomoca LINQ przeszukuje liste modeli
-                //    //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
-                //    ans = new List<Location>(ModelList
-                //        .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
-                //    _engine.PrintModelTable(lines, ans);
-                //    lines += 2;
-                //    _engine.PrintRowSelection(lines);
-                //}
+            /* ZEWNĘTRZNA PĘTLA
+             * Zadaniem zewnętrznej pętli jest drukowanie informacji - informacje o mechaniźmie działania,
+             * aktualny wzorzec i tabela */
+            #region Zewnętrzna pętla
+            do
+            {
+                //Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
+                Console.Clear();
+                _engine.RestoreCursorY();
+                _engine.RestoreCursorX();
+                //Opis mechanizmu
+                const string message =
+                    "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
+                    "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
+                //Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
+                //pozycje kursora w konsoli. 
+                //Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
+                var lines = (int)Math.Ceiling((double)message.Length / _engine.MaxX);
+                Console.WriteLine(message);
+                Console.Write(pattern);
 
-                //Druga petla dla obslugi samego pisania
+                //Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
+                _engine.RestoreCursorX();
+                //Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
+                lines += 2;
+                //Ustawiam pozycje kursora w osi Y (na wysokosc)
+                _engine.CursorY(lines);
+                //Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
+                if (pattern.Length >= 3)
+                {
+                    //Za pomoca LINQ przeszukuje liste modeli
+                    //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
+                    ans = new List<Location>(ModelList
+                        .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
+                    _engine.PrintModelTable(lines, ans);
+                    lines += 2;
+                    _engine.PrintRowSelection(lines);
+                }
+
+                //Pętla wewnętrzna do zarządzania wyborem
                 bool break1;
+
+                /* WEWNĘTRZNA PĘTLA
+                 * Służy do zarządzania wyborem użytkownika - "edytuje" już wypisany tekst, zapamiętuje wpisany wzorzec
+                 * oraz wybór modelu użytkownika */
+                #region Wewnętrzna pętla
                 do
                 {
-                    //Czyszczenie konsoli i przywracanie poczatkowej pocyzji kursora w konsoli
-                    Console.Clear();
-                    _engine.RestoreCursorY();
-                    _engine.RestoreCursorX();
-                    //Opis mechanizmu
-                    const string message =
-                        "Zacznij wpisywać model (min. 3 znaki), a modele pasujące do wzorca zostaną wyświetlone poniżej. " +
-                        "Strzałkami w górę i w dół przesuwasz się między modelami. Kiedy znajdziesz potrzebny - kliknij ENTER.";
-                    //Tutaj obliczam ile lini zajmuje informacja o zasadzie dzialania mechanizmu. Potrzebne jest to aby poprawnie przeliczac
-                    //pozycje kursora w konsoli. 
-                    //Zmienna LINES - sluzy ona do przechowywania informacji ile linii (w sensie wierszy w konsoli) zajal dany tekst.
-                    var lines = (int)Math.Ceiling((double)message.Length / _engine.MaxX);
-                    Console.WriteLine(message);
-                    Console.Write(pattern);
-
-                    //Przywrocenie poczatkowej pozycji kursora w osi X (na szerokosc)
-                    _engine.RestoreCursorX();
-                    //Po wypisaniu zasady dzialania mechanizmu przesuwam sie jeszcze o dwie linie w dol
-                    lines += 2;
-                    //Ustawiam pozycje kursora w osi Y (na wysokosc)
-                    _engine.CursorY(lines);
-                    //Sprawdzenie dlugosci wzorca, tak aby przeszukiwal liste tylko od 3 znakow
-                    if (pattern.Length >= 3)
-                    {
-                        //Za pomoca LINQ przeszukuje liste modeli
-                        //Zapytanie: SELECT * FROM ModelList WHERE Model.Contains(pattern) OR peaqModel.Contains(pattern)
-                        ans = new List<Location>(ModelList
-                            .Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)));
-                        _engine.PrintModelTable(lines, ans);
-                        lines += 2;
-                        _engine.PrintRowSelection(lines);
-                    }
-                    //Restore (close loop)
+                    //Zamknij pętlę
                     break1 = false;
-                    //Read user key
-                    var z = Console.ReadKey();
-                    switch (z.Key)
+                    //Odczytaj klawisz
+                    var key = Console.ReadKey();
+                    switch (key.Key)
                     {
-                        //Remove letter from pattern and reprint whole window
-                        //TODO Sprawdzić zachowanie przy wciskaniu backspace
+                        //=====Usuwanie litery====
                         case ConsoleKey.Backspace:
+                            //Usunięcie litery i wyjście z pętli by przedrukować całość
                             if (pattern.Length > 0)
                             {
                                 pattern = pattern.Remove(pattern.Length - 1);
+                                break1 = true;
                             }
 
                             break;
-                        //Choose model
+                        //=====Wybór modelu=====
                         case ConsoleKey.Enter:
-                            if (ans == null)
+                            //Warunek sprawdzający czy lista zawiera zaznaczony element (przypadek kiedy użytkownik wpisze randomowe znaki
+                            //co zaowocuje wypisaniem pustej listy, a następnie kliknie ENTER
+                            //Odnośnie LINQ - ToArray() zapobiega tzw. "leniwej egzekucji kodu LINQ". LINQ działa w ten sposób że zapytanie nie jest wykonane
+                            //do póki nie wywoła go jakakolwiek metoda wymagająca rezultatu zapytania.
+                            if (ModelList.Where(z => z.Model.Contains(pattern) || z.PeaqModel.Contains(pattern)).ToArray().Count() < 1 || ans == null)
                                 break;
-                            if (string.IsNullOrEmpty(pattern) || (ans.Where(x => x.Model.Contains(pattern) || x.PeaqModel.Contains(pattern)).Count() < 1))
-                                break;
-                            break1 = true;
                             _model = ans[(_engine.Y - lines) / 2];
                             return;
-                        //Navigating table - down
+                        //=====Nawigacja tabeli - na dół=====
                         case ConsoleKey.DownArrow:
-                            //If actualy selected model is last one, dont move any further
+                            //Jeżeli zaznaczony rekord jest ostatnim, nie rób nic
                             if (_engine.Y >= ans?.Count * 2 + lines - 2)
+                                //Przywracam położenie w osi X ponieważ po kliknięciu kalwisza strzałki kursor przesuwa się o jedno miejsce w osi X w prawo
                                 _engine.RestoreCursorX();
-                            //Else remove actual arrows and print new ones
+                            //W innym przypadku wymaż aktualne zaznaczenie i narysuj wyżej
                             else
                             {
                                 _engine.ClearRowSelection(_engine.Y);
@@ -271,12 +227,13 @@ namespace Retriever4
                             }
 
                             break;
-                        //Navigating table - up
+                        //=====Nawigacja tabeli - do góry=====
                         case ConsoleKey.UpArrow:
-                            //If selected model is first one, dont go any further
+                            //Jeżeli zaznaczony rekord jest pierwszy, nie rób nic
                             if (_engine.Y <= lines)
+                                //Przywracam położenie w osi X ponieważ po kliknięciu kalwisza strzałki kursor przesuwa się o jedno miejsce w osi X w prawo
                                 _engine.RestoreCursorX();
-                            //Remove actual arrows and print new ones
+                            //W innym przypadku usuń aktualne zaznaczenie i wypisz nowe poniżej
                             else
                             {
                                 _engine.ClearRowSelection(_engine.Y);
@@ -285,27 +242,31 @@ namespace Retriever4
                             }
 
                             break;
-                        //Managing pattern
+                        //=====Zarządzanie wzorcen=====
                         default:
-                            //Add new letter - accept only letters, numbers and dash
-                            if (char.IsLetterOrDigit(z.KeyChar) || z.KeyChar == '-')
-                                pattern = pattern + z.KeyChar;
-                            //Do nothing
+                            //Weryfikacja czy otrzymany znak jest alfanumeryczny lub myślnikiem
+                            if (char.IsLetterOrDigit(key.KeyChar) || key.KeyChar == '-')
+                                pattern = pattern + key.KeyChar;
                             else
                                 _engine.RestoreCursorX();
+                            //Jeżeli długość wzorca jest większa niż 2, wyjdź z pętli wewnętrznej by przedrukować tabelę
+                            break1 = pattern.Length >= 3;
                             break;
                     }
                 } while (!break1);
+                #endregion
 
-            //} while (true);
-
-
+            } while (true);
+            #endregion
         }
 
+        /// <summary>
+        /// Execute all printing methods.
+        /// </summary>
         private static void PrintSpecification()
         {
             // OPIS                 RZECZYWISTE                     BAZA DANYCH
-            #region Preparation
+            #region Przygotowanie
             Console.Clear();
             _engine.RestoreCursorX();
             _engine.RestoreCursorY();
@@ -319,7 +280,8 @@ namespace Retriever4
             line++;
             #endregion
 
-            //Method array, every method will be executed in given order
+            //Tablica metod do wykonania. Będą wykonane w podanej kolejności.
+            //Wszystkie metody znajdują się pod tą.
             Func<int, int>[] functions =
             {
                 Model,
@@ -335,7 +297,7 @@ namespace Retriever4
                 Tip
             };
 
-            //Executing methods
+            //Pętla wywołująca podane metody
             foreach (var z in functions)
             {
                 //Try executing
@@ -346,7 +308,7 @@ namespace Retriever4
                     line += _engine.PrintHorizontalLine(line);
                     line++;
                 }
-                //If faild, print error message
+                //If failed, print error message
                 catch (Exception e)
                 {
                     line += _engine.PrintSection(line,
@@ -354,7 +316,6 @@ namespace Retriever4
                         new[] { $"Wyjątek: {e.Message}" },
                         new[] { $"Wewnętrzny wyjątek: {e.InnerException?.Message}" },
                         Color.OrangeRed);
-                    //Log.WriteLog($"{_model.Model} : {DateTime.Now.ToLongDateString()}", "Meotda: " + e.TargetSite.Name, e, new Type[] {reader.GetType()});
                     line++;
                     line += _engine.PrintHorizontalLine(line);
                     line++;
@@ -362,72 +323,119 @@ namespace Retriever4
             }
         }
 
+        /* ==============================KONWENCJA NAZEWNICTWA ZMIENNYCH==============================
+         * Raw - Jeżeli zmienna ma w sobie dopisane "Raw" znaczy że jest to świeżo pobrana informacja.
+         *       Zmienne bez dopisku "Raw" są już odpowiednio przerobione (jeżeli takie przerobienie jest wymagane i następuje) LUB zmienna nie wymaga przeróbki
+         * Prefix db -   oznacza że w tej zmiennej będę trzymać ifnormacje z bazy danych
+         * Prefix real - oznacza że w tej zmiennej będę trzymać informacje z komputera (rzeczywiste)
+         * Postfix -     oznacza co konkretnie przechowuje dana zmienna
+         */
+
+        /* Pobieranie danych z bazy danych odbywa się za pomocą metody ReadDetailsFromDatabae(nazwa tabeli, wiersz z któego pobrać dane, kolumna z której pobrać dane)
+         * Wszystkie potrzebne dane znajdują się w zmiennych: _model - wiersz w którym znajduje się wybrany przez użytkownika model, oraz Configuration (klasa traktowana jak zmienna globalna)
+         */
+
+        /* Pobieranie rzeczywistych danych odbywa sięza pomocą metod zawartych w obiekcie gatherer (klasa Retriever.cs)
+         * Każda metoda zwraca Dictionary<string, dynamic>[], gdzie:
+         *      string jest jako nazwa właściwości;
+         *      dynamic jest to dynamicznie przydzielany typ dla zmiennej
+         * Przyjmuję że każda instancja w tablicy to jeden element danego typu, np.: tablica dwuelementowa dla baterii
+         * zawiera informacje na temat dwóch baterii. Każda bateria ma swoje właściwości do odczytu. Wydaje mi się to łatwiejsze do odczytu
+         * i do walki niż odczytywanie bezpośrednio z WMI. */
+
+        /// <summary>
+        /// Prints model data.
+        /// </summary>
+        /// <param name="line">Starting position on console (Y axis).</param>
+        /// <returns>How many lines took printing.</returns>
         private static int Model(int line)
         {
             var color = Color.Red;
-            //Database data
-            var dbBasicModel =
+            //Pobranie informacji z bazy danych - model urządzenia
+            var dbRawModel =
                 reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_Model);
-            var basicModel = string.IsNullOrEmpty(dbBasicModel.ToString())
+            //Walidacja i przetworzenie zmiennej na string
+            var dbModel = string.IsNullOrEmpty(dbRawModel.ToString())
                 ? "Brak w bazie danych"
-                : dbBasicModel.ToString();
+                : dbRawModel.ToString();
 
-            //Converting dbData to string
-            var dbPeaqModel = reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow,
-                Configuration.DB_PeaqModel);
-            var peaqModel = dbPeaqModel.ToString() == "-" ? "" : dbPeaqModel.ToString();
+            //Pobranie informacji z bazy danych - model PEAQ urządzenia
+            var dbPeaqModel = 
+                reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_PeaqModel);
+            //Walidacja i przetworzenie zmiennej na string
+            var peaqModel = 
+                dbPeaqModel.ToString() == "-" ? "" : dbPeaqModel.ToString();
 
-            //Get device data
-            //property: Model, type: string
-            //https://docs.microsoft.com/en-us/windows/desktop/cimwin32prov/win32-computersystem
-            var dictData = gatherer.GetModelString();
+            //Pobranie informacji z urządzenia
+            //Właściwość: Model, typ: string
+            var realRawModel = gatherer.GetModelString();
             var realModel = "";
-            //Check number of instances, expected: 1
-            if (dictData == null || dictData.Length == 0)
+            //Walidacja czy zapytanie WMI zwróciło cokolwiek
+            if (realRawModel == null || realRawModel.Length == 0)
             {
                 realModel = "Brak informacji w komputerze.";
                 color = _warning;
             }
-            //Retrieve and compare data
             else
             {
-                realModel = dictData[0]["Model"];
-                if ((realModel.RemoveSymbols().Contains(peaqModel.RemoveSymbols()) && peaqModel != "") || realModel.RemoveSymbols().Contains(basicModel.RemoveSymbols()))
+                realModel = realRawModel[0]["Model"];
+                //Sprawdzenie czy model z bazy danych zawiera się w rzeczywistym i na odwrót
+                if(StringValidation.
+                    CompareStrings(
+                        realModel.RemoveSymbols().RemoveWhiteSpaces(), 
+                        dbModel.RemoveSymbols().RemoveWhiteSpaces()) ||
+                   (StringValidation.
+                    CompareStrings(
+                        realModel.RemoveSymbols().RemoveWhiteSpaces(),
+                        peaqModel.RemoveSymbols().RemoveWhiteSpaces())
+                    && peaqModel != ""))
                     color = _pass;
                 else
                     color = _warning;
             }
-
+            //Drukuje sekcjęi zwraca ilosc zajętych linii
             return _engine.PrintSection(line, new[] {"Model urządzenia"}, new[] {realModel},
-                new[] {basicModel, peaqModel}, color, color, _majorInfo);
+                new[] {dbModel, peaqModel}, color, color, _majorInfo);
         }
 
+        /// <summary>
+        /// Prints OS data.
+        /// </summary>
+        /// <param name="line">Starting position on console (Y axis).</param>
+        /// <returns>How many lines took printing.</returns>
         private static int OS(int line)
         {
             var color = Color.Red;
-
-            //Get database data
+            //Pobranie danych z bazy danych
             var dbRawOs =
                 reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_OS);
-            var dbOs = string.IsNullOrEmpty(dbRawOs.ToString()) ? "Brak w bazie danych" : dbRawOs.ToString();
+            //Walidacja czy baza danych zwróciła cokolwiek
+            var dbOs = 
+                string.IsNullOrEmpty(dbRawOs.ToString().RemoveSymbols()) 
+                ? "Brak OS / nie podano w bazie danych" 
+                : dbRawOs.ToString();
 
-            //Get device data
-            //Property: Caption, type: string
-            //https://docs.microsoft.com/en-us/windows/desktop/cimwin32prov/win32-operatingsystem
+            //Pobranie informacji z urządzenia
+            //Właściwość: Caption, typ: string
             var realRawOs = gatherer.OS();
             var realOs = "";
 
-            //Check number of instances, expected: 1
+            //Sprawdzenie czy WMI zwróciło cokolwiek
             if (realRawOs == null || realRawOs.Length == 0)
             {
                 realOs = "Brak informacji w komputerze";
                 color = _warning;
             }
-            //Retrieve and compare data
             else
             {
+                //Sprawdzenie czy OS rzeczywisty zgadza się z tym z bazy danych
                 var isMatch = true;
                 realOs = realRawOs[0]["Caption"];
+                //Dzielę daną z bazy danych na mniejsze stringi na podstawie spacji (każda spacja oddziela kolejny nowy string)
+                //Następnie sprawdzam czy wszystkie stringi zawierają się w rzeczywistej nazwie
+                //Przykład: z bazy danych mam Win 10
+                //Komputer zwrócił nazwę Windows 10 Home Premium
+                //Jeżeli i "Win" i "10" zawiera się w tym co zwróćił komputer, wtedy się zgadza
                 foreach (var z in dbOs.Split(' '))
                 {
                     if (!realOs.Contains(z))
@@ -436,29 +444,37 @@ namespace Retriever4
 
                 color = isMatch ? _pass : _fail;
             }
-
+            //Wydrukowanie sekcji i zwrot ilości zutych linii
             return _engine.PrintSection(line, new[] {"OS"}, new[] {realOs}, new[] {dbOs}, color, color, _majorInfo);
         }
 
+        /// <summary>
+        /// Prints OS image data.
+        /// </summary>
+        /// <param name="line">Starting position on console (Y axis).</param>
+        /// <returns>How many lines took printing.</returns>
         private static int SWM(int line)
         {
             var lines = _engine.Y;
             var sectionTitle = new[] {"SWM"};
-            //Get database data
             var dbSwm = new string[0];
+
+            //Pobranie informacji z bazy danych
             var dbRawSwm =
                 reader.ReadDetailsFromDatabase(Configuration.DatabaseTableName, _model.DBRow, Configuration.DB_SWM);
-            //Checking and converting data
+            //Sprawdzanie czy baza danych zwróciła cokolwiek
             if (string.IsNullOrEmpty(dbRawSwm.ToString()))
                 dbSwm = new string[0];
             else
-                dbSwm = dbRawSwm.ToString().Any(char.IsLetter)
+                //Jeżeli zwrócony ciag znaków zawiera znak '/', podziel go na tablicę po znaku '/'.
+                dbSwm = dbRawSwm.ToString().Any(z => z == '/')
                     ? new[] {dbRawSwm.ToString()}
                     : dbRawSwm.ToString().RemoveWhiteSpaces().Split('/');
 
-            //Get device data
-            //Expected: not empty array of string
+            //Pobranie informacji z urządzenia
+            //Metoda zwraca tablicę stringów z swm z prefixem w postaci dysku na któym został znaleziony dany SWM
             var realSwm = gatherer.GetSwm();
+            //Sprawdzenie czy metoda zwróciła cokolwiek
             if (realSwm == null)
             {
                 line += _engine.PrintSection(line, sectionTitle, new[] {"Brak plików SWConf.dat na urządzeniu!"},
@@ -467,12 +483,12 @@ namespace Retriever4
             }
 
             //Making arrays equal (lengths)
-            if (realSwm.Length > dbSwm.Length)
-                for (var i = 0; i <= realSwm.Length - dbSwm.Length; i++)
-                    dbSwm = dbSwm.Expand();
-            else if (realSwm.Length < dbSwm.Length)
-                for (var i = 0; i <= dbSwm.Length - realSwm.Length; i++)
-                    realSwm = realSwm.Expand();
+            //if (realSwm.Length > dbSwm.Length)
+            //    for (var i = 0; i <= realSwm.Length - dbSwm.Length; i++)
+            //        dbSwm = dbSwm.Expand();
+            //else if (realSwm.Length < dbSwm.Length)
+            //    for (var i = 0; i <= dbSwm.Length - realSwm.Length; i++)
+            //        realSwm = realSwm.Expand();
 
             var checkedNumbers = "";
             //Printing matched values

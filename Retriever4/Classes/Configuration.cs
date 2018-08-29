@@ -9,8 +9,8 @@ namespace Retriever4
     {
         //Raw data which neet to be checked
         //File info
-        public string testFileName;
         public string filename;
+        public string filepath;
         public string databaseTableName;
         public string biosTableName;
         public int? wearLevel;
@@ -45,7 +45,6 @@ namespace Retriever4
         public string defaultBackgroundColor;
         public string defaultForegroundColor;
         //Checked file info
-        public static string TestFileName;
         public static string Filepath;
         public static string Filename;
         public static string DatabaseTableName;
@@ -89,11 +88,9 @@ namespace Retriever4
         /// <returns>False if there are null values.</returns>
         public bool MakeDataStatic()
         {
-            if (!ObjectsValidation.CheckFieldsForNulls(this, null) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, 
+            if (!ObjectsValidation.CheckFieldsForNulls(this, new[] { "filepath" }) || !ObjectsValidation.CheckFieldsForNegativeNumbers(this, 
                 GetType().GetFields().Where(z => !z.IsNumericType()).Select(z => z.Name).ToArray()))
                 return false;
-            TestFileName = testFileName;
-            //Filepath assigned in DatabaseFileManager construtor because of unfixed filepath
             Filename = filename;
             DatabaseTableName = databaseTableName;
             BiosTableName = biosTableName;
@@ -124,7 +121,10 @@ namespace Retriever4
             MajorInformationColor = Color.FromName(majorInformationColor);
             DefaultBackgroundColor = Color.FromName(defaultBackgroundColor);
             DefaultForegroundColor = Color.FromName(defaultForegroundColor);
-            
+            if (string.IsNullOrEmpty(filepath))
+                Filepath = Environment.CurrentDirectory;
+            else
+                Filepath = filepath;
             return true;
         }
     }

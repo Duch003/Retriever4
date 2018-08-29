@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <filename>\NoteBookiRef_v3.xlsm</filename>
+  <filepath></filepath>
+  <databaseTableName>MD</databaseTableName>
+  <biosTableName>BIOS</biosTableName>
+  <wearLevel>12</wearLevel>
+  <db_Model>0</db_Model>
+  <db_PeaqModel>1</db_PeaqModel>
+  <db_Storage>6</db_Storage>
+  <db_Ram>7</db_Ram>
+  <db_Cpu>8</db_Cpu>
+  <db_OS>10</db_OS>
+  <db_SWM>11</db_SWM>
+  <db_CaseModel>14</db_CaseModel>
+  <db_MainboardVendor>16</db_MainboardVendor>
+  <db_MainboardModel>15</db_MainboardModel>
+  <db_ShippingMode>17</db_ShippingMode>
+  <db_Tip>13</db_Tip>
+  <bios_CaseModel>0</bios_CaseModel>
+  <bios_MainboardModel>2</bios_MainboardModel>
+  <bios_Bios>3</bios_Bios>
+  <bios_EC>4</bios_EC>
+  <bios_BuildDate>5</bios_BuildDate>
+  <passColor>Green</passColor>
+  <failColor>Red</failColor>
+  <warningColor>Yellow</warningColor>
+  <separatorColor>DarkGoldenrod</separatorColor>
+  <headerBackgroundColor>Blue</headerBackgroundColor>
+  <headerForegroundColor>White</headerForegroundColor>
+  <minorInformationColor>White</minorInformationColor>
+  <majorInformationColor>Gray</majorInformationColor>
+  <defaultBackgroundColor>Black</defaultBackgroundColor>
+  <defaultForegroundColor>White</defaultForegroundColor>
+</Configuration>

@@ -12,6 +12,7 @@ namespace Retriever4.Validation
 {
     public class ProgramValidation
     {
+        //TODO Zrobić tak aby pusty plik Model.xml był usuwany/ignorowany
         private static IConfigFileManager configMgmt;
         private static IModelListManager listMgmt;
         private static ISHA1FileManager shaMgmt;
@@ -26,206 +27,57 @@ namespace Retriever4.Validation
             listMgmt = new ModelFile();
             shaMgmt = new SHA1FileManagement();
             engine = new DrawingAtConsole(Color.Black, Color.White, Color.White, Color.Blue, Color.Goldenrod);
-            //Console clearing
-            Console.Clear();
-            engine.RestoreCursorX();
-            engine.RestoreCursorY();
-            var lines = engine.Y;
-
-            lines += engine.PrintInitializationBar(lines, "INICJALIZACJA PROGRAMU");
             //#1. Check configuration existance
-            lines++;
-            engine.PrintInitializationDescription(lines, "Sprawdzanie istnienia pliku Config.xml.");
+
+
             if (!configMgmt.DoesConfigFileExists)
             {
-                engine.PrintInitializationStatus(lines, "Nie znaleziono pliku", fail);
-                lines++;
-                engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. " +
-                                                         "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
+                engine.PrintInitializationComment(0, "Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku Config.xml. ", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                     Console.ReadKey();
                 return false;
             }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
 
             //#2. Deserialize configuration
-            lines++;
-            engine.PrintInitializationDescription(lines, "Deserializacja pliku Config.xml.");
             try
             {
                 config = configMgmt.ReadConfiguration();
             }
             catch (Exception e)
             {
-                engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
-                lines++;
-                engine.PrintInitializationComment(lines, $"Odczyt pliku Config.xml nie powiódł się. Prawdopodbnie jest źle wypełniony.\nTresć błędu: {e.Message}\n" +
+                engine.PrintInitializationComment(0, $"Odczyt pliku Config.xml nie powiódł się. Prawdopodbnie jest źle wypełniony.\nTresć błędu: {e.Message}\n" +
                                                          $"Błąd wewnątrzny: {e.InnerException?.Message}" +
-                                                         $"Aplikacja nie zostanie uruchomiona. Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
+                                                         $"Aplikacja nie zostanie uruchomiona.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 Console.ReadKey();
                 return false;
             }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
 
             //#3. Configuration null-checking
-            lines++;
-            engine.PrintInitializationDescription(lines, "Sprawdzanie poprawności wypełnienia pliku Config.xml.");
             if (!config.MakeDataStatic())
             {
-                engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
-                lines++;
-                engine.PrintInitializationComment(lines, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
+                engine.PrintInitializationComment(0, "Program nie może zostać uruchomiony, ponieważ plik Config.xml jest nieprawidłowo wypełniony. " +
                                                          "Aby wygenerować schemat Config.xml do wypełnienia, odpal Retriever4.exe z komendą -Config.", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 Console.ReadKey();
                 return false;
             }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
 
-            
             engine = new DrawingAtConsole(Configuration.DefaultBackgroundColor, Configuration.DefaultForegroundColor, Configuration.HeaderForegroundColor,
                 Configuration.HeaderBackgroundColor, Configuration.SeparatorColor);
-            dbMgmt = new DatabaseFileManagement(Configuration.Filename);
+            dbMgmt = new DatabaseFileManagement();
 
             //#2. Existance of database
-            lines++;
-            engine.PrintInitializationDescription(lines, "Sprawdzenie istnienia bazy danych.");
             if (!dbMgmt.DoesDatabaseFileExists)
             {
-                engine.PrintInitializationStatus(lines, "Niepowodzenie!", fail);
-                lines++;
-                engine.PrintInitializationComment(lines, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename}.\n", Color.White);
+                engine.PrintInitializationComment(0, $"Program nie może zostać uruchomiony, ponieważ nie znaleziono pliku {config.filename}.\n", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 Console.ReadKey();
                 return false;
             }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
 
-            //#4. Reading SHA1.txt
-            lines++;
-            engine.PrintInitializationDescription(lines, "Odczyt hasza z pliku SHA1.txt.");
-            string lastHash;
-            //If file doesnt exists, just create new one.
-            if (!shaMgmt.DoesHashFileExists)
-            {
-                lines++;
-                engine.PrintInitializationComment(lines, "Nie znaleziono pliku SHA1.txt. Tworzenie nowego pliku...", warning);
-                try
-                {
-                    lastHash = shaMgmt.ComputeSHA1();
-                    shaMgmt.WriteHash(lastHash);
-                }
-                catch (Exception e)
-                {
-                    lines++;
-                    engine.PrintInitializationComment(lines, $"Błąd podczas tworzenia nowego pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                                                             $"Program nie moż zostać uruchomiony.", fail);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            //If does exists, just read hashcode
-            else
-            {
-                try
-                {
-                    lastHash = shaMgmt.ReadHash();
-                    engine.PrintInitializationStatus(lines, "Zrobione", pass);
-                }
-                catch (Exception e)
-                {
-                    lines++;
-                    engine.PrintInitializationComment(lines, $"Błąd podczas odczytywania pliku SHA1.txt.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                                                             $"Program nie moż zostać uruchomiony.", fail);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
-
-            //$6 Computing current hash
-            //TODO Może sie zdarzyc ze nie bedzie w stanie odswiezyc listy modeli (z karty pamieci), przez jakis problem z odczytem. Wtedy przechodzi do wyboru modelu mimo to
-            //Problem tez sie pojawia w malych modelach typu 99860, gdzie sterownik opdczytu karty nie jest zaladowany poprawnie
-            lines++;
-            engine.PrintInitializationDescription(lines, $"Odczyt aktualnego hasza pliku {config.filename.Replace(@"/", "")}.");
-            string currentHash;
-            try
-            {
-                currentHash = shaMgmt.ComputeSHA1();
-            }
-            catch (Exception e)
-            {
-                lines++;
-                engine.PrintInitializationComment(lines, "Błąd podczas odczytywania odczytywania hasza pliku " +
-                                                         $"{config.filename.Replace(@"/", "")}.\nTreść błędu: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                                                         "Program nie moż zostać uruchomiony.", fail);
-                Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                Console.ReadKey();
-                return false;
-            }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
-
-            //$7. Hash copmarison
-            lines++;
-            engine.PrintInitializationDescription(lines, $"Sprawdzenie czy lista modeli jest aktualna i odczyt listy.");
-            //If hashes are diffrent, then refresh list and deserialize.
-            if (currentHash != lastHash || !listMgmt.DoestModelListFileExists)
-            {
-                lines++;
-                engine.PrintInitializationComment(lines, "Hasze są różne. Aktualizacja listy modeli...", warning);
-                try
-                {
-                    listMgmt.SerializeModelList();
-                    shaMgmt.WriteHash(currentHash);
-                    modelList = listMgmt.DeserializeModelList();
-                }
-                catch (Exception e)
-                {
-                    lines++;
-                    engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml lub odczytu listy..\nTreść błędu: " +
-                                                             $"{e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}" +
-                                                             $"Program nie może zostać uruchomiony.", fail);
-                    Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                    Console.ReadKey();
-                    return false;
-                }
-            }
-            //Else just deserialize
-            else
-            {
-                try
-                {
-                    modelList = listMgmt.DeserializeModelList();
-                }
-                catch (Exception)
-                {
-                    lines++;
-                    engine.PrintInitializationComment(lines, $"Uszkodzony plik Model.xml. Tworzenie nowego...", warning);
-                    try
-                    {
-                        listMgmt.SerializeModelList();
-                        shaMgmt.WriteHash(currentHash);
-                    }
-                    catch (Exception ex)
-                    {
-                        lines++;
-                        engine.PrintInitializationComment(lines, $"Błąd podczas aktualizacji listy modeli w pliku Model.xml.\nTreść błędu: " +
-                                                                 $"{ex.Message}\nWewnętrzny wyjątek: {ex.InnerException?.Message}" +
-                                                                 $"Program nie może zostać uruchomiony.", fail);
-                        Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
-                        Console.ReadKey();
-                        return false;
-                    }
-                }
-            }
-            engine.PrintInitializationStatus(lines, "Zrobione", pass);
-
+           
             //An attempt to dected device model
-            lines++;
-            engine.PrintInitializationDescription(lines, $"Próba wykrycia modelu urządzenia: ");
             Dictionary<string, dynamic>[] model = null;
             Location result = null;
             var state = 0;
@@ -235,12 +87,8 @@ namespace Retriever4.Validation
             }
             catch (Exception)
             {
-                engine.PrintInitializationStatus(lines, "Nie można uzyskać danych.", fail);
             }
-            if(model == null)
-                engine.PrintInitializationStatus(lines, "Brak danych.", warning);
-            else
-            {
+            if(model != null)
                 foreach (var z in model)
                 {
                     foreach (var x in z.Values)
@@ -249,25 +97,6 @@ namespace Retriever4.Validation
                             state = DetectDeviceModel.FindModel(x.ToString(), modelList, out result);
                     }
                 }
-            }
-
-            switch (state)
-            {
-                case -1:
-                    engine.PrintInitializationStatus(lines, "Brak modelu w bazie.", fail);
-                    break;
-                case 0:
-                    engine.PrintInitializationStatus(lines, "Nie wykryto.", warning);
-                    break;
-                case 1:
-                    Program._model = result;
-                    engine.PrintInitializationStatus(lines, $"{result?.Model}", pass);
-                    break;
-            }
-
-            lines += 3;
-            lines += engine.PrintInitializationComment(lines, "Aplikacja została poprawnie zainicjalizowana. Kliknij cokolwiek aby kontynuować.", Color.White);
-            engine.Wait();
             return true;
         }
     }
