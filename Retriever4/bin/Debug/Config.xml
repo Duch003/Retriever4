@@ -1,3 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
 <!--==========ZASADY WYPEŁNIANIA PLIKU CONFIG==========-->
 <!--1. Żadne pole nie może być puste, chyba że jest nad polem napisane inaczej-->
 <!--2. Kolumny w excelu liczone są od 0. Kolumna A = 0, B = 1, itd.-->
@@ -7,8 +9,8 @@
 <!--4. Kolory można podawać tylko z predefiniowanej listy podanej na końcu dokumentu-->
 
 
-<?xml version="1.0" encoding="utf-8"?>
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+
   <!--=====Nazwa pliku bazy danych=====-->
   <!--UWAGA! Koniecznie ze znakiem '\' na początku.-->
   <filename>\NoteBookiRef_v3.xlsm</filename>

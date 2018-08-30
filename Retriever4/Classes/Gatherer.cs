@@ -13,10 +13,10 @@ using Retriever4.Interfaces;
 
 namespace Retriever4
 {
-    public class Retriever : IWmiReader
+    public class Gatherer : IWmiReader
     {
         //Construcor for tests
-        public Retriever() { }
+        public Gatherer() { }
 
         public Dictionary<string, dynamic>[] lastDictionaries { get; private set; }
         /// <summary>

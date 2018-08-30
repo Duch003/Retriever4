@@ -1,6 +1,0 @@
-
-Błąd w trakcie drukowania sekcji Storage.
-Treść błędu:Index was outside the bounds of the array.
-Źródło:Retriever4
-Stos wywołań:   at Retriever4.Program.PrintDetails() in C:\Users\Duch003\source\repos\Retriever4\Retriever4\Program.cs:line 842
-Plik Program.cs.

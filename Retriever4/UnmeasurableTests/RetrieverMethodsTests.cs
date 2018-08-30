@@ -8,7 +8,7 @@ namespace Retriever4.Tests.UnmeasurableTests
         {
             Console.WriteLine("TESTOWANIE POPRAWNOŚCI ZAPYTAŃ Z KLASY RETRIEVER.CS");
             Console.WriteLine();
-            var obj = new Retriever();
+            var obj = new Gatherer();
             var myType = obj.GetType();
             var info = myType.GetMethods();
             var mess = "--------------==========Passed!==========--------------";
