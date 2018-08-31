@@ -12,12 +12,13 @@ namespace Retriever4.Validation
         private static IConfigFileManager configMgmt;
 
         public static bool Initialization(ref IDrawingAtConsole engine, ref IDatabaseManager dbMgmt, ref Configuration config, ref List<Location> modelList, ref IWmiReader gatherer, 
-            Color pass, Color fail, Color warning, Color majorInfo, Color minorInfo)
+            Color pass, Color fail, Color warning, Color majorInfo, Color minorInfo, out Location detectedModel)
         {
             //Preparation
             gatherer = new Gatherer();
             configMgmt = new ConfigFileManagement();
             engine = new DrawingAtConsole(Color.Black, Color.White, Color.White, Color.Blue, Color.Goldenrod);
+            detectedModel = null;
             //#1. Check configuration existance
 
 
@@ -73,7 +74,8 @@ namespace Retriever4.Validation
             }
             catch (Exception e)
             {
-                engine.PrintInitializationComment(0, $"Program nie może zostać uruchomiony, ponieważ nie udało się odczytać listy modeli z bazy danych.\n", Color.White);
+                engine.PrintInitializationComment(0, $"Program nie może zostać uruchomiony, ponieważ nie udało się odczytać listy modeli z bazy danych." +
+                    $"\nWyjątek: {e.Message}\nWewnętrzny wyjątek: {e.InnerException?.Message}", Color.White);
                 Console.WriteLine("Naciśnięcie dowolnego przycisku zamknie aplikację.");
                 Console.ReadKey();
                 return false;
@@ -101,11 +103,38 @@ namespace Retriever4.Validation
                 {
                     if (x != null)
                         state = DetectDeviceModel.FindModel(x.ToString(), modelList, out result);
+                    if (result != null)
+                    {
+                        detectedModel = result;
+                        return true;
+                    }
+                        
                 }
             }
             return true;
         }
     }
 
-    
+
+    public class ConsoleSpiner
+    {
+        int counter;
+        public ConsoleSpiner()
+        {
+            counter = 0;
+        }
+        public void Turn()
+        {
+            counter++;
+            switch (counter % 4)
+            {
+                case 0: Console.Write("/"); break;
+                case 1: Console.Write("-"); break;
+                case 2: Console.Write("\\"); break;
+                case 3: Console.Write("|"); break;
+            }
+            Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+        }
+    }
+
 }

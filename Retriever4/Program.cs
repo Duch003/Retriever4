@@ -8,6 +8,8 @@ using Retriever4.Classes;
 using System.Drawing;
 using Retriever4.FileManagement;
 using Console = Colorful.Console;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Retriever4
 {
@@ -37,8 +39,9 @@ namespace Retriever4
         private static void Main(string[] args)
         {
             Console.SetBufferSize(Console.BufferWidth, 120);
+            Console.WriteLine("© 2018 Tomasz \"Duch003\" Mankin <tomaszmankin003@gmail.com>. All rights reserved.");
+
             //http://colorfulconsole.com/
-            
             //Wywolywana jest moetoda Initialize, ktora zwroci obiekty do wszystkich zmiennych powyzej
             //Dodatkowo podczas inicjalizacji jest podejmowana proba wykrycia modelu urzadzenia
             //Jezeli nie uda sie zainicjalizowac poprawnie programu, zostanie zostanie on zakonczony (obsluga bledu w metodzie)
@@ -60,10 +63,10 @@ namespace Retriever4
                 var userKey = Console.ReadKey();
                 switch (userKey.Key)
                 {
-                    default:
                     case ConsoleKey.Enter:
                         refresh = false;
                         break;
+                    default:
                     case ConsoleKey.R:
                         refresh = true;
                         break;
@@ -73,6 +76,27 @@ namespace Retriever4
                         break;
                 }
             } while (refresh);
+        }
+
+        public class ConsoleSpiner
+        {
+            int counter;
+            public ConsoleSpiner()
+            {
+                counter = 0;
+            }
+            public void Turn()
+            {
+                counter++;
+                switch (counter % 4)
+                {
+                    case 0: Console.Write("/"); break;
+                    case 1: Console.Write("-"); break;
+                    case 2: Console.Write("\\"); break;
+                    case 3: Console.Write("|"); break;
+                }
+                Console.SetCursorPosition(Console.CursorLeft - 1, Console.CursorTop);
+            }
         }
 
         /// <summary>
@@ -89,12 +113,13 @@ namespace Retriever4
 
                 //Jako argumenty metody podawane sa wszystkie niezbedne do dzialania zmienne (zadeklarowane na poczatku klasy)
                 //Kolory tutaj podane sa tylko dlatego, ze to kolejna rzecz ktorej nie przemyslalem, ale o tym wiecej informacji znajdziesz w tej klasie
-                result = ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White);
+                ProgramValidation.Initialization(ref _engine, ref reader, ref Config, ref ModelList, ref gatherer, Color.Green, Color.Yellow, Color.Red, Color.LightGray, Color.White, out var detectedModel);
                 _pass = Configuration.PassColor;
                 _warning = Configuration.WarningColor;
                 _fail = Configuration.FailColor;
                 _majorInfo = Configuration.MajorInformationColor;
                 _minorInfo = Configuration.MinorInformationColor;
+                _model = detectedModel;
             }
             catch (Exception e)
             {
@@ -384,11 +409,10 @@ namespace Retriever4
                     CompareStrings(
                         realModel.RemoveSymbols().RemoveWhiteSpaces(), 
                         dbModel.RemoveSymbols().RemoveWhiteSpaces()) ||
-                   (StringValidation.
+                   (peaqModel != "" && StringValidation.
                     CompareStrings(
                         realModel.RemoveSymbols().RemoveWhiteSpaces(),
-                        peaqModel.RemoveSymbols().RemoveWhiteSpaces())
-                    && peaqModel != ""))
+                        peaqModel.RemoveSymbols().RemoveWhiteSpaces())))
                     color = _pass;
                 else
                     color = _warning;
@@ -633,6 +657,7 @@ namespace Retriever4
         //Mainboard name, CPU, bios
         private static int Mainboard(int line)
         {
+            //TODO Model plyty glownej - usuwac wszystkie znaki po za gwiazdka
             var lines = _engine.Y;
             line += _engine.PrintSection(line, new[] {"PŁYTA GŁÓWNA"}, new string[0], new string[0], Color.Black,
                 Color.Black, _majorInfo);
