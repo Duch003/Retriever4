@@ -14,7 +14,7 @@
                 case 1:
                     return "Bateria jest naładowana, rozładowywanie";
                 case 2:
-                    return "Podpięto ładowarkę, bateria odcięta";
+                    return "Podpięto ładowarkę, ładowanie";
                 case 3:
                     return "Bateria jest naładowana, rozładowywanie";
                 case 4:

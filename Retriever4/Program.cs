@@ -506,14 +506,6 @@ namespace Retriever4
                 return line - lines - 1;
             }
 
-            //Making arrays equal (lengths)
-            //if (realSwm.Length > dbSwm.Length)
-            //    for (var i = 0; i <= realSwm.Length - dbSwm.Length; i++)
-            //        dbSwm = dbSwm.Expand();
-            //else if (realSwm.Length < dbSwm.Length)
-            //    for (var i = 0; i <= dbSwm.Length - realSwm.Length; i++)
-            //        realSwm = realSwm.Expand();
-
             var checkedNumbers = "";
             //Printing matched values
             for (var real = 0; real < realSwm.Length; real++)
@@ -641,10 +633,10 @@ namespace Retriever4
                         line++;
                         line += _engine.PrintSection(line, new[] { "Poziom naładowania" },
                             new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" },
-                            new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorInfo);
+                            new[] { $"{batteryInstance["EstimatedChargeRemaining"]}%" }, _minorInfo, _minorInfo, _minorInfo);
                         line++;
                         line += _engine.PrintSection(line, new[] { "Status" }, new[] { $"{batteryInstance["Status"]}" },
-                            new[] { $"{batteryInstance["Status"]}" }, _minorInfo);
+                            new[] { $"{batteryInstance["Status"]}" }, _minorInfo, _minorInfo, _minorInfo);
                         line++;
                     }
 
@@ -690,7 +682,7 @@ namespace Retriever4
             var realRawMaiboardName = gatherer.MainboardModel();
             if (realRawMaiboardName == null || realRawMaiboardName.Length == 0)
                 line += _engine.PrintSection(line, new[] {"Model"}, new[] {"Brak informacji w komputerze"},
-                    new string[] {dbRawMainboardName}, _fail);
+                    new string[] {dbRawMainboardName}, _fail, _minorInfo, _minorInfo);
             else
             {
                 //Product is string
@@ -701,7 +693,7 @@ namespace Retriever4
                 if (StringValidation.CompareMainboardModel(dbRawMainboardName, realRawMainboardProdut))
                 {
                     line += _engine.PrintSection(line, new[] {"Model"}, new string[] {realRawMainboardProdut},
-                        new[] {dbRawMainboardName}, _pass);
+                        new[] {dbRawMainboardName}, _pass, _minorInfo, _minorInfo);
                     isPrinted = true;
                 }
                 else

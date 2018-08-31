@@ -13,10 +13,7 @@ namespace Retriever4.Interfaces
         int MaxX { get; }
         int MaxY { get; }
 
-        int PrintInitializationStatus(int Yposition, string status, Color color);
         int PrintInitializationComment(int Yposition, string comment, Color color);
-        int PrintInitializationDescription(int Yposition, string title);
-        int PrintInitializationBar(int startY, string bar);
         void CursorY(int Yposition);
         void CursorX(int Xposition);
         void RestoreCursorX();

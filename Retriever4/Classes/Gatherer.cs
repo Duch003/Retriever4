@@ -254,20 +254,10 @@ namespace Retriever4
             {
                 
                 var fullChargeCapacity = GetDeviceData($"SELECT FullChargedCapacity FROM BatteryFullChargedCapacity WHERE Tag = {Data[i]["Tag"]}", new [] { "FullChargedCapacity" }, @"root\wmi");
-                if(fullChargeCapacity == null || fullChargeCapacity.Count() < 1)
+                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery", new[] { "EstimatedChargeRemaining", "BatteryStatus" });
+                if (fullChargeCapacity == null || fullChargeCapacity.Count() < 1 || currentChargeLevel == null || currentChargeLevel.Count() < 1)
                 {
-                    var value = fullChargeCapacity == null ? "null" : fullChargeCapacity.Count().ToString();
-                    var message = "Bląd podczas pobierania FullChargeCapacity z BatteryFullChargedCapacity. Zapytanie zwróciło" +
-                        $"nieoczekiwaną liczbę rekordów: {value}. Tag: {Data[i]["Tag"]}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
-                    throw new Exception(message);
-                }
-                var currentChargeLevel = GetDeviceData($"SELECT EstimatedChargeRemaining, BatteryStatus FROM Win32_Battery", new [] { "EstimatedChargeRemaining" , "BatteryStatus" });
-                if (currentChargeLevel == null || currentChargeLevel.Count() < 1)
-                {
-                    var value = currentChargeLevel == null ? "null" : currentChargeLevel.Count().ToString();
-                    var message = "Bląd podczas pobierania EstimatedChargeRemaining z Win32_Battery. Zapytanie zwróciło" +
-                        $"nieoczekiwaną liczbę rekordów: {value}. Metoda: {nameof(BatteriesData)}, klasa: Retriever.cs.";
-                    throw new Exception(message);
+                    return anwser;
                 }
                 anwser = anwser.Expand();
                 anwser[i] = new Dictionary<string, dynamic>

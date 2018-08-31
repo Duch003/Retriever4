@@ -732,14 +732,6 @@ namespace Retriever4
         }
 
         /// <summary>
-        /// Print description for current action.
-        /// </summary>
-        /// <param name="Yposition">Console line number (from top to bottom).</param>
-        /// <param name="title">Description.</param>
-        /// <returns>How many additional lines took printing.</returns>
-        public int PrintInitializationDescription(int Yposition, string title) => PrintInitializationComment(Yposition, title, Color.White);
-
-        /// <summary>
         /// Print additional comment for current action.
         /// </summary>
         /// <param name="Yposition">Console line number (from top to bottom).</param>
@@ -752,14 +744,14 @@ namespace Retriever4
             if (Yposition < 0)
             {
                 var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
-                    $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
+                    $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationComment)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(Yposition), message);
             }
 
             if (comment == null)
             {
                 var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazuje na null. " +
-                    $"Metoda: {nameof(PrintInitializationDescription)}, klasa: DrawingAtConsole.cs.";
+                    $"Metoda: {nameof(PrintInitializationComment)}, klasa: DrawingAtConsole.cs.";
                 throw new ArgumentOutOfRangeException(nameof(comment), message);
             }
             #endregion
@@ -794,61 +786,7 @@ namespace Retriever4
             return lines;
         }
 
-        /// <summary>
-        /// Print status for initialization action. Yposition must points at last used line.
-        /// </summary>
-        /// <param name="Yposition">Console line number (from top to bottom). Put here last line used by InitializationPrinting methods.</param>
-        /// <param name="status">Status for action.</param>
-        /// <param name="color">Color of statuc writing.</param>
-        /// <returns>How many lines took printing (sholud be 0).</returns>
-        public int PrintInitializationStatus(int Yposition, string status, Color color)
-        {
-            #region Validation
-            if (Yposition < 0)
-            {
-                var message = $"Nie można wydrukować opisu inicjalizacji. Argument wejściowy wskazujący na numer linii jest mniejszy od zera: {Yposition}. " +
-                    $"Parametr musi być równy lub większy od zera. Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
-                throw new ArgumentOutOfRangeException(nameof(Yposition), message);
-            }
-
-            if (status == null)
-            {
-                var message = $"Nie można wydrukować statusu inicjalizacji. Argument wejściowy wskazuje na null. " +
-                    $"Metoda: {nameof(PrintInitializationStatus)}, klasa: DrawingAtConsole.cs.";
-                throw new ArgumentOutOfRangeException(nameof(status), message);
-            }
-            #endregion
-            
-            //Change text color
-            SetConsoleForeground(color);
-            //Set cursor position
-            CursorY(Yposition);
-            //Save current Y position
-            var tempY = Y;
-            //Return carriage to the begining of the line
-            CursorX(Console.BufferWidth - status.Length - 1);
-            //Printing
-            Console.Write(status);
-            //Restore colors
-            RestoreColors();
-            //Check printing correctness
-            //If it took more than one line (sometimes happen, when last char took last place in current line, it goes to the beginning of the next)
-            //return carriage to prevoius line
-            if ((Y - tempY) - 1 == 0)
-                CursorY(Y - 1);
-            //If not, just return
-            else if (Y - tempY == 0)
-            {
-                return Y - tempY;
-            }
-            //In other case
-            else
-            {
-                var message = $"Błąd podczas drukowania nagłówka dla ekranu inicjalizacji. String jest za długi, zajmuje więcej niż jedną linię. Metoda: {nameof(PrintInitializationBar)}, klasa: DrawingAtConsole.";
-                throw new Exception(message);
-            }
-            return Y - tempY;
-        }
+        
 
         /// <summary>
         /// Useless method, but needed for unit tests.
